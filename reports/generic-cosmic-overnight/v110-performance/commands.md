@@ -1,5 +1,7 @@
 # v1.1 完整 64-seed Overnight 命令
 
+> 歷史研究契約：以下計畫、門檻、命令與授權只屬當時實驗，保留供重播；目前工作依 [current state](../../../.agents/current_state.md)，不自動續跑或沿用為新候選的驗收標準。
+
 ## 本輪內容
 
 Baseline 為 v0.30，candidate 為保留決策、完成效能優化的 v1.1。維持上一輪全部 50 families × 10 equipment × 3 risk × 4 assumed worlds × 64 seeds，base seed `20260824`、max actions 80：384,000 pairs／768,000 solver episodes、150 shards。

@@ -1,10 +1,10 @@
 # Raphael 參考評測操作
 
-用途與判準由 [研究計畫](../../reports/normal-reference/plan.md) 擁有。這是離線研究程式，不是玩家 runtime。使用者已在 2026-08-29 授權本次 500 組由 Agent 執行，其他 unattended overnight 仍需使用者啟動。
+本檔保存 Raphael 固定來源的建置與歷史重播命令；當時用途見 [研究計畫](../../reports/normal-reference/plan.md)。其中 500 組、solver IDs、run directories 與加時範圍都是歷史案例，不是新的預設工作。舊任務的一次性執行授權不延伸到本次；新評測依 [長跑工作流](../../.agents/workflows/run-generic-overnight-evaluation.md) 準備。
 
 ## 固定來源與建置
 
-本機已下載 upstream 至 `.tmp/raphael-reference/upstream`；固定 revision `411168605989d573d89f2d71c01acac9f099e55a`，不要把之後漂移的 main 當成同一份參考。首次重建需要下載公開 source 及 Cargo dependencies，managed sandbox 的網路／Cargo cache 權限不足時需明確升權。
+歷史 upstream 位置為 `.tmp/raphael-reference/upstream`；先確認是否存在及 revision，已存在時不再次 clone。固定 revision `411168605989d573d89f2d71c01acac9f099e55a`，不把之後漂移的 main 當成同一份參考。首次重建需要下載公開 source 及 Cargo dependencies，實際權限依執行環境處理。
 
 ~~~powershell
 git clone https://github.com/KonaeAkira/raphael-rs.git .tmp/raphael-reference/upstream

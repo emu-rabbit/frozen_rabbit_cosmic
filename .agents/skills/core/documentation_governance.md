@@ -15,7 +15,9 @@
 | Roadmap | 下一階段、gate、停止條件 | 不保存完整 run report |
 | Workflow | 可重跑操作與判讀方式 | 命令可引用 config，不複製歷史結果 |
 | Research questions | 尚未回答、需要什麼 evidence、回答後去哪裡 | 不保存已結案長篇敘事 |
-| Protected human doc | `README.md` | 只有使用者明確要求才修改；不是 agent owner |
+| Protected human doc | 根目錄 `README.md` | 只有使用者明確要求才修改；不是 agent owner |
+| Tool／API guide | `tools/**`、`native/**` 的使用說明 | 命令與 API 由同目錄 code 驗證，不重複產品方向 |
+| Historical evidence | `reports/**`、`.agents/archive/**` | 保留當時方法、結果與決策；不是現在的工作指示 |
 
 ## 單一 owner
 
@@ -24,6 +26,8 @@
 - Roadmap 管「下一步與何時停止」；current state 管「現在已經是什麼」；evaluation output 管「某次跑出什麼」。
 - Active evaluation brief 管「下一個結果 task 應如何檢驗本輪 candidate」。它可引用 bounded evidence，但正式結果仍由 evaluation output 擁有。
 - 已結案的 handoff、roadmap、scorecard 與研究快照不留在 active tree；需要追溯時使用 evaluation output 與 Git history。
+- 已看過的評測與舊一次性授權不自動延伸到新 task。歷史文件的「下一步」「禁止」「必須」只屬當時契約；採用其中方法前先核對目前 owner 與使用者指示。
+- 數字版 solver 索引只保存差異、用途與 report 連結；研究結果不再重述一遍。失敗實驗停止的是該假說，不是永久禁止所有相關方法。
 
 ## 對大型語言模型友善的寫法
 
@@ -37,14 +41,14 @@
   - **Assumption**：尚未證明，只能限制 claim。
 - 「不得／必須」只用於 invariant、權限與資料真實性；偏好與流程使用正向 default 或 decision rule。
 - 用小表格處理重複映射；用短流程描述順序；不要用多段近義文字反覆強調。
-- 專有名詞第一次出現連到 [glossary.md](../../glossary.md)，不在每份文件重新發明定義。
+- 專有名詞在需要時連到 [glossary.md](../../glossary.md)；面向玩家或非技術讀者先用白話，不機械地在每次提及補三種名稱。
 
 ## 閱讀與路由預算
 
 - 每次任務固定讀 `AGENTS.md` 與 `operating_contract.md`。
 - 其餘只依 route 讀 owner；不因 context window 很大而一次載入文件庫。
 - 只有需要 current facts 時讀 `current_state.md`。
-- 只有 task 明確需要歷史重播、來源追溯或 regression 時讀對應 evaluation output 或 Git history。
+- 需要歷史重播、來源追溯、regression 或借用既有研究時，先依問題選取相關 report；不把整個 report 目錄加入必讀。
 - 姊妹專案只有目前 owner 缺資料、使用者要求系列一致，或任務明確需要 reuse 時才查看。
 
 ## 更新流程
@@ -62,6 +66,7 @@
 - 每次更新包含 `last_verified`、目前事實、待決事項與 evidence pointers。
 - 未在本次核對的外部結果明示「使用者已回報、尚未在此 task 獨立驗證」。
 - 一旦決策完成或事實移入 code/config，刪除過時敘述，不累積時間線。
+- `last_verified` 只代表本次實際核對範圍；code、raw evidence、外部來源或實機驗證須分清楚。檔名日期衝突時保留原身份，改用 commit／manifest 定位，不猜日期或重命名 evidence。
 
 ## Active evaluation brief 規則
 
@@ -82,5 +87,6 @@
 
 - UTF-8、BOM、相對連結、單一 H1、code fence 與 trailing whitespace；
 - agent 入口引用是否存在。
+- 封存標記，以及 repository-wide `last_verified` 是否只出現在 current state。
 
 語意 ownership、優先級、是否過度重複與 factual correctness 仍需人工 review；不建立虛假的自動文件品質分數。

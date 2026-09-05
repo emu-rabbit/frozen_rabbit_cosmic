@@ -15,7 +15,7 @@ npm run test:generic-cosmic-overnight
 # 查看當前 CLI
 npm run evaluate:generic-cosmic-overnight -- --help
 
-# 最小 Rust path smoke
+# 歷史 Rust path smoke；只驗證工具路徑，identity 固定於 package.json
 npm run evaluate:generic-cosmic-overnight:native-smoke
 
 # 由一個或多個既有 completed run 重建四表總覽；三臂 run 會產生兩組四表
@@ -25,6 +25,8 @@ npm run report:generic-cosmic-overnight -- <run-directory> [<run-directory>...]
 較大的 Rust run 必須從當次 release binary handshake 取得 baseline／candidate identities，明示 `--engine=rust-native --native-preview`、binary、workers、axes、budget、output 與 run ID。Active brief 要求外部 reference 時，再明示 `--native-reference-solver=<identity>`；reference 與另外兩臂 fresh 共用同一批 tapes。`--native-preview` 是目前 CLI mode 名稱，不代表 agent 可以啟動長跑，也不自動降低結果的統計有效性。
 
 不要從 README 或 archive 複製固定 solver IDs；每個 task 依 current binary 與 `--help` 產生 exact command。
+
+上述 smoke 快捷命令目前比較舊版 v1.1／v1.2，不能驗證現行主策略。新候選的 smoke 依 [workflow](../../.agents/workflows/run-generic-overnight-evaluation.md) 明示當輪 identities；不要因快捷命令成功就宣稱採用版本通過。
 
 ### 指定裝備與球色世界
 

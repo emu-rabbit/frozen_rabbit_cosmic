@@ -1,28 +1,25 @@
-# Rust solver overnight brief：v2.1 採用後的精度決策
+# 下一輪 Solver 評測 Brief
 
-`last_updated: 2026-09-07`
+`last_updated: 2026-09-05`
 
-## 目前決定
+## 狀態
 
-`generic-craft-external-reference-v2.1.0` 是目前採用的 Rust 與 Web policy。它把 v2.0 mechanics-derived 滿品質完工 certificate 的最大深度由三步提高到四步；固定 Artisan Expert decision tree、技能集合、declared-condition 分支、合法性與逐步重新證明契約都不變。v2.0 與四步實驗 identity 保留作 immutable replay。
+目前沒有排定新 long run，也沒有待判讀的新候選。採用版本與既有報告見 [current_state.md](current_state.md)；研究方向見 [產品使命](skills/mission/project_mission.md)。
 
-使用者已接受四步整體相對歷史 v1.12 的品質／完成交換。這不是「所有維度都優於 v1.12」的宣稱：64-seed full run 的 aggregate 滿品質增加 18.0984 percentage points、完成下降 0.6828 points；`normal-heavy-iid` 完成下降 6.9906 points，且六個 families 的 aggregate 滿品質為負。完整歸因與切片見 [v2.1 採納報告](../reports/generic-cosmic-overnight/v210-adoption-review-20260907.md)。
+本檔只承載下一輪跑前契約，沒有 candidate 時不累積前輪結果或以舊「暫停」限制新研究。
 
-## 下一個決策點
+## 有新候選時填寫
 
-目前沒有排定新的 long run。若需要從 64 提高到 256 seeds，應先決定要回答哪一個問題：
+| 欄位 | 必須說清楚的內容 |
+| --- | --- |
+| 玩家問題 | 哪種完成／品質／操作失敗值得改善，支持它的現有證據 |
+| 假說 | 用哪些 runtime 可觀測訊號改變決策；預期改善哪些情境 |
+| 比較身份 | 已採用 baseline、candidate、必要的 reference；source／binary／config identity |
+| 案例與用途 | family、裝備、world、seed、action budget；development 與保留集分開 |
+| 判讀 | 主要成果、重要切片、paired 勝負、不確定性、實際有意義的改善與容忍界線 |
+| 代價與停止 | 完成／品質交換、推薦 latency、操作長度與研究成本；何時停止或請使用者決定 |
+| 操作交付 | bounded 驗證、完整 run／resume／status 命令及安全中止；依 [工作流](workflows/run-generic-overnight-evaluation.md) |
 
-1. 要量 v2.1 相對 v2.0 的第四步純增量，使用 v2.0 作 fresh baseline；不要再用 v1.12 混入 Artisan 架構差異。
-2. 要縮小既有 v1.12 對照的 cell 誤差，才重跑同一個全 10 裝備、兩 world 的 256-seed 雙臂矩陣。解析度會由每 seed 1.5625 points 提高到 0.390625 points，標準誤約減半，但 broad 結論不會因加 seeds 才首次可見。
-3. 若重點是正式 v2.1 單臂容量／熱成本，執行 candidate-only run，直接量四 worker host elapsed；目前雙臂 run 只能提供候選 subprocess 精確加總與排程估算。
+預設與目前採用策略比較。要隔離強化效果時另選對應基線，例如 certificate 增量對其前版、整體強化對固定 Artisan。v1.12 等歷史版本只在比較問題需要時加入，不要求所有新候選永遠重跑舊基線。
 
-長跑仍只能由使用者啟動。任何新 run 都要先固定 baseline、candidate、axes、seed identity、預期判讀與停止條件；不可把 64-seed 歷史列混進新的 256-seed aggregate。
-
-## 架構與外部來源邊界
-
-- Artisan commit `882202ce04fcd4fe405812ea24d78b660d8ff64e` 的 Expert decision tree 是 v2.1 在 certificate 無法證明時的完整 fallback；BSD-3-Clause notice 與修改狀態由 source header 和 `THIRD_PARTY_NOTICES.md` 保存。
-- 本專案擁有 mechanics、完整 state/history replay、合法性、declared condition mask、四步 AND／OR certificate、每步重證、Rust／WASM bridge、評測與產品互動。
-- Thal's Expert 沒有 source、binary、model、網路呼叫或 runtime dependency；只把公開可觀察的「找到完整解後採用」當研究假說來源。
-- 目前 evidence 沒記錄每次推薦由 certificate 或 fallback 產生，因此不能宣稱兩者在實際呼叫中的占比。
-
-Fallback 替換與 Artisan 行為蒸餾維持暫停。v2.1 是較強的混合架構，不是已獨立於 Artisan 的新核心。
+若考慮提高 seed 數，先說明要縮小哪個會改變決策的誤差；不預設必須從 64 提到 256。結果出現後保存原判準與實際決策到 report，再把本檔重設為下一輪或「未排定」。

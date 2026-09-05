@@ -1,5 +1,7 @@
 # UI/UX 與視覺規範
 
+本檔是目標操作契約；已接入與尚缺功能見 [current_state.md](../../current_state.md)，不因規格列出 resync 就視為已實作。
+
 ## 核心原則
 
 - 製作中最重要的是目前 state、下一技能與回報入口。
@@ -10,17 +12,17 @@
 
 ## 設定流程
 
-1. 輸入 craftsmanship、control、CP 與必要的專家／工具資訊。
-2. 搜尋並選擇配方。
+1. 從任務／物品搜尋選擇製作目標。
+2. 選擇適用職業的裝備設定檔，確認最終面板、食藥與專家／工具資訊；設定檔可事先建立。
 3. 顯示該配方的 mechanics 完成條件，以及滿品質、四檔收藏價值或 HQ 機率規則，開始第一步 Normal。
 
-配方清單使用可搜尋、可捲動且具 dialog semantics 的 mobile bottom sheet；主流程不常駐 432 張卡片。切換或重新開始會完整重設當次 craft，不沿用 pending action 或 history。
+任務清單與明細依畫面使用可搜尋、可捲動的列表／dialog；mobile 優先保持主要操作可及，不要求所有選擇器固定採 bottom sheet。切換或重新開始會完整重設當次 craft，不沿用 pending action 或 history。
 
 ## 每一步資訊層級
 
 1. 目前 condition（球色）、進展、品質、耐久、CP 與重要 buffs。
 2. 推薦技能的正式繁中名稱與 icon。
-3. 主／快速求解器狀態、等待時間與 fallback 原因。
+3. 求解器狀態、等待時間與必要的錯誤原因。
 4. 必要的成功／失敗及下一球回報。
 5. 摺疊的推薦理由、替代技能與取捨。
 6. 次要工具：手動技能、undo、resync、export、restart。
@@ -39,7 +41,7 @@
 - 每次成功結算使用短暫 input lock，避免重複點擊；undo／resync／restart 清除鎖定。
 - 下一步重新嘗試主要求解器；球色點錯可用 undo 回到上一個完整 step。
 
-## 主／快速求解器呈現
+## 求解器呈現
 
 ### 主要求解器
 
@@ -47,13 +49,11 @@
 - 最多等待 3 秒；只有真正用滿 deadline 才標示逾時。
 - 啟動錯誤、計算錯誤與無結果分開顯示。
 
-### 快速求解器
+### 無建議與錯誤
 
-- 主要求解器失敗或逾時後立即使用。
-- 明示「改用快速建議」與原因，不把它冒充主要求解器結果。
-- 快速建議仍顯示技能、理由與必要取捨。
-- 使用快速建議不會永久切換 session；下一步仍嘗試主要運算。
-- 合法 state 無法取得快速建議是 release-blocking error，不安靜顯示空白。
+- 分清 policy-null、逾時、初始化失敗與輸入問題，提供適用的重試／校正操作。
+- 不預先增加快速模式、切換 UI 或備援文案；沒有 policy-null 時不要求獨立快速求解器。
+- 若未來實際接入後備方案，再顯示真實來源與原因，不讓使用者誤認結果。
 
 ## 偏離、undo 與 resync
 
@@ -84,6 +84,7 @@
 - UI 字串集中在 locale owner，不散落 domain／solver。
 - 正式繁中技能與 condition 以繁體中文版官方網站／遊戲內字串為準。
 - English 與繁中語意對齊；code identity 不依翻譯。
+- 現行四語系新增／修改需同步 key 與語意；資料名稱的來源缺漏保留既定 fallback，不杜撰翻譯。
 - 新增字串時檢查缺 key、fallback 與文字長度。
 - `README.md` 不屬 UI copy owner。
 
@@ -92,11 +93,11 @@
 至少覆蓋：
 
 - Setup、配方搜尋與重新開始；
-- 正常推薦、主要求解器逾時、快速建議；
+- 正常推薦、主要求解器逾時與錯誤處理；
 - 非必定成功技能、forced condition、終局；
 - 玩家偏離、undo、球色修正、resync；
 - Reload 不恢復 craft、裝備設定仍保留；
 - 鍵盤、screen reader、360px、dark mode；
-- 目標裝置主／快速 solver latency。
+- 實際使用裝置的 solver latency（依任務驗證範圍）。
 
 Build／unit tests 不能取代真實瀏覽器、裝置與遊戲切換操作驗證。

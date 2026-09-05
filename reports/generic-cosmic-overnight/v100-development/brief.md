@@ -1,5 +1,7 @@
 # Rust v1.0 架構開發評測
 
+> 歷史研究契約：以下計畫、門檻、命令與授權只屬當時實驗，保留供重播；目前工作依 [current state](../../../.agents/current_state.md)，不自動續跑或沿用為新候選的驗收標準。
+
 日期：2026-08-27。用途為第一批新架構的開發比較；實作方向由 [roadmap](../../../.agents/roadmaps/broad_solver_implementation_plan.md) 擁有。
 
 ## 身份與目的

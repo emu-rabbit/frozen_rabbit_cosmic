@@ -61,8 +61,10 @@ family
 - illegal／safety violations；
 - 製作長度：全部技能使用數（含 no-step）與實際推進遊戲工序數分開，完成／未完成各報 p50／p90／p95／max；
 - CP／耐久尾端與 recovery；
-- fast-selector 使用率；
-- main／fast latency。
+- 後備使用率（若有實際採用）；
+- 實際採用 solver 的 latency。
+
+以上是完整評測／發布報告的量尺清單。局部文件、mechanics 修正或 bounded 篩選只跑與 claim 有關的驗證；未採用的後備方案指標明示不適用，不為填表擴建工具或重跑全矩陣。
 
 Aggregate 只作入口。結論必須指出是裝備壓力、condition assumption、資料缺口或策略缺口；未知時明示 mixed／inconclusive。
 
@@ -74,7 +76,7 @@ Aggregate 只作入口。結論必須指出是裝備壓力、condition assumptio
 
 | 驗收面向 | 要證明的事情 | 通過依據 |
 | --- | --- | --- |
-| 正確性與 runtime 契約 | Mechanics、合法性、state／identity、結果標示、計算預算與回傳行為可信 | 規則與 invariants 嚴格成立；必要品質如實計入成功，主／快速求解器各自符合契約 |
+| 正確性與 runtime 契約 | Mechanics、合法性、state／identity、結果標示、計算預算與回傳行為可信 | 規則與 invariants 嚴格成立；必要品質如實計入成功，實際採用的求解器符合契約 |
 | 架構與策略效果 | 相對 baseline 提供相當或更好的成功機率、完整品質價值及合理成本 | 以保留集的主要效果、不確定性、重要切片與事前容忍界線決策，允許個別 seed 勝負互換 |
 | 明確保持語意的局部調整 | 指定範圍的語意承諾成立 | 依變更風險選擇 focused tests 或 deterministic exact parity，事先聲明輸入範圍、比較欄位及可不同的 metadata |
 
@@ -115,41 +117,32 @@ Natural transition 未知時可用多個 plausible／stress worlds，但每個�
 
 若要宣稱 probability 精確，需要 recipe／family-specific empirical 或 official transition evidence、sample metadata 與 uncertainty。
 
-## 主／快速求解器
+## 求解器可靠性與延遲
 
-### 主要求解器
-
-- 在目標裝置量測 p50／p95／p99／max。
-- 3 秒為 hard watchdog；只有用滿才算 timeout。
-- Startup、boundary transfer、compute 與 rendering 分開。
-
-### 快速求解器
-
-- 固定 work budget，目標裝置 p95 小於 100ms。
-- 報 p50／p95／p99／max、final-selector 使用率與 policy-null。
-- Valid nonterminal state 仍有 legal action 時，0 policy-null 是結構 contract與 evaluation gate。
-- 壓力 state 包含玩家偏離、弱裝備、接近終局、低 CP／耐久與 forced condition。
-
-Reference desktop benchmark 不能取代 mobile／target-device UX。
+- 檢查主求解器在合法非終局且有合法技能時是否回傳 action，分開報 policy-null、逾時、初始化與傳遞錯誤。
+- 主要求解器 3 秒 hard watchdog；只有用滿才算 timeout。Startup、boundary transfer、compute 與 rendering 分開。
+- 依實際驗證範圍報 p50／p95／p99／max 與裝置；desktop benchmark 不外推為 mobile 證據。
+- 主求解器沒有 policy-null 時，不要求另建或測試獨立快速求解器。若後續採用後備方案，再以當輪契約驗證，不沿用舊 100ms 首發門檻。
 
 ## Rust、WASM 與 TypeScript
 
 - Frozen TS→Rust migration 比較 mechanics／codec／RNG／terminal exactness，以及事前定義的 outcome parity；有意演進的 Rust policy不需逐招複製 TS。
-- Rust native→同一 Rust WASM core 若被採用，transition、RNG、terminal 與 solver output 應要求 exact parity，除明示 platform metadata。
-- 若採用新的 TypeScript Web core，需重新定義 Rust→new-TS parity gate；不能稱為舊 TS continuation。
+- 已採用的 Rust native→同一 Rust WASM core，transition、RNG、terminal 與 solver output 要求 exact parity，除明示 platform metadata。
+- 未來若因明確需求更換計算核心，另定 migration parity gate；不預設另寫 TypeScript 複本。
 - Parity corpus 包含 full state、action history、planner context、stop reason 與 timing 以外的 deterministic output。
 - ABI、binary、schema、solver 或 corpus identity 漂移時 fail closed。
 
 ## 能力界線
 
-Evidence 強度：
+依 claim 區分三種證據，不把單條路線排成數學上界：
 
-~~~text
-目前 causal policy outcome
-  <= 最佳未知 causal policy
-  <= 看得到 future RNG 的 fixed-tape witness
-  <= 放寬資源與 setup 的 optimistic bound
-~~~
+| 證據 | 能回答的問題 |
+| --- | --- |
+| Causal policy 的 closed-loop outcome | 只使用當時可觀測資料時，這套策略實際取得什麼成果 |
+| Fixed-tape witness | 已知某條未來亂數軌跡時，至少存在這一條可行路線 |
+| 有效的 optimistic bound | 在明示放寬條件且上界推導成立時，哪些目標仍不可能 |
+
+單條 fixed-tape witness 不是最佳 causal policy 的上界；只有證明求得該 tape 的最佳值，或使用有效上界，才支持相應界線。Sampled outcome 也不能當作無誤差的期望值不等式。
 
 - Closed-loop matrix 是目前 policy 的 evidence，不是裝備理論上限。
 - Fixed-tape witness 證明特定未來存在路線，不是 live 可達率。
@@ -158,14 +151,14 @@ Evidence 強度：
 
 ## 發布 evidence
 
-產品採全部 432 配方的單一 release gate，不使用 maturity badge。發布 review 至少回答：
+最終是否發布由使用者自行驗收並決定。以下是 agent 整理成果與限制的參考問題，不是額外的首發批准清單；產品仍不使用 maturity badge：
 
 - 每個 family 的 mechanics 是否有可信 evidence；
-- 主／快速 solver 是否 0 illegal，快速 solver 是否 0 policy-null；
+- 已採用 solver 的 illegal、policy-null、逾時與錯誤情況；
 - progress-only 與 hard-quality 是否各自達到使用者接受的效果；
 - 裝備與 worlds 的 worst cells；
 - 玩家偏離、undo、resync 與 replay；
-- 目標裝置 latency；
+- 已量測裝置的 latency 與尚未驗證的範圍；
 - 哪些結論仍只來自 synthetic／assumption；
 - 是否存在會讓某 family 不宜發布的系統性 failure。
 

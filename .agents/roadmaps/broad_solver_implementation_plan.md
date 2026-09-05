@@ -1,87 +1,31 @@
-# Frozen Rabbit Expert 目前 Roadmap
-
-## 文件角色
-
-本 roadmap 只管理下一個產品決策、交付 gate 與停止條件。Current facts 看 [current_state.md](../current_state.md)；單次 run 數字留在 evaluation output。
+# Frozen Rabbit's Cosmic 目前 Roadmap
 
 ## 交付目標
 
-在對外發布前，全部 432 個 catalog 配方都要通過使用者接受的整體 evidence review。產品不以成熟度分級掩蓋弱 family；發現系統性失敗就修正，或由使用者重新決定產品範圍。
+讓玩家填入裝備、選擇配方，逐步回報後取得可靠建議，直到完成有價值的成品。產品方向由 [project_mission.md](../skills/mission/project_mission.md) 擁有；已實作與證據入口見 [current_state.md](../current_state.md)。
 
-## 目前產品決策
+## 工作主線
 
-- 主要使用者是有滿等巧匠、願意逐步回報球色，希望學習高難製作或把即時計算交給工具的玩家。
-- 正式支援裝備以有食物、藥與合理鑲嵌的 720／750 裝備為主；不足裝備提供誠實 best-effort。
-- 產品只保留單一預設策略（code 中仍稱 `Balanced`）。先把它的球色安排、作業地板與滿品質能力做好；Stable／Aggressive 不進 UI、release gate 或後續 solver 迭代，除非預設策略足夠好後由使用者重新開啟支援。
-- 玩家收益先看完成，再看已完成成品是否跨過有意義獎勵檔位；HQ／Master 的滿品質尾端優先於未跨檔的小幅平均增益。
-- `generic-craft-external-reference-v2.1.0` 是目前採用的 Rust 與 Web solver；四步 certificate 相對 v2.0 的增量及相對歷史 v1.12 的品質／完成交換已完成判讀。
-- Web 已由 persistent Worker 載入 production Rust→WASM，舊 TypeScript solver 不再是 runtime owner。主 solver 使用 3 秒 watchdog；獨立 fast solver、錯誤 resync、debug export 與 target-device browser／mobile gate 尚未完成。
-- v1.14、condition-option planning 與 learned-teacher／Artisan 蒸餾方向都已結案，不再留作 roadmap 工作項目；結果只由對應 evaluation report 保存。
-- 目前沒有排定新的 long run。若要提高到 256 seeds，須先選定要量 v2.1 相對 v2.0 的第四步純增量、舊 v1.12 對照的 cell 精度，或 v2.1 單臂熱成本。
-- 長跑只由使用者啟動；本 roadmap 不以 wall-clock 時程代替產品結果。
+以下是可依本次任務選擇的工作，不是必須先把 UI／基礎設施做完才能改善 solver 的串行門檻。
 
-## 實施順序
+| 主線 | 下一個可交付成果 | 驗收依據 |
+| --- | --- | --- |
+| 求解能力 | 從現行基線的實際失敗選出可觀測原因，提出並驗證通用改善；可強化 Artisan、使用過往研究或 Thiria 的可驗證啟發，也可探索自有核心。 | 完成成品品質、hard-quality 滿品質、重要切片與成本；依 [algorithm_verification.md](../skills/domain/algorithm_verification.md) |
+| 製作流程 | 補手動 resync、確認紀錄下載的需要範圍、驗證偏離與恢復。 | 玩家可持續回報正確 state；schema／unit test 與實際 UI 驗證分開 |
+| Runtime 可靠性 | 檢查主求解器的 policy-null、錯誤與延遲；有具體問題再修正或評估後備方案。 | [solver_policy_and_safety.md](../skills/domain/solver_policy_and_safety.md)；沒有 policy-null 時不要求獨立快速求解器 |
+| 發布參考 | 整理全 family 的成果、已驗證範圍與限制。 | [發布 evidence](../skills/domain/algorithm_verification.md#發布-evidence) 供參考；使用者自行驗收並決定是否發布 |
 
-1. 實作獨立 Rust fast solver，完成 fixed-budget、合法非終局 0 policy-null 與 target-device p95／p99／max gate。
-2. 補齊錯誤狀態 resync、debug export、reload／deviation recovery 與 browser／mobile interaction evidence。
-3. 以 50 families × 正式裝備 × assumed worlds 檢查 v2.1 的系統性失敗；只有能由玩家結果連到通用 mechanics／objective／state signal 的缺口才開新 solver candidate。
-4. 整理 release evidence，交由使用者決定是否發布全部 432 個配方。
+下一輪若未指定工作，先用目前證據找最影響玩家成果的缺口，提出最小可驗證方案。跨主線優先級無法由影響與成本判斷時，集中列出取捨交使用者決定；不預設新架構、加 seeds 或替換 fallback 就是進步。
 
-## 每輪實驗契約
+## 實驗與停止條件
 
-每輪先聲明玩家結果、可觀測 selector signal、比較身份、same-tape corpus、主要切片、practical effect、可接受代價與停止條件。實驗使用描述性 identity；只有經驗證的有意義推進才取得新數字版號。
+- 在 [active brief](../overnight_review_brief.md) 固定本輪問題、baseline、candidate、可觀測訊號、案例、成果量尺、容忍界線與成本。
+- 新策略用描述性 identity；升版依 [development_standards.md](../skills/professional/development_standards.md)。
+- 個別 seed 可有勝負；重要 family／裝備／world 的代價與不確定性須揭露。未約定的重大交換交使用者決定。
+- 主要效果不足或成本超界時停止該實驗，記錄原因。重開需有不同方法、證據或成本條件；不是把整類研究永久封鎖。
+- 更多 seeds 用於縮小會影響決策的不確定性，不能代替因果診斷。歷史已看過的資料不變成新保留集。
+- 長跑由使用者啟動；agent 交付可執行、可續跑、可查狀態的命令。
 
-專用行為必須由 mechanics、objective、condition 或 state signal 選擇。Recipe／equipment ID、seed、future RNG 與 evaluation label 不進 runtime。增加樣本只縮小已知效果的不確定性，不取代因果重播或結構修正。
+## 發布決策
 
-### 主／快速求解器
-
-交付：
-
-- 主要求解器 3 秒 hard watchdog；
-- 快速求解器 fixed budget、target p95 小於 100ms；
-- valid nonterminal state 有 legal action 時 0 policy-null；
-- bounded final selector；
-- 每一步依 actual history 重試主要求解器；
-- UI 明示主要／快速結果與 fallback 原因。
-
-### 清理舊 runtime contract
-
-在 implementation task 中乾淨移除：
-
-- `development-preview` 等配方成熟度欄位與 UI；
-- 舊 guide live fallback；
-- 讓 frozen TS 看似仍是策略 owner 的 router／copy；
-- 不再使用的 Mission controller 型別或 UI 預留。
-
-## Release evidence
-
-使用者最後 review 的 evidence package 至少包含：
-
-- 50 families 的 mechanics／golden evidence；
-- 預設策略的 family × equipment × assumed world matrix；
-- progress-only delivery／meaningful quality；
-- 四檔收藏品質量、hard-quality 滿品質與 HQ 機率 utility；
-- 主／快速 solver illegal、policy-null、timeout 與 latency；
-- 玩家偏離、undo、resync、reload 與 export；
-- target-device browser／mobile UX；
-- synthetic／assumption／live evidence 界線；
-- 所有仍存在的 systematic failures。
-
-只有使用者明確批准後才發布全部 432 配方。`README.md` 與部署另由使用者下指令，不屬本 roadmap 自動步驟。
-
-## 研究停止規則
-
-- 正確性、evidence identity 或明示 runtime 契約違反時，停止 promotion 並定位問題；個別配對損失按策略效果契約分析。
-- 主要效果未達事前目標，或重要切片／成本的可信損失超出約定界線時，不直接切換；修正、停止實驗或交使用者決策，不以 aggregate 掩蓋。
-- Effect interval 完整落入事前 immaterial band，停止該 hypothesis。
-- Bound 仍結構性過鬆時停止擴樣本，先改善模型。
-- Fixed-tape witness 只支持 route existence，不作 live success claim。
-- 無法連到玩家可見 blocker 的 infrastructure／evidence work 不搶產品主線。
-- Historical five-recipe threshold 或 exact-profile uplift 不作 milestone。
-
-## Roadmap 更新規則
-
-- 只保留目前 decision、next slices、gate 與 stop rule。
-- Run 數字放 evaluator output；結論只連 evidence pointer。
-- 完成的階段從本檔刪除或封存，不累積時間線。
-- 每次更新同步 `current_state.md`，但不複製相同敘述到 `AGENTS.md`。
+最終是否發布由使用者自行驗收並決定。Agent 如實提供求解結果、runtime 與實機驗證範圍及未解失敗，不自訂額外首發門檻。產品不以配方成熟度標籤掩蓋弱項；部署與套件發布仍依使用者指示執行。

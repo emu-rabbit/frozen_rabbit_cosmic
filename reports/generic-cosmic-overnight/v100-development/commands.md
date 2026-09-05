@@ -1,5 +1,7 @@
 # v1.0 開發重播命令
 
+> 歷史研究契約：以下計畫、門檻、命令與授權只屬當時實驗，保留供重播；目前工作依 [current state](../../../.agents/current_state.md)，不自動續跑或沿用為新候選的驗收標準。
+
 從 repository root 執行。以下沿用本次已執行的參數，output 指向新的 replay 目錄以保存原始證據；完整結果與 binary identity 見 [results.md](results.md)。
 
 ## Build 與測試

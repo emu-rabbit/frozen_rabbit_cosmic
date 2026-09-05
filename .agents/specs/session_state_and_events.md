@@ -45,7 +45,7 @@ Profiles 在一次 craft 中 immutable；換配方或裝備會開始新 craft，
 
 不放入：
 
-- 主／快速求解器模式；
+- 求解器模式；
 - route intent、search node 或 future RNG；
 - equipment／recipe ID 的策略 shortcut；
 - 跨件材料、分數、倒數或 Duty Action。
@@ -54,31 +54,15 @@ Profiles 在一次 craft 中 immutable；換配方或裝備會開始新 craft，
 
 ## Session events
 
-目前正式事件：
+欄位、必填性與 union 由 [events.ts](../../packages/protocol/src/events.ts) 擁有，本檔只說明語意，避免複製一套會漂移的 TypeScript schema。
 
-~~~ts
-type SessionEvent =
-  | { id: string; at: number; type: 'craftStarted' }
-  | {
-      id: string; at: number; type: 'conditionSelected'
-      condition: MaterialCondition
-    }
-  | {
-      id: string; at: number; type: 'craftActionUsed'
-      action: CraftActionId
-      previousCondition: MaterialCondition
-    }
-  | {
-      id: string; at: number; type: 'craftActionResolved'
-      success: boolean
-      nextCondition: MaterialCondition
-    }
-  | {
-      id: string; at: number; type: 'stateResynced'
-      patch: Partial<CraftState>
-      reason: string
-    }
-~~~
+| Event | 語意 |
+| --- | --- |
+| `craftStarted` | 開始一件製作 |
+| `conditionSelected` | 沒有 pending action 時記錄球色 |
+| `craftActionUsed` | 玩家實際使用的技能與當步球色 |
+| `craftActionResolved` | 配對技能的實際成敗與結算後球色 |
+| `stateResynced` | 保存校正 patch 與原因 |
 
 Event meaning 不依 UI 當下狀態改變。Edit／undo 以 immutable replacement 或重建 event list 實作，不原地竄改 export 中某個 event 的語意。
 
@@ -115,7 +99,7 @@ conditionSelected(normal)
 
 - 沒有 pending action 時才能 `stateResynced`。
 - Patch 保存原因並保留先前 events。
-- Resync 後主／快速求解器都讀取新 state；PlannerContext 必須失效或依實際 history 重建。
+- Resync 後求解器讀取新 state；PlannerContext 必須失效或依實際 history 重建。
 - Resync 不是刪除歷史，也不以 reload 代替。
 
 ### Terminal

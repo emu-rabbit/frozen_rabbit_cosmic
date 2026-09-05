@@ -2,11 +2,13 @@
 
 ## 文件角色
 
-本檔定義主／快速求解器的決策契約。Mechanics correctness 由 domain／verification owners 管理；目前 implementation 看 [current_state.md](../../current_state.md)。
+本檔定義求解器的決策契約。Mechanics correctness 由 domain／verification owners 管理；目前 implementation 看 [current_state.md](../../current_state.md)。
+
+以下區分目標契約與當前實作；主策略內 Artisan fallback 不等於獨立快速求解器。架構選擇依 [產品使命](../mission/project_mission.md)，不以自有核心或特定 portfolio 為驗收前提。
 
 ## 共用輸入
 
-兩種求解器都只讀 runtime 可觀測資料：
+求解器只讀 runtime 可觀測資料：
 
 ~~~text
 RecipeProfile
@@ -23,7 +25,7 @@ PlannerContext（若有）
 
 1. 驗證 input 與 state invariants。
 2. 產生 legal action mask。
-3. 排除會立即違反 terminal／必要品質的 action。
+3. 區分非法技能、必然失敗與合法但有隨機失敗風險的技能；有可行替代時避免立即確定失敗，無可救回路線時仍提供誠實 best-effort。
 4. 評估完工路線、耐久／CP reserve 與品質機會。
 5. 依單一預設策略比較 completion、品質與下行結果。
 6. 回傳 action、理由、替代選擇與計算 metadata。
@@ -36,39 +38,16 @@ Mechanics 沒有合法技能、state 已終局或輸入損壞時明示原因，�
 
 - 每一步都依玩家實際 history 重新規劃。
 - Deadline 是 work contract；不能以無上限 search 期待平均很快。
-- 逾時、錯誤或無結果後交給快速求解器，不使用舊 guide。
+- 逾時、錯誤或無結果明示原因並定位問題；不因可能出錯就預先要求獨立快速求解器。
 - Recommendation explanation 來自實際比較訊號，不由 recipe-specific 文案假裝。
 
-## 快速求解器
+## 無建議與按需後備
 
-快速求解器是獨立 bounded policy，共用 authoritative mechanics，但不必複製主要求解器的昂貴規劃。
+`Policy-null` 指 state 合法、尚未終局、至少有一個 legal action，但求解器沒有回傳 action。已終局、沒有 legal action 或輸入損壞不算 policy-null，應各自明示原因。
 
-優先順序：
+使用者已決定：主求解器沒有 policy-null 時，獨立快速求解器不是必要功能，也不是首發門檻。主線是提升主求解器的成果與可靠性；出現無建議時先定位並修正原因，再判斷是否需要後備策略。
 
-1. 合法。
-2. 避免立即且確定的失敗。
-3. 保留可證明的完工路線。
-4. 依預設策略追求有意義品質。
-5. 無法證明完成時提供誠實 best-effort。
-
-### 無建議定義
-
-`Policy-null` 只指：state 合法、尚未終局、至少有一個 legal action，但 solver 沒有回傳 action。
-
-以下不算 policy-null：
-
-- 已完成／失敗 terminal；
-- mechanics 證明沒有 legal action；
-- 損壞或不完整 input，系統要求 resync。
-
-快速求解器的 contract 是 valid nonterminal state 下 0 policy-null。接近計算上限時，final selector 掃描 legal actions 並依上述順序選一個；不能因昂貴 route search 未完成而回空。
-
-### 延遲
-
-- 固定 work budget。
-- 指定目標裝置 p95 小於 100ms。
-- 同時報 p50／p99／max 與 final-selector 使用率。
-- 不宣稱所有裝置與所有系統負載都有絕對 100ms wall-clock 保證。
+若日後確有需要，後備方案可重用 Artisan 或其他有界決策，不預設必須另建核心。當輪再依實際問題定義預算、合法性、回傳行為與驗證範圍；舊的獨立快速策略 p95 <100ms 不再是現行必備契約。
 
 ## Objective
 
@@ -117,7 +96,7 @@ Specialized behavior 只有在多個 families 反覆出現相同可觀察 failur
 
 ## 策略候選組合
 
-目標架構使用共同 candidate portfolio；目前是否已完成實作以 current state 為準，實施順序與交付里程碑由 [roadmap](../../roadmaps/broad_solver_implementation_plan.md) 擁有：
+若某輪選用 candidate portfolio，以下原則協助維持一致比較；它不是現行 Artisan＋certificate 的架構描述，也不要求所有新求解器改用 portfolio：
 
 1. 每個 progress、quality、condition、resource、specialist option 只產生 legal candidate 與理由證據。
 2. 共用 scorer 同時比較 completion certificate、完整品質 utility、下行風險、資源與 action budget。
@@ -129,29 +108,19 @@ Candidate evidence 使用共同型別，至少包含來源、legal preview、成
 
 候選估值只在它所假設的 continuation、planner context 與後續重規劃規則下成立；單一步驟的較高分、較小 paired uncertainty 或較深預演，不能單獨證明把該 decision 插入現行 policy 後會得到更好的玩家結果。兩個各自能成功的完整 policy 也不能任意逐 state 混用，因為 setup、resource reserve、finisher timing 與 recovery intent 可能跨步相依。
 
-手寫 candidate／scorer／selector 調整先區分四種 failure：候選根本不存在、候選存在但估值錯、route intent／context 沒跨步保留、或 horizon／certificate 尚未看見後續價值。修正必須指出對應的 runtime-observable signal，並同時重播「新策略完整接管」與「只在 selector 命中時混入現行策略」的 closed loop；驗收看 completion 與已完成成品的品質結果，不以局部 score、單步 action agreement 或 confidence 代替。具體負例見 [closed-loop consensus report](../../../reports/learned-candidate-scorer/teacher-consensus-development-smoke-20260830.md)。
+Candidate／scorer／selector 診斷可區分：候選缺漏、估值錯誤、跨步 intent 遺失、或 horizon 尚未看見後續價值。依實際改動驗證部署後的完整 closed loop；只有比較整段接管與局部混用能回答本輪問題時才同時跑兩者。驗收看完成成品與品質，不以局部 score 或 action agreement 代替。相關負例見 [closed-loop consensus report](../../../reports/learned-candidate-scorer/teacher-consensus-development-smoke-20260830.md)。
 
 ## 玩家自由與 recovery
 
-- 玩家可採主推薦、快速推薦或其他 legal action。
+- 玩家可採推薦或其他 legal action。
 - 每個 resolved step 記錄 actual action／success／next condition。
-- 下一步永遠重新嘗試主要求解器，不因曾 fallback 永久降級。
+- 下一步依實際 state／history 重新嘗試主要求解器。
 - Manual action 造成的弱 state 仍由 solver best-effort；不能只接受自己產生的路線。
 - Mismatch 先 resync，保留 event history。
 
-## 發布 gate
+## 發布決策
 
-不使用 per-recipe support level。發布前 evidence package 必須覆蓋全部 mechanics families，並逐 family 顯示：
-
-- illegal／terminal／policy-null；
-- progress-only delivery 與 meaningful quality；
-- 四檔收藏品質量、hard-quality 滿品質與 HQ 機率；
-- equipment × assumed world；
-- main／fast latency；
-- player deviation 與 recovery；
-- synthetic、live 與未知 evidence boundary。
-
-任何系統性 family failure 都要先修正或由使用者重新決定產品範圍；不能靠把配方降級後照常發布。最終發布由使用者明確批准。
+最終驗收與是否發布由使用者自行決定。Agent 依 [algorithm_verification.md](algorithm_verification.md) 提供各 family 的成果、policy-null、合法性、延遲與證據限制，不另立未經要求的首發門檻。系統性失敗如實揭露，產品不以配方成熟度標籤掩蓋弱項。
 
 ## 歷史 policy
 

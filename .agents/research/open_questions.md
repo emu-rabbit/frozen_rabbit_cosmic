@@ -1,18 +1,23 @@
-# Active Research Questions
+# 待決事項與研究問題
 
 ## 文件角色
 
 本檔只列尚未回答、會影響目前產品決策的問題。已結案或移出範圍的問題直接刪除，不保留長篇時間線。
 
+## 已確認邊界
+
+主求解器沒有 policy-null 時不要求獨立快速求解器。最終是否發布由使用者自行驗收並決定，這兩項不再列為待決。
+
+以下只記錄影響研究或對外宣稱的未知，不自動轉成首發必備工作。Artisan 強化、混合或自有核心均可依玩家成果探索。
+
 ## 問題清單
 
 | ID | 問題 | 為何阻塞 | 需要的 evidence | 結案位置 |
 | --- | --- | --- | --- | --- |
-| RQ-03 | 獨立快速求解器如何證明 valid state 0 policy-null？ | 是 release 必備 fallback | 結構性 legal-action selector proof、reachable stress corpus、p95／p99／max、final-selector rate | `solver_policy_and_safety.md`＋tests |
-| RQ-04 | 100ms 快速 solver 的 target devices 是哪些？ | 沒有裝置範圍就不能成立產品 latency claim | 代表性 desktop／mobile hardware、browser、cold／warm measurements | Release evidence |
 | RQ-05 | 哪些 hard-quality family failures 是策略缺口，而不是裝備或 assumed world 壓力？ | 決定下一個 generic Rust hypothesis | Per-cell traces、resource tail、paired route analysis、必要時 tighter bound | Rust evaluation report |
 | RQ-06 | 自然 condition transition 是否有足夠 evidence？ | 限制真實成功率 claim | Patch-aware player traces 或 official data、sample metadata、transition matrix | Data package／research report |
-| RQ-08 | 發布前需要哪些代表性玩家完整 traces？ | Synthetic matrix 不能取代實戰 interaction | 不同 family／裝備／condition sets 的預設策略匿名 full sessions，含 deviation／resync／failure | Golden trace fixtures |
+| RQ-08 | 哪些玩家完整 traces 能補足目前實戰證據？ | 限制實戰 claim，供使用者驗收參考 | 不同 family／裝備／condition sets 的預設策略匿名 full sessions，含 deviation／resync／failure | Golden trace fixtures |
+| RQ-09 | Thiria／Thal's Expert 有哪些可驗證能力值得借用？ | 選擇具體改善假說；不是日常開發 blocker | 確認具體產品／來源、可重現的狀態與輸出、可取得的實作及使用條件；未知部分明示 | 對應研究 report，再更新策略 owner |
 
 ## 已移出目前範圍
 

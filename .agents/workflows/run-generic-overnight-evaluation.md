@@ -4,12 +4,14 @@
 
 本檔規範如何準備、交付、續跑與判讀長時間 generic evaluation。Solver identity、workload 與結果以當次 CLI／config 為準，不在 workflow 保存歷史 run 數字。
 
+按任務閱讀：首次交付讀「Agent 交付前檢查」與「Full command 組成」；續跑讀「Resume」；查進度讀「Status-only」；只有接入感測或處理熱停止時讀完整溫控段落。操作參數的詳細契約集中於本檔，不複製進每輪 brief。
+
 ## 權限邊界
 
 - 長跑只能由使用者啟動。
 - Agent 可以建置、跑 bounded smoke、驗證命令與檢查既有結果。
 - 交付完整 run／resume／status 命令後，agent 結束 task，不保持對話等待。
-- 使用者日後提供結果時，以新的 task 驗證。
+- 使用者日後提供結果時再驗證；可以沿用對話，不要求另開 task。
 - Agent 不因 terminal condition「完成」而擴張成代替使用者啟動長跑。
 
 ## 結果有效性與硬體責任分開

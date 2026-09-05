@@ -21,7 +21,7 @@
 - `packages/solver`：凍結的舊 TypeScript Web solver；不是新策略 owner。
 - `packages/policy-lab`：歷史 TypeScript research；不作新 solver 主線。
 - `native/craft-kernel`：目前 Rust mechanics／solver／episode compute owner。
-- `apps/web`：UI、input、session orchestration 與目前凍結 runtime integration。
+- `apps/web`：UI、input、session orchestration 與 Rust→WASM runtime integration。
 - `tools`：import、evaluation、parity、benchmark 與 orchestration。
 
 依賴保持單向；domain／data 不 import UI 或 training，Web 不 import policy-lab。
@@ -41,12 +41,12 @@
 - mechanics mismatch；
 - terminal 或無合法技能；
 - 主要求解器逾時／錯誤；
-- 快速求解器違反 deadline 或回傳空白；
+- 合法非終局且仍有合法技能時，求解器回傳空白（policy-null）；
 - worker／WASM／native 啟動與傳遞錯誤；
 - OOD／未知 evidence envelope；
 - storage／export／environment failure。
 
-Runtime 不以舊五配方 guide 靜默救援。主要求解器失敗後使用獨立快速求解器；輸入損壞或沒有合法技能時要求 resync／restart。
+主求解器沒有 policy-null 時不要求獨立快速求解器。實際無建議、逾時與 Worker 錯誤按原因處理，不自動擴張成新增後備架構。輸入損壞或沒有合法技能時要求 resync／restart；歷史五配方 guide 不作正式後備。
 
 ## 測試分層
 
@@ -57,8 +57,8 @@ Runtime 不以舊五配方 guide 靜默救援。主要求解器失敗後使用�
 | Golden trace | 是否和遊戲內逐步數值一致 |
 | Parity | 不同執行核心在宣告範圍內是否一致 |
 | Scenario／closed-loop | Solver 的預設策略在 family、裝備、world 中實際如何 |
-| Browser／E2E | 回報、偏離、快速 fallback、undo、resync 與 reload |
-| Benchmark | 主／快速 solver、startup、UI 與 export latency |
+| Browser／E2E | 回報、偏離、錯誤處理、undo、resync 與 reload |
+| Benchmark | 已使用的 solver、startup、UI 與 export latency |
 | Statistical | Paired outcomes、tail、confidence interval 與停止規則 |
 
 長跑不放進預設 unit suite；保留小型 contract test 和可續跑的獨立 evaluation。

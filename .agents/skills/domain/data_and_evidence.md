@@ -44,7 +44,7 @@ Recipe identity、mission identity 與 display name 分開。雖然目前產品�
 - Hard `requiredQuality` 需要直接來源；它決定 mechanics completion，但 solver 的 hard-quality utility 仍追求 `qualityMax`。
 - 一般收藏品保存 100／300／700／滿品質四檔；門檻比例或逐任務實值要標出 official、game data、玩家 UI、community 或 assumption 層級。
 - Master 收藏品沒有一般四檔 evidence 時，只保存滿品質 milestone 並使用連續品質 utility，不發明中間 threshold。
-- HQ 類不保存收藏品品質檔，使用 versioned HQ 機率曲線；50%／75%／100% protected floor 由曲線反查原始品質，曲線來源與不確定性必須可追溯。
+- HQ 類不保存收藏品品質檔，使用 versioned HQ 機率曲線；50%／75%／100% 是報告語意檔位，預設 protected floor 由 [策略契約](solver_policy_and_safety.md) 擁有。曲線來源與不確定性必須可追溯。
 - Family 共用 objective 前，確認單件 completion 與品質語意完全相同。
 
 ## Condition evidence

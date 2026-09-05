@@ -44,7 +44,7 @@ Expert／Cosmic 的狀態可使用 indigo、violet、cyan、amber 等**語意 ac
 - Cosmic 正式 Logo 位於 `apps/web/src/assets/logo.png`，以 Tome／Workshop 作系列風格參考，由使用者確認後生成新的「冰塊中的兔排＋克制星芒與行星環」構圖；不是直接複製姊妹站肉塊。
 - Logo 使用真正透明的背景、明亮冰藍與粉紅主色；冰塊的飽和度只做輕微收斂，透明感與藍色外框強度需和 Tome／Workshop 同系列，在 32px Sidebar／favicon 尺寸仍保留清楚輪廓。不得把透明棋盤格烘進像素，也不加文字或深色宇宙底。
 - 後續變體須保留冰塊、肉塊與系列線條語言，不以一般兔角色、行星或太空場景取代核心標誌。
-- FFXIV 官方 icon、名稱與素材仍受 Square Enix 權利與素材使用規範約束；POC 優先使用文字、自製圖示或有明確授權的資產。
+- FFXIV 官方 icon、名稱與素材的來源及使用條件見 [資料與證據規範](../domain/data_and_evidence.md) 與 `THIRD_PARTY_NOTICES.md`；新增資產保存來源，不沿用已結束的 POC 假設。
 
 ## 文案範例
 

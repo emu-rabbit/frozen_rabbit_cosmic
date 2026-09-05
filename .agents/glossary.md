@@ -2,8 +2,8 @@
 
 ## 使用方式
 
-- 文件第一次使用專有名詞時，先寫繁中白話，再附英文或 code identifier；同一段後續不重複解釋。
-- 遊戲技能使用繁體中文版官方網站／遊戲內名稱，格式為「繁中名稱（英文名稱，`codeId`）」。
+- 面向人的說明先用繁中白話；只有理解或定位程式需要時再附英文／code identifier。
+- 遊戲技能使用繁體中文版官方網站／遊戲內名稱。跨語系或程式映射時使用「繁中名稱（英文名稱，`codeId`）」；一般文字與重複提及用正式繁中名稱即可。
 - Code、schema、CLI 與 export 保留 identifier，不把中文顯示名稱當 identity。
 - 官方翻譯與 code 不一致時，文件先用官方名稱，並在 `current_state.md` 登記 UI follow-up；不能自行創造另一個譯名。
 
@@ -30,6 +30,9 @@
 | p95 | 100 次量測約有 95 次不慢於此值；同時要看 p99 與 max。 |
 | fail closed | identity、schema 或 evidence 對不上時停止並明示，不偷偷換成不可比較的結果。 |
 | common random numbers | Baseline 與 candidate 使用相同亂數案例，比較策略差異而不是運氣差異。 |
+| certificate（路線證明） | 在明示 mechanics、球色集合與預算下證明存在可行續作；不是整場製作的自然成功率保證。 |
+| Artisan fallback | 主策略未能證明更好收尾時使用的 Artisan 衍生決策；不等於獨立 runtime 後備。沒有 policy-null 時不要求另建快速求解器。 |
+| Thiria／Thal's Expert | 使用者提及的外部研究參考。引用能力前確認具體產品與來源，不從名稱推定演算法或已整合程式。 |
 
 ## 製作技能
 

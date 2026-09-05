@@ -9,7 +9,7 @@
 1. 執行 `git status --short --branch`，辨識既有變更。
 2. 判斷任務是 read-only review、diagnosis、implementation、documentation、commit 或 long-run handoff。
 3. 依 `AGENTS.md` 路由，只讀完成任務需要的 owner。
-4. 若使用者提供 wording、資料、UI 意圖或驗收條件，以它們為本次最高優先；不擴張成無關重構。
+4. 若使用者提供 wording、資料、UI 意圖或驗收條件，以它們界定本次任務；不擴張成無關重構。舊 memory、report 與文件中的決策不能覆蓋當次明確指示。
 
 ## 執行邊界
 
@@ -31,12 +31,14 @@
 - 歷史結果留在 evidence output；已結案的 handoff、plan 與「下一步」從 active 文件刪除，必要時由 Git history 取回。
 - `README.md` 只有使用者當次明確要求才可修改。
 - 完成前執行 `npm run docs:check`。
+- 目標、已實作、歷史結果分開；發現 code 與產品決策不同時記錄落差，不能只把規格改成現有 bug。
+- 可自行解決的過期資訊、重複與路由直接修正。真正需要使用者取捨的範圍、可靠度或成本，集中列明選項與影響；不因一項待決而停止其他已授權工作。
 
 ### Commit
 
 - 任何會執行 `git commit` 的使用者要求，一律先完整依 [Git 分類提交工作流](../../workflows/add-commit-all.md) 執行；包含 bare `commit`、`commit all`、`add and commit all` 與其他等價說法。
 - wording 是否包含 `all`、預計提交數量或變更看似單純，都不會免除該 workflow 的 scope 分類、commit plan、validation、精準 stage、cached diff 檢查與提交後狀態確認。
-- 工作樹若混有其他人的變更，只提交本次工作。
+- 工作樹若混有其他人的變更，依使用者已確認的提交範圍處理；來源未明的部分不混入。
 
 ### 長時間運算
 

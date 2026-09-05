@@ -10,7 +10,7 @@
 canonical data ──> packages/data
 mechanics DTO／legacy fixtures ──> packages/domain
 session protocol／replay contract ──> packages/protocol
-frozen Web compute ──> packages/solver
+historical TypeScript solver ──> packages/solver
 current solver evolution ──> native/craft-kernel
 selected Web compute boundary ──> native/craft-kernel-web ──> native/craft-kernel
 UI／session orchestration ──> apps/web
@@ -25,7 +25,7 @@ evaluation orchestration ──> tools
 RecipeProfile + CraftObjective + CrafterProfile
 + observed CraftState + actual action history
   -> legal actions／mechanics preview
-  -> main or fast solver
+  -> adopted solver
   -> action + reasons + alternatives + elapsed／failure metadata
 ~~~
 
@@ -37,7 +37,7 @@ Web 不傳送玩家 state 到 server。Session controller 記錄實際事件，u
 
 - action／condition／transition／terminal mechanics；
 - planner context 與 route intent；
-- 主要求解與快速求解策略；
+- 主要求解策略；有需要時的後備策略亦由同一 Rust owner 維護；
 - whole-episode closed-loop compute；
 - native evaluation protocols 與 deterministic work budget。
 - recipe `qualityMax` 唯一品質上限、預設策略的完整品質 utility、protected floor 與 HQ 機率 utility。
@@ -46,7 +46,9 @@ Rust policy 可以有意地超越 frozen TypeScript 行為；TS→Rust 只需要
 
 第三方 Rust 整合的穩定入口是 `native/craft-kernel/src/main_solver.rs`。它固定路由目前採用的 `Balanced` 主求解器，以 `MainSolverConfig`／`MainSolverSession` 提供 recommend→observe state-feedback loop，並隱藏 evaluator、歷史 identities 與 planner memory 細節。新增其他語言 adapter 時應建立在這個 façade 上；不得讓公開 contract 依賴 141 欄評測 TSV，也不得在 adapter 複製 policy。
 
-目前新架構核心位於 `native/craft-kernel/src/generic_solver/portfolio/`：types 定義候選與路線、producers 提出能力方案、scoring 建立分支及續作證據、selection 統一比較效果與不確定性成本，module 入口組合資料流。既有 Rust 能力透過 adapter 重用。Episode observer 取得同一次決策的唯讀診斷，實際 action／outcome 仍由 episode controller 推進。
+目前主策略在 `native/craft-kernel/src/generic_solver.rs` 的 external-reference 路由：先嘗試滿品質完工證明，無證明時使用 `artisan_expert.rs`。`generic_solver/portfolio/` 是 v1 世代研究與歷史路由，並非現行產品必經的 scorer。修改前從 `main_solver.rs`／Web identity 追實際呼叫路徑，不以目錄名稱推定 ownership。
+
+保留 Artisan、改良混合策略或建立自有核心都依 [產品使命](../mission/project_mission.md) 的玩家成果判斷。共同 portfolio 是可用設計，不是所有新策略都必須遷入的目標架構。
 
 Native binary、ABI、mechanics、solver、action schema 與 evaluation identity 不符時 fail closed。Node parent 可以負責 shards、locks、timeout、retry、resume、atomic persistence 與 report，但不能偷偷改用 TS evaluator。
 
@@ -54,36 +56,15 @@ Native binary、ABI、mechanics、solver、action schema 與 evaluation identity
 
 2026-08-30 選定 Rust→WASM：策略與 mechanics owner 保持 `native/craft-kernel`，`native/craft-kernel-web` 只擁有 versioned ABI、bounded buffer 與 session bridge。TypeScript wrapper 負責 DTO encoding、Worker lifecycle、deadline 與 UI mapping，不擁有策略。
 
-決策依據不是預設 WASM 較快，而是實測 same-session corpus 0 action／context mismatch、Node-WASM 成本低於 main 3 秒 gate、raw artifact／memory 可控，並避免平行維護約 8,597 行現行 generic solver／portfolio 的 TypeScript 複本。完整數字與證據界線見 [Rust→WASM decision](../../../reports/web-runtime/rust-wasm-core-decision-20260830.md)。
+採用依據是當時的 session parity、成本與避免雙份策略維護。歷史數字與證據界線見 [Rust→WASM decision](../../../reports/web-runtime/rust-wasm-core-decision-20260830.md)；不能將舊版量測當成目前版本的裝置效能證明。
 
 `apps/web` 已在正式 UI 骨架切換到 persistent browser Worker，build 由 `tools/build-web-wasm/run.mjs` 產生並交給 Vite 打包的 WASM artifact。任務選擇 dialog 開啟時即開始 streaming 下載／編譯；開始按鈕以 runtime readiness 為 gate，初始化失敗留在 dialog 明確重試，不會進入必然失敗的 craft session。首次初始化使用獨立 30 秒期限，避免手機網路載入被誤算成 solver 執行時間；初始化完成後，每次 recommendation 的 3 秒 watchdog 逾時仍會終止 Worker 並 fail closed。固定 Web fixture 已直接載入 production artifact、核對 ABI／目前採用 identity 並取得非空 action。target-device browser／mobile latency 仍待量測，不能把 Node-WASM 或單一 contract test 寫成產品效能 gate 已通過。若後續實機出現 boundary blocker，先定位 load、transfer、cache、memory 或 compute，再決定是否重開語言選擇。
 
-## 目標雙求解器
+## 主求解器與按需後備
 
-### 主要求解器
+主求解器沒有 policy-null 時不要求獨立快速求解器。可靠性與回傳行為由 [solver_policy_and_safety.md](../domain/solver_policy_and_safety.md) 擁有。
 
-- 每步最多等待 3 秒。
-- 可使用較完整的 fixed-budget planning。
-- 回傳理由、替代技能、elapsed 與明確 failure category。
-
-### 快速求解器
-
-- 和主要求解器共用 authoritative mechanics，但有獨立、可證明 bounded 的決策流程。
-- 目標裝置 p95 小於 100ms，並報 p99／max。
-- 合法非終局 state 仍有合法技能時不回傳空白。
-- 接近預算時由最終 selector 掃描合法技能，依安全、完工路線與預設品質策略排序。
-- 不使用 recipe-ID branch 或舊五配方 guide。
-
-~~~text
-main <= 3s
-  -> result
-  -> timeout／failure -> fast solver
-player uses main／fast／manual legal action
-  -> observed outcome
-  -> next step retries main
-~~~
-
-快速求解器不是永久降級模式。兩個 solver 都必須接受玩家實際 history。
+Artisan fallback 是主策略內的演算法後備，不等於獨立 Worker／runtime 備援；此差異不構成必須再建一套後備的理由。實際錯誤按 load、transfer、compute 或 policy 原因處理，有需要再選擇最小修正。
 
 ## Package dependency
 
@@ -98,11 +79,12 @@ native core ─> own Rust types／protocols
 tools ──────> owning packages or native binary
 ~~~
 
-Web 已移除 frozen solver runtime dependency。依使用者 2026-08-30 決定，主 v1.12 先獨立接入並在 timeout／Worker／WASM failure 時明確 fail closed；尚未完成的 Rust fast solver 後續才加入正式後備，不以舊 TypeScript 或臨時 heuristic 代替。
+Web 已移除 frozen solver runtime dependency。目前主策略在 timeout／Worker／WASM failure 時明確 fail closed；沒有獨立快速求解器不再列為架構缺口。
 
 ## Persistence 與 privacy
 
 - Local storage 只保存裝備、語言、明暗模式與首訪語言設定完成狀態。
+- 任務 catalog 另可使用 IndexedDB 資料快取；它不是玩家 craft session 的持久化。
 - 進行中的配方、events、state 與 UI state 只存在記憶體；reload 後重新設定。
 - Debug export 由玩家主動下載，包含重播所需 identity，不等同自動持久化。
 - Storage failure 不影響 mechanics truth；UI 明示後仍可使用當次記憶體 session。
