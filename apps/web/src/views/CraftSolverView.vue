@@ -442,7 +442,10 @@ onBeforeUnmount(() => {
 
       <section v-else class="recommendation-card">
         <div class="recommendation-topline">
-          <span class="recommendation-label">{{ t(craft.actionCount.value === 0 ? 'solver.firstAction' : 'solver.nextAction') }}</span>
+          <span class="recommendation-label">
+            {{ t(craft.actionCount.value === 0 ? 'solver.firstAction' : 'solver.nextAction') }}
+            <span class="recommendation-step"><span aria-hidden="true"> · </span>{{ t('solver.step', { value: state.step }) }}</span>
+          </span>
           <span class="condition-badge" :class="`condition-badge--${state.condition}`">
             <i aria-hidden="true"></i>{{ t(`solver.conditions.${state.condition}`) }}
           </span>
@@ -606,6 +609,7 @@ html.dark .craft-meter > i { background: #22332f; }
 .recommendation-card, .report-card, .recommendation-error, .solver-terminal { width: 100%; border: 1px solid #cfe8e0; border-radius: 1.35rem; background: #fff; padding: 1.4rem; box-shadow: 0 18px 45px rgba(31,73,63,.1); }
 .recommendation-topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .recommendation-label { color: #3e8f7a; font-size: 0.76rem; font-weight: 850; letter-spacing: .08em; }
+.recommendation-step { white-space: nowrap; }
 .condition-badge { display: inline-flex; min-height: 2.5rem; align-items: center; gap: .55rem; border: 1px solid #d9e8e4; border-radius: 999px; padding: .35rem .8rem; color: #40534e; font-size: .95rem; font-weight: 850; }
 .condition-badge i, .condition-option > i { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; border: 1px solid var(--condition-edge,rgba(15,23,42,.22)); border-radius: 50%; background: var(--condition-color); box-shadow: 0 1px 3px rgba(15,23,42,.22); }
 .condition-badge--normal, .condition-option--normal { --condition-color: #f4f4f4; --condition-edge: #aeb5bc; }
