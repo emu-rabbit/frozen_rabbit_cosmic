@@ -16,7 +16,7 @@ export const MODEL_VERSIONS: ModelVersions = {
   // registry test compares this value against COSMIC_EXPERT_CATALOG_VERSION.
   recipeCatalog: 'cosmic-expert-catalog-284bb7f44b9c0976-3c0ac44a05e9bf29-v2',
   conditionProfiles: 'manual-cosmic-expert-condition-selection-v1',
-  sessionCodec: 'expert-session-v0.11.0',
+  sessionCodec: 'expert-session-v0.12.0',
 }
 
 export type SessionRiskPreference = 'balanced'
@@ -24,6 +24,12 @@ export type SessionRiskPreference = 'balanced'
 interface EventBase {
   id: string
   at: number
+}
+
+/** Optional observed recommendation input. Absent in historical exports. */
+export interface PlannerTimeBudget {
+  remainingMilliseconds: number
+  expectedActionMilliseconds: number
 }
 
 export type SessionEvent =
@@ -36,6 +42,7 @@ export type SessionEvent =
       type: 'craftActionUsed'
       action: CraftActionId
       previousCondition: MaterialCondition
+      plannerTimeBudget?: PlannerTimeBudget
     })
   | (EventBase & {
       type: 'craftActionResolved'
@@ -63,6 +70,15 @@ export interface ExpertSessionExport {
   initialState: CraftState
   events: SessionEvent[]
   notes: string[]
+  /** Local estimate starts at the first player-reported color; not the game's actual timer. */
+  missionTiming?: {
+    missionId: number
+    timeLimitSeconds: number
+    firstReportedConditionAt: number | null
+    completedRecipeIds: number[]
+    expectedActionMilliseconds: number
+    reserveMilliseconds: number
+  }
 }
 
 export function createEventId(): string {

@@ -74,11 +74,17 @@ mod research_exports {
         GENERIC_EPISODE_MAX_PROJECTED_TRANSITIONS, GENERIC_EPISODE_PROTOCOL_VERSION,
         GenericEpisodeCase, GenericEpisodeParseError, GenericEpisodeResult, GenericTraceMode,
         execute_generic_episode, execute_generic_episode_with_observer,
+        execute_generic_episode_with_time_budget,
         execute_generic_episode_with_portfolio_budget, format_generic_episode_error,
         format_generic_episode_result, generic_episode_build_profile, generic_episode_rows_fnv1a64,
         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
         validate_generic_episode_batch,
     };
+    pub use crate::generic_solver::EAGER_RECOVERY_EXPERIMENT_VERSION;
+    pub use crate::generic_solver::COMPACT_RECOVERY_EXPERIMENT_VERSION;
+    pub use crate::generic_solver::SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION;
+    pub use crate::generic_solver::TIME_BUDGETED_RECOVERY_POLICY_VERSION;
+    pub use crate::generic_solver::GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION;
     pub use crate::generic_solver::GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION;
     pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
     pub use crate::generic_solver::{

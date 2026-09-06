@@ -32,7 +32,7 @@ describe('session export', () => {
       { ...MODEL_VERSIONS, plannerPolicy: 'current-web-policy' },
     )
 
-    expect(exported.manifest.schema).toBe('expert-session-v0.11.0')
+    expect(exported.manifest.schema).toBe('expert-session-v0.12.0')
     expect(exported.manifest.modelVersions.plannerPolicy).toBe('current-web-policy')
     expect(exported.events).toEqual(events)
     expect('support' in exported).toBe(false)

@@ -7,6 +7,53 @@ mod certified_route;
 mod opening_recovery;
 mod portfolio;
 mod resource_certificate;
+mod time_aware_recovery;
+mod compact_policy;
+mod short_certified_finish;
+
+pub const COMPACT_RECOVERY_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-compact-recovery";
+pub const SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-short-certified-finish";
+pub const TIME_BUDGETED_RECOVERY_POLICY_VERSION: &str = "generic-craft-external-reference-exp-time-budgeted-recovery";
+pub const GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION: &str = "generic-craft-external-reference-v2.4.0";
+
+/// Caller-observed remaining allowance for this craft, not a mechanics limit.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CraftTimeBudget {
+    remaining_milliseconds: u64,
+    expected_action_milliseconds: u32,
+}
+
+impl CraftTimeBudget {
+    pub fn new(remaining_milliseconds: u64, expected_action_milliseconds: u32) -> Result<Self, String> {
+        if expected_action_milliseconds == 0 { return Err("expected action time must be positive".into()); }
+        Ok(Self { remaining_milliseconds, expected_action_milliseconds })
+    }
+    pub const fn remaining_milliseconds(self) -> u64 { self.remaining_milliseconds }
+    pub const fn expected_action_milliseconds(self) -> u32 { self.expected_action_milliseconds }
+    fn available_actions(self) -> u32 {
+        (self.remaining_milliseconds / u64::from(self.expected_action_milliseconds)).min(u64::from(u32::MAX)) as u32
+    }
+}
+
+/// Optional time information changes only the explicitly time-aware policy.
+pub fn recommend_generic_action_with_time_budget(
+    version: GenericSolverVersion,
+    recipe: &RecipeProfile,
+    crafter: &CrafterProfile,
+    state: &CraftState,
+    objective: GenericObjective,
+    risk: RiskPreference,
+    context: &PlannerContext,
+    mask: Option<u16>,
+    time_budget: Option<CraftTimeBudget>,
+) -> Option<GenericDecision> {
+    if matches!(version, GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24) {
+        if let Some(budget) = time_budget {
+            return compact_policy::recommend_with_time_budget(recipe, crafter, state, objective, risk, context, mask, budget);
+        }
+    }
+    recommend_generic_action_with_model(version, recipe, crafter, state, objective, risk, context, mask)
+}
 pub use portfolio::*;
 
 use crate::{
@@ -95,6 +142,8 @@ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-artisan-continuation";
 pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-opening-recovery";
+pub const EAGER_RECOVERY_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-eager-recovery";
 pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
 pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
     "guide-integrated-decision-memory-v0.5.0";
@@ -163,6 +212,11 @@ pub enum GenericSolverVersion {
     OpportunityReserveGuideDirectProbe,
     RiskForwardDirectProbe,
     ExternalReferenceV23,
+    EagerRecovery,
+    CompactRecovery,
+    ShortCertifiedFinish,
+    TimeBudgetedRecovery,
+    ExternalReferenceV24,
 }
 
 impl GenericSolverVersion {
@@ -205,6 +259,11 @@ impl GenericSolverVersion {
             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
             Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
+            Self::EagerRecovery => EAGER_RECOVERY_EXPERIMENT_VERSION,
+            Self::CompactRecovery => COMPACT_RECOVERY_EXPERIMENT_VERSION,
+            Self::ShortCertifiedFinish => SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION,
+            Self::TimeBudgetedRecovery => TIME_BUDGETED_RECOVERY_POLICY_VERSION,
+            Self::ExternalReferenceV24 => GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
             Self::ExpandedFullQualityCertificate => {
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
@@ -310,6 +369,11 @@ impl FromStr for GenericSolverVersion {
             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
             OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
+            EAGER_RECOVERY_EXPERIMENT_VERSION => Ok(Self::EagerRecovery),
+            COMPACT_RECOVERY_EXPERIMENT_VERSION => Ok(Self::CompactRecovery),
+            SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION => Ok(Self::ShortCertifiedFinish),
+            TIME_BUDGETED_RECOVERY_POLICY_VERSION => Ok(Self::TimeBudgetedRecovery),
+            GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION => Ok(Self::ExternalReferenceV24),
             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
                 Ok(Self::ExpandedFullQualityCertificate)
             }
@@ -4372,6 +4436,23 @@ pub fn recommend_generic_action_with_model(
             random_condition_mask,
         );
     }
+    if version == GenericSolverVersion::CompactRecovery {
+        return compact_policy::recommend(recipe, crafter, state, objective, risk, context, random_condition_mask);
+    }
+    if matches!(version, GenericSolverVersion::ShortCertifiedFinish | GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24) {
+        return short_certified_finish::recommend(recipe, crafter, state, objective, risk, context, random_condition_mask);
+    }
+    if matches!(version, GenericSolverVersion::EagerRecovery) {
+        return time_aware_recovery::recommend(
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            random_condition_mask,
+        );
+    }
     if matches!(
         version,
         GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
@@ -5188,7 +5269,13 @@ fn advance_planner_context_inner(
 ) {
     let solver_version = if matches!(
         solver_version,
-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+        GenericSolverVersion::OpeningRecovery
+            | GenericSolverVersion::ExternalReferenceV23
+            | GenericSolverVersion::EagerRecovery
+            | GenericSolverVersion::CompactRecovery
+            | GenericSolverVersion::ShortCertifiedFinish
+            | GenericSolverVersion::TimeBudgetedRecovery
+            | GenericSolverVersion::ExternalReferenceV24
     ) {
         GenericSolverVersion::ExternalReferenceV22
     } else {
@@ -5381,7 +5468,13 @@ pub fn planner_context_fingerprint(
 ) -> String {
     let solver_version = if matches!(
         solver_version,
-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+        GenericSolverVersion::OpeningRecovery
+            | GenericSolverVersion::ExternalReferenceV23
+            | GenericSolverVersion::EagerRecovery
+            | GenericSolverVersion::CompactRecovery
+            | GenericSolverVersion::ShortCertifiedFinish
+            | GenericSolverVersion::TimeBudgetedRecovery
+            | GenericSolverVersion::ExternalReferenceV24
     ) {
         GenericSolverVersion::ExternalReferenceV22
     } else {

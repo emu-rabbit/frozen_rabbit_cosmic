@@ -5,10 +5,14 @@ use crate::{
     GenericDecision, GenericEpisodeCase, GenericObjective, GenericSolverVersion,
     ObservedActionOutcome, PlannerContext, RecipeProfile, RiskPreference, advance_planner_context,
     apply_observed_outcome, parse_generic_episode_case, planner_context_fingerprint,
-    recommend_generic_action_with_model,
 };
 
-pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v1";
+use crate::generic_solver::{
+    CraftTimeBudget, TIME_BUDGETED_RECOVERY_POLICY_VERSION, GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
+    recommend_generic_action_with_time_budget,
+};
+
+pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v2";
 pub const WEB_PLANNER_MAX_INPUT_BYTES: usize = 64 * 1024;
 pub const WEB_PLANNER_MAX_OUTPUT_BYTES: usize = 16 * 1024;
 
@@ -97,20 +101,39 @@ impl WebPlannerSession {
         case: &GenericEpisodeCase,
         advance: WebPlannerAdvance,
     ) -> Result<WebPlannerReply, String> {
+        self.recommend_case_with_time_budget(case, advance, None)
+    }
+
+    pub fn recommend_case_with_time_budget(
+        &mut self,
+        case: &GenericEpisodeCase,
+        advance: WebPlannerAdvance,
+        time_budget: Option<CraftTimeBudget>,
+    ) -> Result<WebPlannerReply, String> {
         let research_policy = cfg!(feature = "research-web-policies")
             && matches!(
                 case.solver_version,
                 GenericSolverVersion::ResourceCertificate
                     | GenericSolverVersion::CertifiedRoute
                     | GenericSolverVersion::ArtisanContinuation
+                    | GenericSolverVersion::EagerRecovery
+                    | GenericSolverVersion::CompactRecovery
+                    | GenericSolverVersion::ShortCertifiedFinish
             );
         if case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION
+            && case.solver_version.as_str() != TIME_BUDGETED_RECOVERY_POLICY_VERSION
+            && case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION
             && !research_policy
         {
             return Err(format!(
-                "Web planner requires {GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION}, got {}",
+                "Web planner requires {GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION} or a supported historical policy, got {}",
                 case.solver_version.as_str(),
             ));
+        }
+        if time_budget.is_some()
+            && !matches!(case.solver_version, GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24)
+        {
+            return Err("time budget requires the time-budgeted policy".into());
         }
         let next_identity = WebPlannerIdentity::from_case(case);
         match advance {
@@ -205,7 +228,7 @@ impl WebPlannerSession {
             });
         }
 
-        let decision = recommend_generic_action_with_model(
+        let decision = recommend_generic_action_with_time_budget(
             case.solver_version,
             &case.rollout.recipe,
             &case.rollout.crafter,
@@ -214,6 +237,7 @@ impl WebPlannerSession {
             case.risk,
             &self.context,
             Some(case.random_condition_mask),
+            time_budget,
         );
         self.pending = decision.map(|decision| PendingDecision {
             decision,
@@ -224,13 +248,41 @@ impl WebPlannerSession {
             option: decision.map(|decision| decision.option.as_str().to_owned()),
             persona: decision.map(|decision| decision.persona.as_str().to_owned()),
             policy_version: case.solver_version.as_str(),
-            context_fingerprint: planner_context_fingerprint(case.solver_version, &self.context),
+            context_fingerprint: match time_budget {
+                Some(budget) => format!(
+                    "{}:time-budget:{}:{}",
+                    planner_context_fingerprint(case.solver_version, &self.context),
+                    budget.remaining_milliseconds(),
+                    budget.expected_action_milliseconds()
+                ),
+                None => planner_context_fingerprint(case.solver_version, &self.context),
+            },
         })
     }
 
     pub fn recommend_request(&mut self, request: &str) -> Result<WebPlannerReply, String> {
+        if request.len() > WEB_PLANNER_MAX_INPUT_BYTES {
+            return Err("Web planner request exceeds input limit".into());
+        }
+        let (request, time_budget) = if let Some(rest) = request.strip_prefix("time-budget:") {
+            let (budget, request) = rest
+                .split_once('\t')
+                .ok_or("time budget is missing the request")?;
+            let (remaining, expected) = budget
+                .split_once(':')
+                .ok_or("time budget requires remaining and expected action milliseconds")?;
+            let remaining = remaining
+                .parse::<u64>()
+                .map_err(|_| "invalid remaining milliseconds")?;
+            let expected = expected
+                .parse::<u32>()
+                .map_err(|_| "invalid expected action milliseconds")?;
+            (request, Some(CraftTimeBudget::new(remaining, expected)?))
+        } else {
+            (request, None)
+        };
         let (advance, case) = parse_web_planner_request(request)?;
-        self.recommend_case(&case, advance)
+        self.recommend_case_with_time_budget(&case, advance, time_budget)
     }
 }
 
@@ -326,14 +378,21 @@ mod tests {
 
     #[test]
     fn candidate_web_policy_requires_explicit_research_build() {
-        let mut case = f36_case();
-        case.solver_version = GenericSolverVersion::ArtisanContinuation;
-        let mut session = WebPlannerSession::default();
-        let reply = session.recommend_case(&case, WebPlannerAdvance::Reset);
-        if cfg!(feature = "research-web-policies") {
-            assert_eq!(reply.unwrap().policy_version, case.solver_version.as_str());
-        } else {
-            assert!(reply.unwrap_err().contains("Web planner requires"));
+        for solver_version in [
+            GenericSolverVersion::ArtisanContinuation,
+            GenericSolverVersion::EagerRecovery,
+            GenericSolverVersion::CompactRecovery,
+            GenericSolverVersion::ShortCertifiedFinish,
+        ] {
+            let mut case = f36_case();
+            case.solver_version = solver_version;
+            let mut session = WebPlannerSession::default();
+            let reply = session.recommend_case(&case, WebPlannerAdvance::Reset);
+            if cfg!(feature = "research-web-policies") {
+                assert_eq!(reply.unwrap().policy_version, case.solver_version.as_str());
+            } else {
+                assert!(reply.unwrap_err().contains("Web planner requires"));
+            }
         }
     }
 

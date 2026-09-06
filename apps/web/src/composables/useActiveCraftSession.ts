@@ -21,11 +21,13 @@ import {
   removeLastStep,
   replaySession,
   type SessionEvent,
+  type PlannerTimeBudget,
 } from '@frozen-rabbit-expert/protocol'
 import type { EquipmentProfile } from './useEquipmentProfiles'
 import type { CosmicMission, MissionItem } from '@/types/missionData'
 import { WEB_PLANNER_POLICY, plannerRuntime, type PlannerReply } from '@/runtime/planner'
 import { createPlannerEpisode } from '@/runtime/planner/episode'
+import { craftTimeBudget, EXPECTED_ACTION_MILLISECONDS, MISSION_RESERVE_MILLISECONDS, type MissionClock } from '@/services/missionClock'
 
 export interface CraftSessionSelection {
   mission: DeepReadonly<CosmicMission>
@@ -41,6 +43,12 @@ interface ActiveCraftSession extends CraftSessionSelection {
 }
 
 const activeSession = shallowRef<ActiveCraftSession | null>(null)
+const missionClock = shallowRef<MissionClock | null>(null)
+let recommendationTimeBudget: PlannerTimeBudget | undefined
+
+function currentTimeBudget() {
+  return missionClock.value ? craftTimeBudget(missionClock.value, Date.now()) : undefined
+}
 
 export function actionNeedsObservedCondition(
   action: CraftActionId,
@@ -93,11 +101,13 @@ async function requestRecommendation(advance: Parameters<typeof plannerRuntime.r
   recommendationLoading.value = true
   recommendationError.value = null
   try {
+    const timeBudget = currentTimeBudget()
     const reply = await plannerRuntime.recommend(
-      advance,
+      { ...advance, ...(timeBudget ? { timeBudget } : {}) },
       createPlannerEpisode(session.scenario, session.crafter, current),
     )
     if (revision !== requestRevision) return
+    recommendationTimeBudget = timeBudget
     recommendation.value = reply
     if (reply.action === null) recommendationError.value = 'policy-null'
   } catch (error) {
@@ -110,9 +120,21 @@ async function requestRecommendation(advance: Parameters<typeof plannerRuntime.r
   }
 }
 
-export function startCraftSession(selection: CraftSessionSelection) {
+export function startCraftSession(selection: CraftSessionSelection, preserveMissionClock = false) {
   const scenario = cosmicExpertScenarioDataByRecipeId(selection.item.recipeId)
   if (!scenario) throw new Error(`Recipe ${selection.item.recipeId} is missing from the Cosmic catalog`)
+  if (!preserveMissionClock || missionClock.value?.missionId !== selection.mission.id) {
+    missionClock.value = {
+      missionId: selection.mission.id,
+      timeLimitSeconds: selection.mission.timeLimitSeconds,
+      recipeIds: selection.mission.items.map(item => item.recipeId),
+      firstReportedConditionAt: null,
+      completedRecipeIds: [],
+    }
+  } else {
+    missionClock.value = { ...missionClock.value, completedRecipeIds: missionClock.value.completedRecipeIds.filter(id => id !== selection.item.recipeId) }
+  }
+  recommendationTimeBudget = undefined
   const crafter = { ...selection.crafter }
   const equipmentProfile = {
     ...selection.equipmentProfile,
@@ -139,7 +161,7 @@ export function useActiveCraftSession() {
   function exportSession() {
     const session = activeSession.value
     if (!session) return null
-    return createSessionExport(
+    const exported = createSessionExport(
       session.scenario.scenarioId,
       session.scenario.recipe,
       session.scenario.objective,
@@ -152,6 +174,18 @@ export function useActiveCraftSession() {
         recipeCatalog: COSMIC_EXPERT_CATALOG_VERSION,
       },
     )
+    if (missionClock.value) {
+      const clock = missionClock.value
+      exported.missionTiming = {
+        missionId: clock.missionId,
+        timeLimitSeconds: clock.timeLimitSeconds,
+        firstReportedConditionAt: clock.firstReportedConditionAt,
+        completedRecipeIds: [...clock.completedRecipeIds],
+        expectedActionMilliseconds: EXPECTED_ACTION_MILLISECONDS,
+        reserveMilliseconds: MISSION_RESERVE_MILLISECONDS,
+      }
+    }
+    return exported
   }
 
   function replaceItem(item: DeepReadonly<MissionItem>) {
@@ -162,7 +196,7 @@ export function useActiveCraftSession() {
       item,
       equipmentProfile: session.equipmentProfile,
       crafter: session.crafter,
-    })
+    }, true)
   }
 
   function replaceMission(mission: DeepReadonly<CosmicMission>) {
@@ -180,7 +214,7 @@ export function useActiveCraftSession() {
   function restart() {
     const session = activeSession.value
     if (!session) return
-    startCraftSession(session)
+    startCraftSession(session, true)
   }
 
   async function resolveAction(
@@ -196,6 +230,7 @@ export function useActiveCraftSession() {
     inputLocked.value = true
     try {
       const recommendedAction = recommendation.value?.action
+      const now = Date.now()
       events.value = [
         ...events.value,
         {
@@ -204,6 +239,7 @@ export function useActiveCraftSession() {
           at: Date.now(),
           action,
           previousCondition: before.condition,
+          ...(recommendationTimeBudget ? { plannerTimeBudget: { ...recommendationTimeBudget } } : {}),
         },
         {
           type: 'craftActionResolved',
@@ -214,6 +250,15 @@ export function useActiveCraftSession() {
         },
       ]
       const after = state.value
+      // A terminal action has no next condition for the player to report.
+      if (after?.terminal === 'none' && missionClock.value && missionClock.value.timeLimitSeconds > 0
+        && missionClock.value.firstReportedConditionAt === null
+        && actionNeedsObservedCondition(action, before.condition)) {
+        missionClock.value = { ...missionClock.value, firstReportedConditionAt: now }
+      }
+      if (after?.terminal === 'completed' && missionClock.value) {
+        missionClock.value = { ...missionClock.value, completedRecipeIds: [...new Set([...missionClock.value.completedRecipeIds, session.item.recipeId])] }
+      }
       if (!after || after.terminal !== 'none') {
         ++requestRevision
         recommendation.value = null
@@ -241,12 +286,15 @@ export function useActiveCraftSession() {
       let current = { ...session.initialState, buffs: { ...session.initialState.buffs } }
       let reply: PlannerReply | null = null
       let pendingAction: CraftActionId | null = null
+      const recordedActions = events.value.filter(event => event.type === 'craftActionUsed')
+      let resolvedCount = 0
+      let timeBudget = recordedActions[0]?.plannerTimeBudget ?? (recordedActions.length === 0 ? currentTimeBudget() : undefined)
       for (const event of events.value) {
         if (event.type === 'conditionSelected') {
           current = { ...current, condition: event.condition }
           if (reply === null) {
             reply = await plannerRuntime.recommend(
-              { mode: 'reset' },
+              { mode: 'reset', ...(timeBudget ? { timeBudget } : {}) },
               createPlannerEpisode(session.scenario, session.crafter, current),
             )
           }
@@ -262,15 +310,20 @@ export function useActiveCraftSession() {
             event,
           ).nextState
           pendingAction = null
+          resolvedCount += 1
+          timeBudget = resolvedCount < recordedActions.length
+            ? recordedActions[resolvedCount]?.plannerTimeBudget
+            : currentTimeBudget()
           if (current.terminal === 'none') {
             reply = await plannerRuntime.recommend(
-              { mode: reply?.action === actualAction ? 'continue' : 'deviate', action: actualAction },
+              { mode: reply?.action === actualAction ? 'continue' : 'deviate', action: actualAction, ...(timeBudget ? { timeBudget } : {}) },
               createPlannerEpisode(session.scenario, session.crafter, current),
             )
           } else reply = null
         }
       }
       if (revision !== requestRevision) return
+      recommendationTimeBudget = timeBudget
       recommendation.value = reply
       if (current.terminal === 'none' && reply?.action === null) recommendationError.value = 'policy-null'
     } catch (error) {
@@ -285,6 +338,9 @@ export function useActiveCraftSession() {
   function undo() {
     if (inputLocked.value || recommendationLoading.value || actionCount.value === 0) return
     events.value = removeLastStep(events.value)
+    if (missionClock.value && activeSession.value) {
+      missionClock.value = { ...missionClock.value, completedRecipeIds: missionClock.value.completedRecipeIds.filter(id => id !== activeSession.value?.item.recipeId) }
+    }
     void rebuildRecommendation()
   }
 
@@ -301,6 +357,7 @@ export function useActiveCraftSession() {
 
   return {
     activeSession: readonly(activeSession),
+    missionClock: readonly(missionClock),
     events: readonly(events),
     state,
     actionCount,

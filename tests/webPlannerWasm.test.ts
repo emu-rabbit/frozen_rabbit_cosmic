@@ -55,8 +55,23 @@ function recommend(exports: PlannerWasmExports, request: string) {
   )
 }
 
-describe('v2.3 Web planner boundary', () => {
+describe('time-budgeted Web planner boundary', () => {
+  it('accepts an omitted, ample, and zero time budget without inventing a craft stop', async () => {
+    const scenario = cosmicExpertScenarioDataByRecipeId(37006)!
+    const crafter: CrafterProfile = { level: 100, craftsmanship: 5408, control: 5237, maxCp: 749, cosmicToolGoodBonus: true, specialist: true }
+    const episode = createPlannerEpisode(scenario, crafter, createInitialCraftState(scenario.recipe, crafter))
+    const exports = await loadWasm()
+    for (const timeBudget of [undefined, { remainingMilliseconds: 600000, expectedActionMilliseconds: 5300 }, { remainingMilliseconds: 0, expectedActionMilliseconds: 5300 }]) {
+      const result = parsePlannerReply(recommend(exports, serializePlannerRequest({ mode: 'reset', ...(timeBudget ? { timeBudget } : {}) }, episode)))
+      expect(result.action).not.toBeNull()
+      expect(result.contextFingerprint.includes(':time-budget:')).toBe(timeBudget !== undefined)
+    }
+    expect(() => serializePlannerRequest({ mode: 'reset', timeBudget: { remainingMilliseconds: -1, expectedActionMilliseconds: 5300 } }, episode)).toThrow('time budget')
+    expect(() => serializePlannerRequest({ mode: 'reset', timeBudget: { remainingMilliseconds: 1, expectedActionMilliseconds: 0 } }, episode)).toThrow('time budget')
+    expect(() => parsePlannerReply(recommend(exports, `time-budget:5:0\treset\t${episode}`))).toThrow('positive')
+  })
   it('loads the production WASM and returns a version-checked recommendation', async () => {
+    expect(WEB_PLANNER_POLICY).toBe('generic-craft-external-reference-v2.4.0')
     const exports = await loadWasm()
     const fixturePrefix = readFileSync(fixturePath, 'utf8').trim().replace(
       'generic-craft-route-portfolio-v1.12.0',
@@ -72,7 +87,7 @@ describe('v2.3 Web planner boundary', () => {
     expect(reply.contextFingerprint).not.toBe('')
   })
 
-  it('fails closed when a non-v2.3 episode is sent', () => {
+  it('fails closed when a different policy is serialized', () => {
     expect(() => serializePlannerRequest(
       { mode: 'reset' },
       'native-generic-episode-batch-v7\tcase\tepisode\tgeneric-craft-route-portfolio-v1.1.0',

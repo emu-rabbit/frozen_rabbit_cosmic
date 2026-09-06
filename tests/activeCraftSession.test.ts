@@ -80,6 +80,45 @@ const crafter: CrafterProfile = {
 }
 
 describe('active craft session input lock', () => {
+  it('starts timing at the first reported color, preserves it across item changes and undo, and exports request budgets', async () => {
+    let now = 100_000
+    const dateNow = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    try {
+      const secondItem = { ...item, recipeId: 36535 }
+      recommend.mockReset().mockResolvedValue(reply('basicTouch'))
+      startCraftSession({ mission: { ...mission, items: [item, secondItem] }, item, equipmentProfile, crafter })
+      const craft = useActiveCraftSession()
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBeNull()
+      expect(recommend.mock.calls[0]?.[0].timeBudget).toBeUndefined()
+      now += 20_000
+      await craft.resolveAction('quickInnovation', true, 'normal')
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBeNull()
+      now += 5_000
+      await craft.resolveAction('basicTouch', true, 'normal')
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBe(125_000)
+      expect(recommend.mock.lastCall?.[0].timeBudget).toEqual({ remainingMilliseconds: 285_000, expectedActionMilliseconds: 5300 })
+      now += 5_000
+      await craft.resolveAction('basicTouch', true, 'normal')
+      const recorded = craft.exportSession()?.events.filter(event => event.type === 'craftActionUsed').at(-1)
+      expect(recorded?.plannerTimeBudget?.remainingMilliseconds).toBe(285_000)
+      craft.undo()
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBe(125_000)
+      now += 5_000
+      craft.replaceItem(secondItem)
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBe(125_000)
+      expect(recommend.mock.lastCall?.[0].timeBudget?.remainingMilliseconds).toBe(280_000)
+      craft.restart()
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBe(125_000)
+      expect(craft.exportSession()?.missionTiming?.firstReportedConditionAt).toBe(125_000)
+      craft.replaceMission({ ...mission, id: 2 })
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+      expect(craft.missionClock.value?.firstReportedConditionAt).toBeNull()
+    } finally { dateNow.mockRestore() }
+  })
   it('accepts only one action across a rapid repeated condition tap', async () => {
     let releaseContinuation!: (value: PlannerReply) => void
     const continuation = new Promise<PlannerReply>((resolve) => {
@@ -151,7 +190,7 @@ describe('active craft session export', () => {
     const exported = useActiveCraftSession().exportSession()
 
     expect(exported?.manifest).toMatchObject({
-      schema: 'expert-session-v0.11.0',
+      schema: 'expert-session-v0.12.0',
       scenarioId: 'cosmic-expert-37006',
       modelVersions: {
         plannerPolicy: WEB_PLANNER_POLICY,

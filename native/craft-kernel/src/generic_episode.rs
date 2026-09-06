@@ -2,14 +2,15 @@ use std::fmt;
 use std::str::FromStr;
 use std::time::Instant;
 
+use crate::generic_solver::{CraftTimeBudget, recommend_generic_action_with_time_budget};
 use crate::{
     CraftActionId, CraftState, CraftTerminal, EpisodeRandomStream, GenericDecision,
     GenericObjective, GenericSolverVersion, PlannerContext, PortfolioEvaluationBudget,
     PortfolioRecommendation, QualityUtilityKind, RandomDrawCursor, RiskPreference, RolloutCase,
     RolloutStopReason, RolloutTraceStep, TransitionResult, advance_planner_context,
     apply_observed_outcome, draw_simulated_action_outcome, legal_actions, parse_rollout_request,
-    planner_context_fingerprint, preview_action, recommend_generic_action_with_model,
-    recommend_portfolio_version, recommend_portfolio_with_evaluation_budget,
+    planner_context_fingerprint, preview_action, recommend_portfolio_version,
+    recommend_portfolio_with_evaluation_budget,
 };
 
 pub const GENERIC_EPISODE_PROTOCOL_VERSION: &str = "native-generic-episode-batch-v7";
@@ -279,6 +280,15 @@ pub fn execute_generic_episode(case: &GenericEpisodeCase) -> Result<GenericEpiso
     execute_generic_episode_with_observer(case, |_, _, _, _, _| {})
 }
 
+/// Synthetic single-craft countdown. Each observed action consumes the declared
+/// action duration. The deadline never changes mechanics or the action-limit stop.
+pub fn execute_generic_episode_with_time_budget(
+    case: &GenericEpisodeCase,
+    time_budget: Option<CraftTimeBudget>,
+) -> Result<GenericEpisodeResult, String> {
+    execute_generic_episode_inner(case, None, None, time_budget, |_, _, _, _, _| {})
+}
+
 /// Runs a route-portfolio episode with the fixed offline evaluation budget
 /// selecting every action. The actual outcome stream and planner-context
 /// updates remain the ordinary episode implementation.
@@ -292,7 +302,13 @@ pub fn execute_generic_episode_with_portfolio_budget(
             case.solver_version
         ));
     }
-    execute_generic_episode_inner(case, Some(evaluation_budget), None, |_, _, _, _, _| {})
+    execute_generic_episode_inner(
+        case,
+        Some(evaluation_budget),
+        None,
+        None,
+        |_, _, _, _, _| {},
+    )
 }
 
 pub(crate) fn execute_generic_episode_with_route_recommender<R>(
@@ -308,7 +324,7 @@ where
             case.solver_version
         ));
     }
-    execute_generic_episode_inner(case, None, Some(&mut recommender), |_, _, _, _, _| {})
+    execute_generic_episode_inner(case, None, Some(&mut recommender), None, |_, _, _, _, _| {})
 }
 
 /// The observer receives read-only pre-action state after planning, before the
@@ -326,7 +342,7 @@ where
         u128,
     ),
 {
-    execute_generic_episode_inner(case, None, None, observer)
+    execute_generic_episode_inner(case, None, None, None, observer)
 }
 
 fn execute_generic_episode_inner<F>(
@@ -335,6 +351,7 @@ fn execute_generic_episode_inner<F>(
     mut route_recommender: Option<
         &mut dyn FnMut(&CraftState, &PlannerContext) -> PortfolioRecommendation,
     >,
+    time_budget: Option<CraftTimeBudget>,
     mut observer: F,
 ) -> Result<GenericEpisodeResult, String>
 where
@@ -398,7 +415,7 @@ where
         let decision = if let Some(report) = &portfolio {
             report.decision
         } else {
-            recommend_generic_action_with_model(
+            recommend_generic_action_with_time_budget(
                 case.solver_version,
                 &rollout.recipe,
                 &rollout.crafter,
@@ -407,6 +424,15 @@ where
                 case.risk,
                 &context,
                 Some(case.random_condition_mask),
+                time_budget.map(|budget| {
+                    CraftTimeBudget::new(
+                        budget.remaining_milliseconds().saturating_sub(
+                            actions.len() as u64 * u64::from(budget.expected_action_milliseconds()),
+                        ),
+                        budget.expected_action_milliseconds(),
+                    )
+                    .expect("validated positive action duration")
+                }),
             )
         };
         let elapsed = started.elapsed().as_nanos();

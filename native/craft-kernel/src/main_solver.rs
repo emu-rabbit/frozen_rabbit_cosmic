@@ -5,11 +5,20 @@
 
 use std::fmt;
 
-use crate::{
-    GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION, GenericDecision, GenericObjective,
-    GenericSolverVersion, PlannerContext, QualityUtilityKind, RiskPreference,
-    advance_planner_context, apply_observed_outcome, recommend_generic_action_with_model,
+pub use crate::generic_solver::CraftTimeBudget;
+use crate::generic_solver::{
+    GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION, recommend_generic_action_with_time_budget,
 };
+use crate::{
+    GenericDecision, GenericObjective, GenericSolverVersion, PlannerContext, QualityUtilityKind,
+    RiskPreference, advance_planner_context, apply_observed_outcome,
+};
+
+/// Optional inputs refreshed on each recommendation; omitted time means no deadline pressure.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct MainSolverRequestOptions {
+    pub time_budget: Option<CraftTimeBudget>,
+}
 
 pub use crate::types::{
     CraftActionId, CraftBuffs, CraftFailureReason, CraftState, CraftTerminal, CrafterProfile,
@@ -20,10 +29,10 @@ pub use crate::types::{
 ///
 /// This changes only when an integrator-facing contract changes. Use
 /// [`MAIN_SOLVER_POLICY_VERSION`] to identify the decision policy itself.
-pub const MAIN_SOLVER_API_VERSION: &str = "frozen-rabbit-main-solver-api-v1";
+pub const MAIN_SOLVER_API_VERSION: &str = "frozen-rabbit-main-solver-api-v2";
 
 /// Identity of the decision policy used by [`MainSolverSession`].
-pub const MAIN_SOLVER_POLICY_VERSION: &str = GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION;
+pub const MAIN_SOLVER_POLICY_VERSION: &str = GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION;
 
 /// Default maximum number of observed actions in one craft.
 pub const DEFAULT_MAIN_SOLVER_ACTION_LIMIT: u32 = 80;
@@ -409,6 +418,14 @@ impl MainSolverSession {
     /// Before calling this again, report the action actually used through
     /// [`Self::observe`] or [`Self::observe_state`].
     pub fn recommend(&mut self, state: &CraftState) -> Result<MainSolverStatus, MainSolverError> {
+        self.recommend_with_options(state, MainSolverRequestOptions::default())
+    }
+
+    pub fn recommend_with_options(
+        &mut self,
+        state: &CraftState,
+        options: MainSolverRequestOptions,
+    ) -> Result<MainSolverStatus, MainSolverError> {
         if self.pending.is_some() {
             return Err(MainSolverError::PendingRecommendation);
         }
@@ -418,8 +435,8 @@ impl MainSolverSession {
         if self.observed_actions >= self.config.action_limit {
             return Ok(MainSolverStatus::ActionLimitReached);
         }
-        let decision = recommend_generic_action_with_model(
-            GenericSolverVersion::ExternalReferenceV23,
+        let decision = recommend_generic_action_with_time_budget(
+            GenericSolverVersion::ExternalReferenceV24,
             &self.config.recipe,
             &self.config.crafter,
             state,
@@ -427,6 +444,7 @@ impl MainSolverSession {
             RiskPreference::Balanced,
             &self.context,
             Some(self.config.available_conditions.mask()),
+            options.time_budget,
         );
         let Some(decision) = decision else {
             return Ok(MainSolverStatus::Unavailable);
@@ -512,7 +530,7 @@ impl MainSolverSession {
         if action == pending.decision.action {
             advance_planner_context(
                 &mut self.context,
-                GenericSolverVersion::ExternalReferenceV23,
+                GenericSolverVersion::ExternalReferenceV24,
                 pending.decision,
                 &pending.before_state,
                 after_state,

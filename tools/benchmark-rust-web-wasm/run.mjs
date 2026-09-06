@@ -4,9 +4,9 @@ import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 
 const EXPECTED_PROTOCOL = 'native-generic-episode-batch-v7'
-const EXPECTED_ABI = 'rust-web-planner-abi-v1'
+const EXPECTED_ABI = optionValues('abi').length === 0 ? 'rust-web-planner-abi-v2' : requiredOption('abi')
 const EXPECTED_POLICY = optionValues('policy').length === 0
-  ? 'generic-craft-external-reference-v2.3.0'
+  ? 'generic-craft-external-reference-v2.4.0'
   : requiredOption('policy')
 const STATE_START = 32
 const STATE_LENGTH = 24

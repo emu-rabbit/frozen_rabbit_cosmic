@@ -5,15 +5,23 @@ import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const read = p => fs.readFileSync(path.join(root, p), 'utf8')
+const mainSource = read('native/craft-kernel/src/main_solver.rs')
+const policyConstant = mainSource.match(/pub const MAIN_SOLVER_POLICY_VERSION: &str = (\w+);/)?.[1]
+if (!policyConstant) throw new Error('Missing public policy binding')
 const policy = read('native/craft-kernel/src/generic_solver.rs')
-  .match(/pub const GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION: &str =\s*"([^"]+)";/)?.[1]
+  .match(new RegExp(`pub const ${policyConstant}: &str =\\s*"([^"]+)";`))?.[1]
 if (!policy) throw new Error('Missing adopted policy')
 const version = policy.split('-v').at(-1)
-if (version !== '2.3.0') throw new Error('Review the migration contract before packaging another solver version')
+if (version !== '2.4.0') throw new Error('Review the migration contract before packaging another solver version')
+const rustApiVersion = mainSource.match(/pub const MAIN_SOLVER_API_VERSION: &str = "([^"]+)";/)?.[1]
+const wasmAbiVersion = read('native/craft-kernel/src/web_bridge.rs')
+  .match(/pub const WEB_PLANNER_ABI_VERSION: &str = "([^"]+)";/)?.[1]
+if (!rustApiVersion || !wasmAbiVersion) throw new Error('Missing public interface identity')
 const out = path.join(root, 'dist', `main-solver-v${version}`)
 if (fs.existsSync(out)) throw new Error(`Package already exists: ${out}`)
 const wasm = fs.readFileSync(path.join(root, 'apps/web/src/runtime/wasm/frozen_rabbit_craft_kernel_web.wasm'))
 if (!wasm.includes(Buffer.from(policy))) throw new Error('Build the current production WASM first')
+if (!wasm.includes(Buffer.from(wasmAbiVersion))) throw new Error('WASM ABI does not match the public interface')
 fs.mkdirSync(out, { recursive: true })
 const copy = p => fs.cpSync(path.join(root, p), path.join(out, p), { recursive: true })
 for (const name of ['craft-kernel', 'craft-kernel-web']) {
@@ -39,12 +47,12 @@ function inventory(directory) {
 inventory(out)
 fs.writeFileSync(path.join(out, 'manifest.json'), JSON.stringify({
   policyVersion: policy,
-  rustApiVersion: 'frozen-rabbit-main-solver-api-v1',
-  wasmAbiVersion: 'rust-web-planner-abi-v1',
+  rustApiVersion,
+  wasmAbiVersion,
   packageVersion: '0.1.0',
-  interfaceChanges: false,
+  interfaceChanges: true,
   integrationGuide: 'native/craft-kernel/README.md',
-  migration: 'Update Rust library and rebuild. Existing WASM callers must replace the module AND expected/request policy string. Start a new session. No DTO or export changes.',
+  migration: 'Update the Rust library and rebuild. Existing recommend(state) calls remain valid; recommend_with_options accepts an optional per-craft time budget. Replace WASM together with the expected ABI and request policy. Session exports add optional timing metadata. Start a new session.',
   publication: 'Local source snapshot and production WASM, not a published tag or registry release.',
   sha256: files,
 }, null, 2) + '\n')

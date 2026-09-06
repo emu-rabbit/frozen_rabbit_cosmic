@@ -1,7 +1,8 @@
 use frozen_rabbit_craft_kernel::main_solver::{
-    AvailableConditions, CraftActionId, CraftState, CrafterProfile, MAIN_SOLVER_API_VERSION,
-    MAIN_SOLVER_POLICY_VERSION, MainSolverConfig, MainSolverError, MainSolverObjective,
-    MainSolverSession, MainSolverStatus, MaterialCondition, ObservedActionOutcome, RecipeProfile,
+    AvailableConditions, CraftActionId, CraftState, CraftTimeBudget, CrafterProfile,
+    MAIN_SOLVER_API_VERSION, MAIN_SOLVER_POLICY_VERSION, MainSolverConfig, MainSolverError,
+    MainSolverObjective, MainSolverRequestOptions, MainSolverSession, MainSolverStatus,
+    MaterialCondition, ObservedActionOutcome, RecipeProfile,
 };
 
 fn recipe() -> RecipeProfile {
@@ -55,6 +56,8 @@ fn recommended_action(status: MainSolverStatus) -> CraftActionId {
 
 #[test]
 fn public_session_supports_the_recommend_observe_loop() {
+    assert_eq!(MAIN_SOLVER_POLICY_VERSION, "generic-craft-external-reference-v2.4.0");
+    assert_eq!(MAIN_SOLVER_API_VERSION, "frozen-rabbit-main-solver-api-v2");
     let config = config(80);
     let mut session = MainSolverSession::new(config);
     let state = CraftState::initial(config.recipe(), config.crafter());
@@ -72,6 +75,31 @@ fn public_session_supports_the_recommend_observe_loop() {
 
     assert!(matches!(
         session.recommend(&transition.next_state).unwrap(),
+        MainSolverStatus::Recommendation(_)
+    ));
+}
+
+#[test]
+fn optional_time_budget_preserves_old_call_shape_and_does_not_change_mechanics_limit() {
+    let config = config(80);
+    let state = CraftState::initial(config.recipe(), config.crafter());
+    let mut legacy_call = MainSolverSession::new(config);
+    let mut explicit_none = MainSolverSession::new(config);
+    assert_eq!(
+        legacy_call.recommend(&state),
+        explicit_none.recommend_with_options(&state, MainSolverRequestOptions::default())
+    );
+    assert!(CraftTimeBudget::new(1000, 0).is_err());
+    let mut expired = MainSolverSession::new(config);
+    assert!(matches!(
+        expired
+            .recommend_with_options(
+                &state,
+                MainSolverRequestOptions {
+                    time_budget: Some(CraftTimeBudget::new(0, 5300).unwrap())
+                }
+            )
+            .unwrap(),
         MainSolverStatus::Recommendation(_)
     ));
 }

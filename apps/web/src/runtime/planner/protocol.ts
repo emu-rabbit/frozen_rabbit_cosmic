@@ -1,10 +1,14 @@
-export const WEB_PLANNER_ABI = 'rust-web-planner-abi-v1'
-export const WEB_PLANNER_POLICY = 'generic-craft-external-reference-v2.3.0'
+import type { PlannerTimeBudget } from '@frozen-rabbit-expert/protocol'
+export type { PlannerTimeBudget } from '@frozen-rabbit-expert/protocol'
+
+export const WEB_PLANNER_ABI = 'rust-web-planner-abi-v2'
+export const WEB_PLANNER_POLICY = 'generic-craft-external-reference-v2.4.0'
 export const WEB_PLANNER_MAX_INPUT_BYTES = 64 * 1024
 
-export type PlannerAdvance =
+export type PlannerAdvance = (
   | { mode: 'reset' }
   | { mode: 'continue' | 'deviate'; action: string }
+) & { timeBudget?: PlannerTimeBudget }
 
 export interface PlannerReply {
   action: string | null
@@ -30,7 +34,14 @@ export function serializePlannerRequest(advance: PlannerAdvance, episode: string
   const advanceCell = advance.mode === 'reset'
     ? 'reset'
     : `${advance.mode}:${advance.action}`
-  const request = `${advanceCell}\t${trimmedEpisode}`
+  const budget = advance.timeBudget
+  if (budget && (!Number.isSafeInteger(budget.remainingMilliseconds) || budget.remainingMilliseconds < 0
+    || !Number.isInteger(budget.expectedActionMilliseconds) || budget.expectedActionMilliseconds <= 0
+    || budget.expectedActionMilliseconds > 0xffff_ffff)) {
+    throw new Error('Planner time budget requires nonnegative remaining time and positive action time')
+  }
+  const prefix = budget ? `time-budget:${budget.remainingMilliseconds}:${budget.expectedActionMilliseconds}\t` : ''
+  const request = `${prefix}${advanceCell}\t${trimmedEpisode}`
   if (new TextEncoder().encode(request).byteLength > WEB_PLANNER_MAX_INPUT_BYTES) {
     throw new Error('Planner request exceeds the Rust ABI input limit')
   }
