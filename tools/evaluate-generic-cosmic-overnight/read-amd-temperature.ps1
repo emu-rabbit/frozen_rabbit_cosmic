@@ -8,7 +8,9 @@ Set-StrictMode -Version Latest
 # stays unprivileged. Never relaunch, install/start a driver, or accept API names.
 $taskExecutable = 'C:\Program Files\AMD\RyzenMasterSDK\AMDRyzenMasterCLI\bin-prebuilt\AMDRyzenMasterCLI.exe'
 $taskExpectedHash = 'B11A073FC9E036A2BB8D139CA0865096997522DD937ECE171758F1E6548B1BB1'
-$taskOutput = [IO.Path]::GetFullPath($OutputPath)
+# Set-Location changes PowerShell's location, not necessarily the process working
+# directory (an elevated shell often keeps System32). Resolve using PowerShell.
+$taskOutput = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputPath)
 $taskDirectory = [IO.Path]::GetDirectoryName($taskOutput)
 $taskSession = [Guid]::NewGuid().ToString()
 $taskSequence = 0
@@ -97,6 +99,7 @@ try {
         $taskTemperature = [double]::Parse($taskMatches[0].Groups[1].Value, [Globalization.CultureInfo]::InvariantCulture)
         if ($taskTemperature -le 0 -or $taskTemperature -ge 150) { throw 'Invalid CPU temperature.' }
         Save-TemperatureSnapshot 'ok' $taskTemperature $taskStarted $null
+        [Console]::WriteLine(('{0:HH:mm:ss} CPU {1:F1} C' -f (Get-Date), $taskTemperature))
         $taskProcess.Dispose()
         $taskProcess = $null
         $taskDelay = [Math]::Max(0, 3000 - [int]$taskCycle.ElapsedMilliseconds)

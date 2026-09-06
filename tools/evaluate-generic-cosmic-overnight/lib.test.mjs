@@ -964,6 +964,39 @@ describe('overnight report validation', () => {
     corruptSource.report.rows[0].quality += 1
     assert.throws(() => reuseHistoricalCandidate(corruptSource, currentRows, saved.comparisonContract,
       'candidate-v2', sampled.binary.handshake), /intact completed/)
+    // Reuse the candidate of an intact three-arm source without flattening or
+    // relabeling its evidence. The reference arm must never become the baseline.
+    const threeSource = structuredClone(source)
+    threeSource.report.schemaVersion = 'native-generic-cosmic-three-arm-matrix-v1'
+    threeSource.report.solvers.reference = 'reference-v1'
+    threeSource.report.rows.push(...saved.rows.filter(row => row.arm === 'candidate')
+      .map(row => ({ ...row, arm: 'reference', solverVersion: 'reference-v1', quality: 0 })))
+    threeSource.report.episodes = candidateRows.length * 3
+    threeSource.reportFingerprint = sha256Value(threeSource.report)
+    validateNativeEvaluatorReport(threeSource.report, { ...sampledExpected,
+      executionIdentity: { ...sampledExpected.executionIdentity, referenceSolver: 'reference-v1' },
+    })
+    const threeReused = reuseHistoricalCandidate(threeSource, currentRows, saved.comparisonContract,
+      'candidate-v2', sampled.binary.handshake)
+    assert.deepEqual(threeReused.rows, reused.rows)
+    assert.equal(threeReused.source.reportFingerprint, threeSource.reportFingerprint)
+    assert.equal(threeReused.source.solverVersion, 'candidate-v2')
+    validateNativeEvaluatorReport({ ...historicalReport, baselineSource: threeReused.source },
+      { ...historicalExpected, baselineShard: threeSource })
+    for (const mutate of [
+      s => { s.report.rows.at(-1).quality = 1 }, // even unused reference evidence is fingerprinted
+      s => { s.report.rows.find(r => r.arm === 'candidate').pairedSeed += 1;
+        s.reportFingerprint = sha256Value(s.report) },
+      s => { s.report.schemaVersion = 'native-generic-cosmic-paired-matrix-v5';
+        s.reportFingerprint = sha256Value(s.report) },
+    ]) {
+      const damaged = structuredClone(threeSource)
+      mutate(damaged)
+      assert.throws(() => reuseHistoricalCandidate(damaged, currentRows, saved.comparisonContract,
+        'candidate-v2', sampled.binary.handshake), /historical baseline/)
+    }
+    assert.throws(() => reuseHistoricalCandidate(threeSource, currentRows, saved.comparisonContract,
+      'reference-v1', sampled.binary.handshake), /historical baseline solver/)
     for (const mutate of [
       (row) => { delete row.recommendationDurationsNs },
       (row) => { row.recommendationDurationsNs.pop() },

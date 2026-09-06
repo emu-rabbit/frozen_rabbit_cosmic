@@ -89,13 +89,13 @@ Smoke 成功只驗證路徑，不代表 solver 效果、長時間溫度或整體
 
 ### Native 歷史 baseline 沿用
 
-Native 模式可指定 `--baseline-dir=<已完成 run 或其 shards>`；來源為原 paired report v4 的 candidate arm。本次只執行 `--native-candidate-solver`，將來源 candidate 讀入 baseline，不啟動第二套 baseline 求解。來源與新 run 可以共用 evaluator bundle，因為 native solver identity 位於 binary／CLI 中。三臂 reference 評測必須 fresh 執行全部三臂，目前不得與 `--baseline-dir` 混用。
+Native 模式可指定 `--baseline-dir=<已完成 run 或其 shards>`；來源為 fresh paired report v4 或 three-arm report v1 的 candidate arm。本次只執行 `--native-candidate-solver`，將來源 candidate 讀入 baseline，不啟動第二套 baseline 求解。完整原報告及其 fingerprint 保留，不抽取改寫成另一種來源 schema，也不將歷史 policy 字串改成後來採用的別名。來源與新 run 可以共用 evaluator bundle，因為 native solver identity 位於 binary／CLI 中。本次若要求三臂 reference 評測，仍須 fresh 執行全部三臂，不得與 `--baseline-dir` 混用。
 
 Preflight 核對來源 config／report／bundle／binary 身份及完成狀態、ABI／mechanics、family、裝備、world、品質契約、base seed、每格 seed 數與 action limit。每筆 case fingerprint／paired seed 仍須一致；來源缺失、受修改或比較契約不同時拒絕沿用。
 
 Report v5 分開保存 `executedEpisodes`、`reusedEpisodes` 與邏輯配對 rows；開始時 console 明示本次執行量與沿用量。歷史 baseline 的逐次計時保留，但 `baselineWallClockMs` 為 null，不能當成本次同負載效能比較。四表差值比較同一案例成果，不代表新的獨立保留集。
 
-目前支援從完整 v4 source 沿用；不接受 v5 再轉接成多代歷史來源。若需要後續多代沿用，先擴充並驗證 provenance contract，不能手動改 schema 或假造執行時間。
+目前支援從完整 fresh v4／three-arm v1 source 沿用；不接受 v5 再轉接成多代歷史來源。若需要後續多代沿用，先擴充並驗證 provenance contract，不能手動改 schema 或假造執行時間。
 
 - 使用完全相同的 semantic config 與 run ID 重跑。
 - Runner 驗證 immutable config、content-addressed binary snapshot 與 completed shards。
@@ -165,7 +165,9 @@ Windows CPU 溫度來源、MSI Center／AMD SDK 的本機調查與獲授權的�
 
 ### AMD reader 操作
 
-在使用者另外開啟的「系統管理員 PowerShell」執行以下 reader；**runner 留在一般權限 PowerShell**。這不授權 agent 自行提權或代跑徹夜。Reader 固定使用本機已驗證的 `GetPMTableData`、AMD CLI 簽章／SHA-256 及既有 Running 驅動，無 API 名稱參數，不安裝／啟動驅動，不修改硬體設定。SDK 版本或 driver 改變時拒絕執行，先重新查核。
+在使用者另外開啟的「系統管理員 PowerShell」執行以下 reader；**runner 留在一般權限 CMD 或 PowerShell**。Reader 每筆有效讀值會顯示時間與 CPU 攝氏溫度，並更新 JSON 供 runner 使用。這不授權 agent 自行提權或代跑徹夜。Reader 固定使用本機已驗證的 `GetPMTableData`、AMD CLI 簽章／SHA-256 及既有 Running 驅動，無 API 名稱參數，不安裝／啟動驅動，不修改硬體設定。SDK 版本或 driver 改變時拒絕執行，先重新查核。
+
+Reader 相對輸出路徑以 PowerShell 當前位置解析，不使用 process working directory；管理員視窗的 process cwd 可能仍是 System32。交付給使用者時可直接指定專案內的絕對 `-OutputPath`，避免兩個視窗讀寫不同位置。修改腳本後，已運作中的 reader 需人工停止並重啟才生效。
 
 ~~~powershell
 & '.\tools\evaluate-generic-cosmic-overnight\read-amd-temperature.ps1' -OutputPath '.\.tmp\overnight-cpu-temperature.json' -DurationMinutes 720

@@ -27,10 +27,15 @@ function canonical(value: any): any {
 export function historicalSource(shardValue: unknown) {
   const shard = record(shardValue), report = record(shard.report)
   const digest = createHash('sha256').update(JSON.stringify(canonical(report))).digest('hex')
+  // Fresh two- and three-arm runs both own a candidate arm. Keep the original
+  // report digest/solver identity; never rewrite a three-arm source into v4.
+  // Historical v5 remains excluded, so provenance cannot silently chain.
+  const freshSchema = report.schemaVersion === 'native-generic-cosmic-paired-matrix-v4'
+    || report.schemaVersion === 'native-generic-cosmic-three-arm-matrix-v1'
   if (shard.status !== 'completed' || shard.reportFingerprint !== digest
-    || report.schemaVersion !== 'native-generic-cosmic-paired-matrix-v4'
+    || !freshSchema
     || report.binary?.handshake?.[0] !== 'native-generic-episode-batch-v7') {
-    throw new Error('historical baseline is not an intact completed native v4 shard')
+    throw new Error('historical baseline is not an intact completed fresh native shard')
   }
   for (const value of [shard.configFingerprint, shard.evaluatorBundleSha256, report.binary?.sha256]) {
     if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) {
