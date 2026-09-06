@@ -13,3 +13,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 frozen-rabbit-craft-kernel = { path = "../craft-kernel" }
+
+[features]
+research-web-policies = ["frozen-rabbit-craft-kernel/research-web-policies"]

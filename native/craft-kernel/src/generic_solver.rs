@@ -2,7 +2,10 @@ use std::collections::HashSet;
 use std::fmt;
 use std::str::FromStr;
 
+mod artisan_continuation;
+mod certified_route;
 mod portfolio;
+mod resource_certificate;
 pub use portfolio::*;
 
 use crate::{
@@ -69,8 +72,10 @@ pub const EXTERNAL_REFERENCE_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-full-quality-certificate";
 pub const GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION: &str =
     "generic-craft-external-reference-v2.0.0";
-pub const GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION: &str =
+pub const GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION: &str =
     "generic-craft-external-reference-v2.1.0";
+pub const GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION: &str =
+    "generic-craft-external-reference-v2.2.0";
 pub const EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-expanded-full-quality-certificate";
 pub const FULL_QUALITY_CERTIFICATE_DEPTH5_EXPERIMENT_VERSION: &str =
@@ -79,6 +84,12 @@ pub const FULL_QUALITY_CERTIFICATE_DEPTH6_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-full-quality-certificate-depth6";
 pub const FULL_QUALITY_CERTIFICATE_DEPTH7_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-full-quality-certificate-depth7";
+pub const RESOURCE_CERTIFICATE_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-resource-certificate";
+pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-certified-route";
+pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-artisan-continuation";
 pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
 pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
     "guide-integrated-decision-memory-v0.5.0";
@@ -90,10 +101,14 @@ pub enum GenericSolverVersion {
     ExternalReferenceFullQualityCertificate,
     ExternalReferenceV2,
     ExternalReferenceV21,
+    ExternalReferenceV22,
     ExpandedFullQualityCertificate,
     FullQualityCertificateDepth5,
     FullQualityCertificateDepth6,
     FullQualityCertificateDepth7,
+    ResourceCertificate,
+    CertifiedRoute,
+    ArtisanContinuation,
     RustBaselineV1,
     HardQualityV2,
     RustPrimaryV3,
@@ -176,7 +191,11 @@ impl GenericSolverVersion {
                 EXTERNAL_REFERENCE_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
             Self::ExternalReferenceV2 => GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION,
-            Self::ExternalReferenceV21 => GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+            Self::ExternalReferenceV21 => GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION,
+            Self::ExternalReferenceV22 => GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+            Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+            Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+            Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
             Self::ExpandedFullQualityCertificate => {
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
@@ -275,7 +294,11 @@ impl FromStr for GenericSolverVersion {
                 Ok(Self::ExternalReferenceFullQualityCertificate)
             }
             GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION => Ok(Self::ExternalReferenceV2),
-            GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION => Ok(Self::ExternalReferenceV21),
+            GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION => Ok(Self::ExternalReferenceV21),
+            GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION => Ok(Self::ExternalReferenceV22),
+            RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
+            CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+            ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
                 Ok(Self::ExpandedFullQualityCertificate)
             }
@@ -4338,6 +4361,76 @@ pub fn recommend_generic_action_with_model(
             random_condition_mask,
         );
     }
+    if matches!(
+        version,
+        GenericSolverVersion::CertifiedRoute
+            | GenericSolverVersion::ArtisanContinuation
+            | GenericSolverVersion::ExternalReferenceV22
+    ) {
+        if let Some(decision) =
+            certified_route::resume(recipe, crafter, state, context, random_condition_mask)
+        {
+            return Some(decision);
+        }
+    }
+    if matches!(
+        version,
+        GenericSolverVersion::ResourceCertificate
+            | GenericSolverVersion::CertifiedRoute
+            | GenericSolverVersion::ArtisanContinuation
+            | GenericSolverVersion::ExternalReferenceV22
+    ) {
+        return full_quality_certificate_decision(
+            recipe,
+            crafter,
+            state,
+            context,
+            random_condition_mask,
+            4,
+        )
+        .or_else(|| {
+            resource_certificate::decide(recipe, crafter, state, context, random_condition_mask)
+        })
+        .or_else(|| {
+            matches!(
+                version,
+                GenericSolverVersion::CertifiedRoute
+                    | GenericSolverVersion::ArtisanContinuation
+                    | GenericSolverVersion::ExternalReferenceV22
+            )
+            .then(|| certified_route::plan(recipe, crafter, state, context, random_condition_mask))
+            .flatten()
+        })
+        .or_else(|| {
+            crate::artisan_expert::recommend(
+                recipe,
+                crafter,
+                state,
+                objective,
+                context,
+                random_condition_mask,
+            )
+            .map(|reference| {
+                if matches!(
+                    version,
+                    GenericSolverVersion::ArtisanContinuation
+                        | GenericSolverVersion::ExternalReferenceV22
+                ) {
+                    artisan_continuation::improve(
+                        recipe,
+                        crafter,
+                        state,
+                        objective,
+                        context,
+                        random_condition_mask,
+                        reference,
+                    )
+                } else {
+                    reference
+                }
+            })
+        });
+    }
     if version == GenericSolverVersion::ExternalReferenceCertifiedFinish {
         return certified_full_quality_finish_decision(recipe, crafter, state).or_else(|| {
             crate::artisan_expert::recommend(
@@ -5068,6 +5161,25 @@ fn advance_planner_context_inner(
     after: &CraftState,
     observe_route: bool,
 ) {
+    if observe_route
+        && matches!(
+            solver_version,
+            GenericSolverVersion::CertifiedRoute
+                | GenericSolverVersion::ArtisanContinuation
+                | GenericSolverVersion::ExternalReferenceV22
+        )
+    {
+        let mut continuation = decision;
+        continuation.route = decision.route.and_then(|mut route| {
+            let actions = route.certified_actions?;
+            if actions.as_slice().first().copied() != Some(decision.action) {
+                return None;
+            }
+            route.certified_actions = Some(actions.after_first()?);
+            Some(route)
+        });
+        context.route_memory.observe(continuation, before, after);
+    }
     if observe_route && solver_version.is_route_portfolio() {
         context.route_memory.observe(decision, before, after);
     }
@@ -5234,6 +5346,17 @@ pub fn planner_context_fingerprint(
     solver_version: GenericSolverVersion,
     context: &PlannerContext,
 ) -> String {
+    if matches!(
+        solver_version,
+        GenericSolverVersion::CertifiedRoute
+            | GenericSolverVersion::ArtisanContinuation
+            | GenericSolverVersion::ExternalReferenceV22
+    ) {
+        return format!(
+            "certified-route-context:{}",
+            portfolio::context_fingerprint(context)
+        );
+    }
     if solver_version.is_route_portfolio() {
         return portfolio::context_fingerprint(context);
     }
@@ -5302,7 +5425,7 @@ pub fn planner_context_fingerprint(
 mod tests {
     use super::*;
 
-    fn hard_quality_recipe() -> RecipeProfile {
+    pub(super) fn hard_quality_recipe() -> RecipeProfile {
         RecipeProfile {
             canonical_recipe_id: 1,
             recipe_level: 746,
@@ -5332,7 +5455,7 @@ mod tests {
         }
     }
 
-    fn five_meld_buffed_crafter() -> CrafterProfile {
+    pub(super) fn five_meld_buffed_crafter() -> CrafterProfile {
         CrafterProfile {
             level: 100,
             craftsmanship: 5_811,
@@ -5403,8 +5526,12 @@ mod tests {
                 GenericSolverVersion::ExternalReferenceV2,
             ),
             (
-                GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+                GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION,
                 GenericSolverVersion::ExternalReferenceV21,
+            ),
+            (
+                GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+                GenericSolverVersion::ExternalReferenceV22,
             ),
             (
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,

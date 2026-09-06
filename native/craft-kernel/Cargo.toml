@@ -14,6 +14,11 @@ build = "build.rs"
 [lib]
 path = "src/lib.rs"
 
+[features]
+# Explicitly opt-in for isolated candidate WASM benchmarks; never enabled by
+# the production Web build.
+research-web-policies = []
+
 [[bin]]
 name = "craft-kernel-rollout-batch"
 path = "src/bin/craft-kernel-rollout-batch.rs"

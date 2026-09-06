@@ -938,6 +938,7 @@ fn setup_consumer_survives_a_condition_interrupt_and_manual_deviation_rebuilds()
         persona: PlannerPersona::GuideContinuation,
         route: Some(RoutePlan {
             intent: RouteIntent::Burst,
+            certified_actions: None,
             engine: ContinuationEngine::Semantic,
             setup: Some(CraftActionId::QuickInnovation),
             consumer: Some(CraftActionId::ByregotsBlessing),
@@ -964,6 +965,7 @@ fn setup_consumer_survives_a_condition_interrupt_and_manual_deviation_rebuilds()
         persona: PlannerPersona::GuideContinuation,
         route: Some(RoutePlan {
             intent: RouteIntent::Recovery,
+            certified_actions: None,
             engine: ContinuationEngine::Semantic,
             setup: None,
             consumer: None,

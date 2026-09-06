@@ -50,6 +50,7 @@ fn prepared_decision(
     let mut decision = action_decision(setup, engine);
     decision.route = Some(RoutePlan {
         intent: intent(consumer),
+        certified_actions: None,
         engine,
         setup: Some(setup),
         consumer: Some(consumer),

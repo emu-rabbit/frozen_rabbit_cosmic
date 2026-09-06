@@ -1,0 +1,12 @@
+{
+  "cases": 50,
+  "scope": "One sample per family, equipment cycles E02/E03/E07/E09/E10; alternating balanced/normal-heavy, base 20261213. Adoption replay, not new outcome evidence.",
+  "frozenBinary": "b97a4aee2cfb292023bdd0fa7e4a87c6c0b28e63181ed5acd95ebcf76aa30397",
+  "adoptedBinary": "1e358603be83466f6bc7ecc00532c4d05c32beb8696cfd52131c69d2000669e2",
+  "comparisons": [
+    "frozen candidate vs rebuilt candidate",
+    "frozen candidate vs adopted v2.2"
+  ],
+  "nonIdentityNonTimingMismatches": 0,
+  "fullTraceCompared": true
+}

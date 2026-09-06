@@ -1,18 +1,19 @@
 # 目前狀態
 
-`last_verified: 2026-09-05`
+`last_verified: 2026-09-06`
 
-本次核對 checkout `14ac85f` 的 code、設定與文件；沒有重跑歷史評測、部署查核或遊戲實證。既有報告中的 `20260907`／`20261003` 檔名與日期保留為歷史標記，不據此推定時間先後；結果須用 commit、binary、config 與 case identity 定位。
+本次在 checkout `14ac85f` 上完成 Rust solver 強化、64-seed 三臂長跑判讀與 v2.2 Web 採用；沒有部署查核或新遊戲實證。既有報告中的 `20260907`／`20261003` 檔名與日期保留為歷史標記，不據此推定時間先後；結果須用 commit、binary、config 與 case identity 定位。
 
 ## 目前方向
 
-做出手把手帶玩家完成高難配方的網頁，並持續提升求解能力。Artisan 強化、混合架構或自有核心均可探索，取捨由 [產品使命](skills/mission/project_mission.md) 擁有；下一步見 [roadmap](roadmaps/broad_solver_implementation_plan.md)。目前沒有排定新 long run。
+做出手把手帶玩家完成高難配方的網頁，並持續提升求解能力。Artisan 強化、混合架構或自有核心均可探索，品質優先於操作長度與速度；取捨由 [產品使命](skills/mission/project_mission.md) 擁有。使用者已決定將 Artisan continuation 候選採用為 v2.2 並接入 Web。新一輪前先討論如何量出剩餘改善空間；目前沒有待跑長跑，見 [active brief](overnight_review_brief.md)。
 
 ## 已有實作
 
 | 範圍 | 本次核對結果 | Code owner |
 | --- | --- | --- |
-| Rust 主策略 | 採用 `generic-craft-external-reference-v2.1.0`；四步滿品質完工證明無法成立時由 Artisan Expert 決策。每步依實際 state 重證。 | `native/craft-kernel/src/generic_solver.rs`、`artisan_expert.rs` |
+| Rust 主策略 | 採用 `generic-craft-external-reference-v2.2.0`：保留 Artisan fallback，加入資源收尾證明、最多 12 招提案的全宣告球色驗證，以及 hard-quality 等球／冒險狀態的 Artisan 續作抽樣比較。 | `native/craft-kernel/src/generic_solver.rs`、`native/craft-kernel/src/artisan_expert.rs`、`generic_solver/resource_certificate.rs`、`certified_route.rs`、`artisan_continuation.rs` |
+| 歷史對照 | v2.1 與三個描述性實驗 identity 保留供重播及消融比較。wide 試驗無額外品質收益，已移除；沒有另選下一個候選。 | `native/craft-kernel/src/generic_solver.rs` |
 | Rust 整合 API | `main_solver` façade 提供 recommend→observe；crate 仍為 `publish = false`。 | `native/craft-kernel/src/main_solver.rs`、`Cargo.toml` |
 | Web 計算 | Rust→WASM persistent Worker；初始化期限 30 秒、每步推薦 watchdog 3 秒；錯誤／逾時明示，目前沒有獨立快速求解器。 | `apps/web/src/runtime/planner/`、`native/craft-kernel-web` |
 | 使用流程 | 任務 catalog、搜尋／篩選、裝備設定檔、四語系、明暗模式、逐步回報、合法替代技能、undo、重置、後續任務導向已接入。 | `apps/web/src/views/`、`apps/web/src/composables/useActiveCraftSession.ts` |
@@ -30,10 +31,12 @@
 
 ## 研究證據入口
 
-以下只引用既有報告，本次未獨立重播 raw shards；歷史報告中的下一步與暫停決定不自動成為現行命令。
+本輪新證據已核對 completed shards、paired 切片與敗例 trace；其餘歷史報告未全面重播。歷史報告中的下一步與暫停決定不自動成為現行命令。
 
 | 要回答的問題 | 入口 |
 | --- | --- |
+| v2.2 的採用、Web 接線與驗證 | [採用紀錄](../reports/generic-cosmic-overnight/v220-adoption-20260906.md)：正式身份與長跑候選對照、native／WASM parity、測試與效能邊界 |
+| 新版本是否改善滿品質、長度，有哪些退步 | [64-seed 判讀](../reports/generic-cosmic-overnight/artisan-continuation-s64-review-20260906.md)：96,000 episodes、全部 500 格、paired 得失與成本；不是自然成功率或最佳上限證明。早期開發見 [研究報告](../reports/generic-cosmic-overnight/resource-certificate-development-20260905.md) |
 | v2.1 採用及品質／完成交換 | [採納報告](../reports/generic-cosmic-overnight/v210-adoption-review-20260907.md)；不是全面優於 v1.12 的結論 |
 | Artisan 上的三步強化成果 | [v2.0 四表](../reports/generic-cosmic-overnight/generic-native-full-quality-certificate-vs-artisan-balanced-e02-e03-e07-e09-e10-2world-64seed-20260904.md) |
 | 四步、五步及更深搜尋的收益／成本 | [深度研究](../reports/generic-cosmic-overnight/full-quality-certificate-depth-sweet-spot-20260903.md)；五步尚未採用 |

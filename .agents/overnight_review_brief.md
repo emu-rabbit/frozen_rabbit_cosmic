@@ -1,25 +1,11 @@
 # 下一輪 Solver 評測 Brief
 
-`last_updated: 2026-09-05`
+`last_updated: 2026-09-06`
 
-## 狀態
+目前沒有待啟動的 overnight。Artisan continuation 的 64-seed 三臂長跑已完成判讀，使用者已決定將候選訂為 v2.2 並接入 Web；採用狀態見 [current_state](current_state.md)。
 
-目前沒有排定新 long run，也沒有待判讀的新候選。採用版本與既有報告見 [current_state.md](current_state.md)；研究方向見 [產品使命](skills/mission/project_mission.md)。
+已完成的跑前假說、判準、固定 binary、run／resume／status 命令封存於 [跑前契約](../reports/generic-cosmic-overnight/artisan-continuation-s64-prerun-contract-20260905.md)，結果見 [64-seed 判讀](../reports/generic-cosmic-overnight/artisan-continuation-s64-review-20260906.md)，接線與一致性見 [v2.2 採用紀錄](../reports/generic-cosmic-overnight/v220-adoption-20260906.md)。歷史命令不代表需要再跑一次。
 
-本檔只承載下一輪跑前契約，沒有 candidate 時不累積前輪結果或以舊「暫停」限制新研究。
+使用者在開始新一輪前提出：先研究如何區分求解器缺口與裝備／球色限制，避免為很少的尾端收益投入不成比例成本。此問題由 [RQ-05](research/open_questions.md) 追蹤；尚未指定新候選、樣本規模或長跑契約。
 
-## 有新候選時填寫
-
-| 欄位 | 必須說清楚的內容 |
-| --- | --- |
-| 玩家問題 | 哪種完成／品質／操作失敗值得改善，支持它的現有證據 |
-| 假說 | 用哪些 runtime 可觀測訊號改變決策；預期改善哪些情境 |
-| 比較身份 | 已採用 baseline、candidate、必要的 reference；source／binary／config identity |
-| 案例與用途 | family、裝備、world、seed、action budget；development 與保留集分開 |
-| 判讀 | 主要成果、重要切片、paired 勝負、不確定性、實際有意義的改善與容忍界線 |
-| 代價與停止 | 完成／品質交換、推薦 latency、操作長度與研究成本；何時停止或請使用者決定 |
-| 操作交付 | bounded 驗證、完整 run／resume／status 命令及安全中止；依 [工作流](workflows/run-generic-overnight-evaluation.md) |
-
-預設與目前採用策略比較。要隔離強化效果時另選對應基線，例如 certificate 增量對其前版、整體強化對固定 Artisan。v1.12 等歷史版本只在比較問題需要時加入，不要求所有新候選永遠重跑舊基線。
-
-若考慮提高 seed 數，先說明要縮小哪個會改變決策的誤差；不預設必須從 64 提到 256。結果出現後保存原判準與實際決策到 report，再把本檔重設為下一輪或「未排定」。
+新長跑只有在假說、主要玩家成果、重要切片、停止條件與研究成本具體後才建立；操作方式仍由 [長跑工作流](workflows/run-generic-overnight-evaluation.md) 管理。

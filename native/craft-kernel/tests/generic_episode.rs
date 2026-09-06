@@ -556,6 +556,16 @@ fn whole_episode_compute_is_replay_deterministic() {
     );
     assert_eq!(adopted_v21.steps, depth4_experiment.steps);
 
+    experiment_case.solver_version = GenericSolverVersion::ArtisanContinuation;
+    let continuation = execute_generic_episode(&experiment_case).expect("continuation replay");
+    experiment_case.solver_version = GenericSolverVersion::ExternalReferenceV22;
+    let adopted_v22 = execute_generic_episode(&experiment_case).expect("v2.2 replay");
+    assert_eq!(adopted_v22.actions, continuation.actions);
+    assert_eq!(adopted_v22.final_state, continuation.final_state);
+    assert_eq!(adopted_v22.final_cursor, continuation.final_cursor);
+    assert_eq!(adopted_v22.planner_context, continuation.planner_context);
+    assert_eq!(adopted_v22.steps, continuation.steps);
+
     let mut terminal = case;
     terminal.rollout.initial_state = first.final_state;
     let result = execute_generic_episode(&terminal).expect("already terminal");
@@ -574,6 +584,10 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation() 
         GenericSolverVersion::ExternalReferenceFullQualityCertificate,
         GenericSolverVersion::ExternalReferenceV2,
         GenericSolverVersion::ExternalReferenceV21,
+        GenericSolverVersion::ExternalReferenceV22,
+        GenericSolverVersion::ResourceCertificate,
+        GenericSolverVersion::CertifiedRoute,
+        GenericSolverVersion::ArtisanContinuation,
         GenericSolverVersion::ExpandedFullQualityCertificate,
         GenericSolverVersion::FullQualityCertificateDepth5,
         GenericSolverVersion::FullQualityCertificateDepth6,

@@ -419,7 +419,7 @@ impl MainSolverSession {
             return Ok(MainSolverStatus::ActionLimitReached);
         }
         let decision = recommend_generic_action_with_model(
-            GenericSolverVersion::ExternalReferenceV21,
+            GenericSolverVersion::ExternalReferenceV22,
             &self.config.recipe,
             &self.config.crafter,
             state,
@@ -512,7 +512,7 @@ impl MainSolverSession {
         if action == pending.decision.action {
             advance_planner_context(
                 &mut self.context,
-                GenericSolverVersion::ExternalReferenceV21,
+                GenericSolverVersion::ExternalReferenceV22,
                 pending.decision,
                 &pending.before_state,
                 after_state,

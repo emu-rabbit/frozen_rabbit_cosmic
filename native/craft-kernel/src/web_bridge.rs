@@ -97,7 +97,16 @@ impl WebPlannerSession {
         case: &GenericEpisodeCase,
         advance: WebPlannerAdvance,
     ) -> Result<WebPlannerReply, String> {
-        if case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION {
+        let research_policy = cfg!(feature = "research-web-policies")
+            && matches!(
+                case.solver_version,
+                GenericSolverVersion::ResourceCertificate
+                    | GenericSolverVersion::CertifiedRoute
+                    | GenericSolverVersion::ArtisanContinuation
+            );
+        if case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION
+            && !research_policy
+        {
             return Err(format!(
                 "Web planner requires {GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION}, got {}",
                 case.solver_version.as_str(),
@@ -188,7 +197,7 @@ impl WebPlannerSession {
                 action: None,
                 option: None,
                 persona: None,
-                policy_version: GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+                policy_version: case.solver_version.as_str(),
                 context_fingerprint: planner_context_fingerprint(
                     case.solver_version,
                     &self.context,
@@ -214,7 +223,7 @@ impl WebPlannerSession {
             action: decision.map(|decision| decision.action),
             option: decision.map(|decision| decision.option.as_str().to_owned()),
             persona: decision.map(|decision| decision.persona.as_str().to_owned()),
-            policy_version: GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+            policy_version: case.solver_version.as_str(),
             context_fingerprint: planner_context_fingerprint(case.solver_version, &self.context),
         })
     }
@@ -313,6 +322,19 @@ mod tests {
             .recommend_case(&case, WebPlannerAdvance::Continue(native.steps[0].action))
             .unwrap();
         assert_eq!(second.action, Some(native.actions[1]));
+    }
+
+    #[test]
+    fn candidate_web_policy_requires_explicit_research_build() {
+        let mut case = f36_case();
+        case.solver_version = GenericSolverVersion::ArtisanContinuation;
+        let mut session = WebPlannerSession::default();
+        let reply = session.recommend_case(&case, WebPlannerAdvance::Reset);
+        if cfg!(feature = "research-web-policies") {
+            assert_eq!(reply.unwrap().policy_version, case.solver_version.as_str());
+        } else {
+            assert!(reply.unwrap_err().contains("Web planner requires"));
+        }
     }
 
     #[test]

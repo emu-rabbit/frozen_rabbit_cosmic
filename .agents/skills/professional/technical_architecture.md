@@ -46,7 +46,7 @@ Rust policy 可以有意地超越 frozen TypeScript 行為；TS→Rust 只需要
 
 第三方 Rust 整合的穩定入口是 `native/craft-kernel/src/main_solver.rs`。它固定路由目前採用的 `Balanced` 主求解器，以 `MainSolverConfig`／`MainSolverSession` 提供 recommend→observe state-feedback loop，並隱藏 evaluator、歷史 identities 與 planner memory 細節。新增其他語言 adapter 時應建立在這個 façade 上；不得讓公開 contract 依賴 141 欄評測 TSV，也不得在 adapter 複製 policy。
 
-目前主策略在 `native/craft-kernel/src/generic_solver.rs` 的 external-reference 路由：先嘗試滿品質完工證明，無證明時使用 `artisan_expert.rs`。`generic_solver/portfolio/` 是 v1 世代研究與歷史路由，並非現行產品必經的 scorer。修改前從 `main_solver.rs`／Web identity 追實際呼叫路徑，不以目錄名稱推定 ownership。
+目前主策略在 `native/craft-kernel/src/generic_solver.rs` 的 external-reference 路由：先嘗試滿品質完工證明，無證明時取得 Artisan 建議，符合 hard-quality 介入條件時再以 `artisan_continuation.rs` 比較續作。`certified_route.rs` 重用 `generic_solver/portfolio/` 的 v1 endgame 提案器，再獨立驗證完整路線；v1 的共同 scorer 並非現行產品必經路徑。修改前從 `main_solver.rs`／Web identity 追實際呼叫路徑，不以目錄名稱推定 ownership。
 
 保留 Artisan、改良混合策略或建立自有核心都依 [產品使命](../mission/project_mission.md) 的玩家成果判斷。共同 portfolio 是可用設計，不是所有新策略都必須遷入的目標架構。
 

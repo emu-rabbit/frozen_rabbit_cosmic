@@ -73,7 +73,7 @@ export default {
     rabbitQuestion: 'Why freeze the rabbit? Can I roast it instead?',
     rabbitAnswer: 'No.',
     algorithmQuestion: 'How does the solver algorithm work?',
-    algorithmAnswer: "The current v2.1 algorithm uses Artisan's Expert Solver as its backbone, but Frozen Rabbit adds another route: if a depth-limited four-step DFS can prove that the craft will reach both maximum quality and completion under every possible condition, the solver follows the route selected by that proof and proves it again after every observed step. All other cases use Artisan's algorithm.",
+    algorithmAnswer: "The v2.2 solver builds on Artisan's Expert Solver. It considers resource actions and searches for full-quality finishing routes of up to 12 actions. A route is accepted only after verification across every condition allowed for the recipe, and is checked again after each reported action. For recipes that require maximum quality, when no certified finish is available and Artisan suggests waiting or a skill that can fail, the solver also simulates guaranteed-success alternatives followed by Artisan's continuation. It changes the recommendation only with sufficient supporting evidence under two condition assumptions. This comparison is an estimate, not a guarantee of success; otherwise, it follows Artisan's recommendation.",
     optimalQuestion: "Does this website's solver produce the optimal solution?",
     optimalAnswer: 'The backbone is an experimentally tested, capable decision-tree algorithm; it does not produce an optimal solution through brute-force enumeration.',
     integrationQuestion: "Can I integrate this website's solver into my project?",

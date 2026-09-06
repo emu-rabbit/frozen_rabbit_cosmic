@@ -1,0 +1,25 @@
+{
+  "scope": "50 families, E02, normal-heavy-iid, development base seed 20260905; diagnostic sample, not holdout",
+  "oldBinary": "ec76216c43f84ac41258a4043ba31a644334cd277152a4ab571501fe07c65a55",
+  "newBinary": "b97a4aee2cfb292023bdd0fa7e4a87c6c0b28e63181ed5acd95ebcf76aa30397",
+  "cases": 50,
+  "nonTimingFieldMismatches": 0,
+  "baseline": {
+    "cases": 50,
+    "waits": 952,
+    "actions": 2663,
+    "completed": 36
+  },
+  "reference": {
+    "cases": 50,
+    "waits": 902,
+    "actions": 2586,
+    "completed": 37
+  },
+  "candidate": {
+    "cases": 50,
+    "waits": 857,
+    "actions": 2554,
+    "completed": 37
+  }
+}

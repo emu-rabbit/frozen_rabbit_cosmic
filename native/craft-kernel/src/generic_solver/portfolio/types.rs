@@ -77,12 +77,52 @@ impl ConditionWork {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct CertifiedActions {
+    pub actions: [CraftActionId; 12],
+    pub len: u8,
+}
+
+impl CertifiedActions {
+    pub fn as_slice(&self) -> &[CraftActionId] {
+        &self.actions[..usize::from(self.len).min(self.actions.len())]
+    }
+
+    pub(crate) fn after_first(mut self) -> Option<Self> {
+        if self.len <= 1 || usize::from(self.len) > self.actions.len() {
+            return None;
+        }
+        self.actions.rotate_left(1);
+        self.len -= 1;
+        self.actions[usize::from(self.len)..].fill(CraftActionId::BasicSynthesis);
+        Some(self)
+    }
+}
+
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 pub struct RoutePlan {
     pub intent: RouteIntent,
     pub engine: ContinuationEngine,
     pub setup: Option<CraftActionId>,
     pub consumer: Option<CraftActionId>,
     pub interrupt: bool,
+    pub certified_actions: Option<CertifiedActions>,
+}
+
+// Keep historical v1 context fingerprints byte-for-byte stable when no new
+// certificate is present; only the new policy owns this extra memory.
+impl std::fmt::Debug for RoutePlan {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut d = f.debug_struct("RoutePlan");
+        d.field("intent", &self.intent)
+            .field("engine", &self.engine)
+            .field("setup", &self.setup)
+            .field("consumer", &self.consumer)
+            .field("interrupt", &self.interrupt);
+        if let Some(actions) = self.certified_actions {
+            d.field("certified_actions", &actions);
+        }
+        d.finish()
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]

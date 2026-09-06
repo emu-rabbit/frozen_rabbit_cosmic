@@ -39,6 +39,45 @@ pub const PORTFOLIO_MAX_CANDIDATES: usize = 28;
 pub const PORTFOLIO_SAMPLES: usize = 8;
 pub const PORTFOLIO_HORIZON: usize = 64;
 
+// Reuse the bounded proposer, never the historical sampled selector. This
+// route remains only a Normal-world witness until the caller proves it.
+pub(super) fn certificate_proposal(
+    recipe: &RecipeProfile,
+    crafter: &CrafterProfile,
+    state: &CraftState,
+    context: &PlannerContext,
+    mask: Option<u16>,
+) -> Option<Vec<CraftActionId>> {
+    let input = Input {
+        resource_aware: false,
+        completion_aware: false,
+        condition_opportunities: false,
+        condition_work_scheduler: false,
+        condition_work_completion_guard: false,
+        condition_coordination: false,
+        coordinated: true,
+        construction: false,
+        compact_comparison: false,
+        robust_suffix: false,
+        recipe,
+        crafter,
+        state,
+        objective: GenericObjective {
+            quality_maximum: recipe.quality_max,
+            protected_quality_floor: recipe.quality_max,
+            adaptive_completion: false,
+            quality_utility_kind: QualityUtilityKind::HardQualityMaximum,
+            quality_milestone_count: 1,
+            quality_milestones: [recipe.quality_max, 0, 0, 0],
+        },
+        risk: RiskPreference::Balanced,
+        context,
+        random_condition_mask: mask,
+        declared_condition_weights: None,
+    };
+    endgame::plan(input, &mut PortfolioWork::default())
+}
+
 #[derive(Clone, Copy)]
 pub(super) struct Input<'a> {
     pub resource_aware: bool,
@@ -463,6 +502,7 @@ pub(super) fn attach_route(
 ) -> GenericDecision {
     decision.route = Some(RoutePlan {
         intent: intent(decision.action),
+        certified_actions: None,
         engine,
         setup: None,
         consumer: None,

@@ -73,7 +73,7 @@ export default {
     rabbitQuestion: '為甚麼要把兔肉冷凍起來，可以烤來吃嗎？',
     rabbitAnswer: '不可以',
     algorithmQuestion: '求解器的演算法是如何運作的？',
-    algorithmAnswer: "目前的演算法 v2.1 版本，主幹演算法由 Artisan's Expert Solver 完成，但兔肉新增了一個路由：倘若在有限的 4 步 DFS 搜尋下，可以找到在任何球色下都滿品質且完工的證明，則逐步使用這個證明選出的路線，並在每一步依實際球色重新證明；其餘情況都是採用 Artisan 的演算法。",
+    algorithmAnswer: "目前的 v2.2 求解器以 Artisan's Expert Solver 為基礎，加入資源運用與最長 12 招的滿品質收尾路線搜尋；只有在配方允許的所有球色下都能成立的路線才會採用，並在每一步依實際回報重新確認。對必須滿品質的配方，若尚無確定收尾路線，而 Artisan 建議等球或使用有失敗機率的技能，也會模擬必成替代技能接回 Artisan 的後續結果；兩種球色假設下都有足夠證據支持時才改選。這項比較是估計，不保證每次成功；其餘情況沿用 Artisan 的建議。",
     optimalQuestion: '本網站的解法是最佳解嗎？',
     optimalAnswer: '主幹演算法屬於經過實驗、有一定能力的決策樹演算法，並非暴力枚舉產生的最佳解。',
     integrationQuestion: '我可以串接本網站的求解器至我的專案中嗎？',
