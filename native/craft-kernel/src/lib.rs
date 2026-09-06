@@ -79,6 +79,8 @@ mod research_exports {
         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
         validate_generic_episode_batch,
     };
+    pub use crate::generic_solver::GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION;
+    pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
     pub use crate::generic_solver::{
         AGGRESSIVE_RESOURCE_PORTFOLIO_POLICY_VERSION, ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
         ARTISAN_EXPERT_REFERENCE_POLICY_VERSION, BranchEvidence, CACHED_PORTFOLIO_POLICY_VERSION,

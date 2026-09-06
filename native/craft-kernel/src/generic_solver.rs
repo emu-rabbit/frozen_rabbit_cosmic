@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 mod artisan_continuation;
 mod certified_route;
+mod opening_recovery;
 mod portfolio;
 mod resource_certificate;
 pub use portfolio::*;
@@ -74,8 +75,10 @@ pub const GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION: &str =
     "generic-craft-external-reference-v2.0.0";
 pub const GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION: &str =
     "generic-craft-external-reference-v2.1.0";
-pub const GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION: &str =
+pub const GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION: &str =
     "generic-craft-external-reference-v2.2.0";
+pub const GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION: &str =
+    "generic-craft-external-reference-v2.3.0";
 pub const EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-expanded-full-quality-certificate";
 pub const FULL_QUALITY_CERTIFICATE_DEPTH5_EXPERIMENT_VERSION: &str =
@@ -90,6 +93,8 @@ pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-certified-route";
 pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-artisan-continuation";
+pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-opening-recovery";
 pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
 pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
     "guide-integrated-decision-memory-v0.5.0";
@@ -109,6 +114,7 @@ pub enum GenericSolverVersion {
     ResourceCertificate,
     CertifiedRoute,
     ArtisanContinuation,
+    OpeningRecovery,
     RustBaselineV1,
     HardQualityV2,
     RustPrimaryV3,
@@ -156,6 +162,7 @@ pub enum GenericSolverVersion {
     ProgressReserveGuideDirectProbe,
     OpportunityReserveGuideDirectProbe,
     RiskForwardDirectProbe,
+    ExternalReferenceV23,
 }
 
 impl GenericSolverVersion {
@@ -192,10 +199,12 @@ impl GenericSolverVersion {
             }
             Self::ExternalReferenceV2 => GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION,
             Self::ExternalReferenceV21 => GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION,
-            Self::ExternalReferenceV22 => GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+            Self::ExternalReferenceV22 => GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION,
+            Self::ExternalReferenceV23 => GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
             Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+            Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
             Self::ExpandedFullQualityCertificate => {
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
@@ -295,10 +304,12 @@ impl FromStr for GenericSolverVersion {
             }
             GENERIC_EXTERNAL_REFERENCE_V2_POLICY_VERSION => Ok(Self::ExternalReferenceV2),
             GENERIC_EXTERNAL_REFERENCE_V21_POLICY_VERSION => Ok(Self::ExternalReferenceV21),
-            GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION => Ok(Self::ExternalReferenceV22),
+            GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION => Ok(Self::ExternalReferenceV22),
+            GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION => Ok(Self::ExternalReferenceV23),
             RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
+            OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
                 Ok(Self::ExpandedFullQualityCertificate)
             }
@@ -4363,6 +4374,20 @@ pub fn recommend_generic_action_with_model(
     }
     if matches!(
         version,
+        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+    ) {
+        return opening_recovery::recommend(
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            random_condition_mask,
+        );
+    }
+    if matches!(
+        version,
         GenericSolverVersion::CertifiedRoute
             | GenericSolverVersion::ArtisanContinuation
             | GenericSolverVersion::ExternalReferenceV22
@@ -5161,6 +5186,14 @@ fn advance_planner_context_inner(
     after: &CraftState,
     observe_route: bool,
 ) {
+    let solver_version = if matches!(
+        solver_version,
+        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+    ) {
+        GenericSolverVersion::ExternalReferenceV22
+    } else {
+        solver_version
+    };
     if observe_route
         && matches!(
             solver_version,
@@ -5346,6 +5379,14 @@ pub fn planner_context_fingerprint(
     solver_version: GenericSolverVersion,
     context: &PlannerContext,
 ) -> String {
+    let solver_version = if matches!(
+        solver_version,
+        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+    ) {
+        GenericSolverVersion::ExternalReferenceV22
+    } else {
+        solver_version
+    };
     if matches!(
         solver_version,
         GenericSolverVersion::CertifiedRoute
@@ -5530,8 +5571,12 @@ mod tests {
                 GenericSolverVersion::ExternalReferenceV21,
             ),
             (
-                GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+                GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION,
                 GenericSolverVersion::ExternalReferenceV22,
+            ),
+            (
+                GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION,
+                GenericSolverVersion::ExternalReferenceV23,
             ),
             (
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,

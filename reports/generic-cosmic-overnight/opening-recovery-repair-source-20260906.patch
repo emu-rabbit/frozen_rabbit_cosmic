@@ -1,0 +1,604 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 8ae74fa..a38ffe5 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -94,6 +94,9 @@ fn main() -> ExitCode {
+                     RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_DEFERRED_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_CONFIRMED_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 3e03abc..8516b33 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -4,6 +4,7 @@ use std::str::FromStr;
+ 
+ mod artisan_continuation;
+ mod certified_route;
++mod opening_recovery;
+ mod portfolio;
+ mod resource_certificate;
+ pub use portfolio::*;
+@@ -90,6 +91,12 @@ pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-certified-route";
+ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
++pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-recovery";
++pub const OPENING_DEFERRED_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-deferred";
++pub const OPENING_CONFIRMED_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-confirmed";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+@@ -109,6 +116,9 @@ pub enum GenericSolverVersion {
+     ResourceCertificate,
+     CertifiedRoute,
+     ArtisanContinuation,
++    OpeningRecovery,
++    OpeningDeferred,
++    OpeningConfirmed,
+     RustBaselineV1,
+     HardQualityV2,
+     RustPrimaryV3,
+@@ -196,6 +206,9 @@ impl GenericSolverVersion {
+             Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
++            Self::OpeningDeferred => OPENING_DEFERRED_EXPERIMENT_VERSION,
++            Self::OpeningConfirmed => OPENING_CONFIRMED_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -299,6 +312,9 @@ impl FromStr for GenericSolverVersion {
+             RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
++            OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
++            OPENING_DEFERRED_EXPERIMENT_VERSION => Ok(Self::OpeningDeferred),
++            OPENING_CONFIRMED_EXPERIMENT_VERSION => Ok(Self::OpeningConfirmed),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -521,6 +537,7 @@ pub struct PlannerContext {
+     pub risk_failures: u8,
+     pub consecutive_risk_failures: u8,
+     pub last_action: Option<CraftActionId>,
++    pub opening_recovery_pending: bool,
+ }
+ 
+ impl Default for PlannerContext {
+@@ -552,6 +569,7 @@ impl Default for PlannerContext {
+             risk_failures: 0,
+             consecutive_risk_failures: 0,
+             last_action: None,
++            opening_recovery_pending: false,
+         }
+     }
+ }
+@@ -4361,6 +4379,32 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    if matches!(
++        version,
++        GenericSolverVersion::OpeningDeferred | GenericSolverVersion::OpeningConfirmed
++    ) {
++        return opening_recovery::recommend_repair(
++            version,
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
++    if version == GenericSolverVersion::OpeningRecovery {
++        return opening_recovery::recommend(
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::CertifiedRoute
+@@ -5161,6 +5205,21 @@ fn advance_planner_context_inner(
+     after: &CraftState,
+     observe_route: bool,
+ ) {
++    if solver_version == GenericSolverVersion::OpeningDeferred {
++        // One observation window, based on what the player actually executed.
++        context.opening_recovery_pending = context.last_action == Some(CraftActionId::Reflect)
++            && decision.action == CraftActionId::RapidSynthesis;
++    }
++    let solver_version = if matches!(
++        solver_version,
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::OpeningDeferred
++            | GenericSolverVersion::OpeningConfirmed
++    ) {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if observe_route
+         && matches!(
+             solver_version,
+@@ -5346,6 +5405,21 @@ pub fn planner_context_fingerprint(
+     solver_version: GenericSolverVersion,
+     context: &PlannerContext,
+ ) -> String {
++    if solver_version == GenericSolverVersion::OpeningDeferred {
++        return format!(
++            "opening-deferred:{}:{}",
++            context.opening_recovery_pending,
++            planner_context_fingerprint(GenericSolverVersion::ExternalReferenceV22, context)
++        );
++    }
++    let solver_version = if matches!(
++        solver_version,
++        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::OpeningConfirmed
++    ) {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if matches!(
+         solver_version,
+         GenericSolverVersion::CertifiedRoute
+diff --git a/native/craft-kernel/src/generic_solver/artisan_continuation.rs b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+index 2bc73c8..9b76926 100644
+--- a/native/craft-kernel/src/generic_solver/artisan_continuation.rs
++++ b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+@@ -47,6 +47,17 @@ fn evaluate(
+     offset: u32,
+     samples: u32,
+     scarce: bool,
++) -> Value {
++    evaluate_policy(input, root, offset, samples, scarce, false)
++}
++
++fn evaluate_policy(
++    input: Input<'_>,
++    root: GenericDecision,
++    offset: u32,
++    samples: u32,
++    scarce: bool,
++    deferred: bool,
+ ) -> Value {
+     let mut weights = [0.0; MATERIAL_CONDITION_COUNT];
+     for condition in declared_next_conditions(input.mask) {
+@@ -75,7 +86,7 @@ fn evaluate(
+             .action_limit
+             .saturating_sub(context.action_uses)
+             .min(80);
+-        for _ in 0..remaining {
++        for step in 0..remaining {
+             let Some(next) = decision else {
+                 break;
+             };
+@@ -96,7 +107,11 @@ fn evaluate(
+             };
+             advance_planner_context(
+                 &mut context,
+-                GenericSolverVersion::ArtisanExpertReference,
++                if deferred && step == 0 {
++                    GenericSolverVersion::ExternalReferenceV22
++                } else {
++                    GenericSolverVersion::ArtisanExpertReference
++                },
+                 next,
+                 &state,
+                 &after.next_state,
+@@ -115,6 +130,13 @@ fn evaluate(
+                 &context,
+                 input.mask,
+             );
++            if deferred && step == 0 {
++                decision = deferred_followup(Input {
++                    state: &state,
++                    context: &context,
++                    ..input
++                });
++            }
+         }
+         if state.terminal == CraftTerminal::Completed {
+             value.completed += 1;
+@@ -126,6 +148,119 @@ fn evaluate(
+     value
+ }
+ 
++fn confirm_manipulation(
++    input: Input<'_>,
++    base: GenericDecision,
++    offset: u32,
++    samples: u32,
++    margin: u32,
++) -> GenericDecision {
++    if input.recipe.required_quality <= 0
++        || input.state.quality >= input.recipe.quality_max
++        || input.state.buffs.manipulation != 0
++        || declared_next_conditions(input.mask).next().is_none()
++    {
++        return base;
++    }
++    let p = preview_action(
++        input.recipe,
++        input.crafter,
++        input.state,
++        CraftActionId::Manipulation,
++    );
++    if !p.legal
++        || branch_state(
++            input.recipe,
++            input.crafter,
++            input.state,
++            CraftActionId::Manipulation,
++            true,
++        )
++        .is_none_or(|s| s.terminal == CraftTerminal::Failed)
++    {
++        return base;
++    }
++    let proposal = action_decision(CraftActionId::Manipulation);
++    let mut gain = 0;
++    for scarce in [false, true] {
++        let b = evaluate(input, base, offset, samples, scarce);
++        let c = evaluate(input, proposal, offset, samples, scarce);
++        if c.completed < b.completed || c.full < b.full {
++            return base;
++        }
++        gain += c.full - b.full;
++    }
++    if gain >= margin { proposal } else { base }
++}
++
++fn deferred_followup(input: Input<'_>) -> Option<GenericDecision> {
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        input.recipe,
++        input.crafter,
++        input.state,
++        input.objective,
++        RiskPreference::Balanced,
++        input.context,
++        input.mask,
++    )?;
++    Some(confirm_manipulation(input, base, 2001, 4, 1))
++}
++
++pub(super) fn repair_opening(
++    version: GenericSolverVersion,
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    base: GenericDecision,
++    opening: GenericDecision,
++) -> GenericDecision {
++    let input = Input {
++        recipe,
++        crafter,
++        state,
++        objective,
++        context,
++        mask,
++    };
++    if version == GenericSolverVersion::OpeningDeferred && context.opening_recovery_pending {
++        return deferred_followup(input).unwrap_or(base);
++    }
++    if context.last_action != Some(CraftActionId::Reflect)
++        || opening.action != CraftActionId::Manipulation
++    {
++        return opening;
++    }
++    if version == GenericSolverVersion::OpeningConfirmed {
++        return confirm_manipulation(input, base, 10001, 32, 8);
++    }
++    if base.action != CraftActionId::RapidSynthesis {
++        return opening;
++    }
++    let preview = preview_action(recipe, crafter, state, base.action);
++    if !preview.legal
++        || [false, true].into_iter().any(|success| {
++            branch_state(recipe, crafter, state, base.action, success)
++                .is_none_or(|s| s.terminal == CraftTerminal::Failed)
++        })
++    {
++        return opening;
++    }
++    let mut gain = 0;
++    for scarce in [false, true] {
++        let now = evaluate(input, opening, 1001, 8, scarce);
++        let later = evaluate_policy(input, base, 1001, 8, scarce, true);
++        if later.completed < now.completed || later.full < now.full {
++            return opening;
++        }
++        gain += later.full - now.full;
++    }
++    if gain >= 2 { base } else { opening }
++}
++
+ pub(super) fn improve(
+     recipe: &RecipeProfile,
+     crafter: &CrafterProfile,
+@@ -134,11 +269,40 @@ pub(super) fn improve(
+     context: &PlannerContext,
+     mask: Option<u16>,
+     reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 6,
++    )
++}
++
++pub(super) fn improve_opening(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 1,
++    )
++}
++
++fn improve_with_minimum_iq(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++    minimum_iq: i32,
+ ) -> GenericDecision {
+     let preview = preview_action(recipe, crafter, state, reference.action);
+     if recipe.required_quality <= 0
+         || state.quality >= recipe.quality_max
+-        || state.inner_quiet < 6
++        || state.inner_quiet < minimum_iq
+         || declared_next_conditions(mask).next().is_none()
+         || !(preview.success_rate < 1.0
+             || matches!(
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 0f25ae8..1a7ff11 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -79,6 +79,7 @@ mod research_exports {
+         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+         validate_generic_episode_batch,
+     };
++    pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
+     pub use crate::generic_solver::{
+         AGGRESSIVE_RESOURCE_PORTFOLIO_POLICY_VERSION, ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+         ARTISAN_EXPERT_REFERENCE_POLICY_VERSION, BranchEvidence, CACHED_PORTFOLIO_POLICY_VERSION,
+@@ -134,6 +135,9 @@ mod research_exports {
+         recommend_portfolio_with_evaluation_budget, recommend_resource_portfolio,
+         recommend_route_portfolio,
+     };
++    pub use crate::generic_solver::{
++        OPENING_CONFIRMED_EXPERIMENT_VERSION, OPENING_DEFERRED_EXPERIMENT_VERSION,
++    };
+     pub use crate::kernel_support::*;
+     pub use crate::rollout::{
+         ConditionTransitionWeights, ROLLOUT_BATCH_PROTOCOL_VERSION, ROLLOUT_MAX_STEPS,
+diff --git a/native/craft-kernel/tests/generic_episode.rs b/native/craft-kernel/tests/generic_episode.rs
+index 358b010..8a07a71 100644
+--- a/native/craft-kernel/tests/generic_episode.rs
++++ b/native/craft-kernel/tests/generic_episode.rs
+@@ -40,6 +40,35 @@ fn generic_episode_handshake_advertises_current_v2() {
+     );
+ }
+ 
++#[test]
++fn retained_opening_recovery_replays_the_frozen_full_quality_gain() {
++    // Synthetic F43 / E03 / normal-heavy sample from opening-recovery-s1.
++    // Expected outcomes were captured from frozen binary 2c236e4f, before retention.
++    let mut case = frozen_rabbit_craft_kernel::research::parse_generic_episode_case(
++        include_str!("fixtures/opening_recovery.tsv").trim(),
++    )
++    .unwrap();
++    assert_eq!(case.solver_version, GenericSolverVersion::OpeningRecovery);
++    let result = execute_generic_episode(&case).unwrap();
++    assert_eq!(
++        &result.actions[..3],
++        &[
++            CraftActionId::QuickInnovation,
++            CraftActionId::Reflect,
++            CraftActionId::Manipulation
++        ]
++    );
++    assert_eq!(result.stop_reason.to_string(), "completed");
++    assert_eq!(result.actions.len(), 57);
++    assert_eq!(result.final_state.quality, 22000);
++    assert_eq!(result.final_state.cp, 99);
++    case.solver_version = GenericSolverVersion::ExternalReferenceV22;
++    let baseline = execute_generic_episode(&case).unwrap();
++    assert_eq!(baseline.stop_reason.to_string(), "failed");
++    assert_eq!(baseline.actions.len(), 77);
++    assert_eq!(baseline.final_state.quality, 19196);
++}
++
+ fn recipe(required_quality: i32) -> RecipeProfile {
+     RecipeProfile {
+         canonical_recipe_id: 36_990,
+@@ -588,6 +617,9 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation()
+         GenericSolverVersion::ResourceCertificate,
+         GenericSolverVersion::CertifiedRoute,
+         GenericSolverVersion::ArtisanContinuation,
++        GenericSolverVersion::OpeningRecovery,
++        GenericSolverVersion::OpeningDeferred,
++        GenericSolverVersion::OpeningConfirmed,
+         GenericSolverVersion::ExpandedFullQualityCertificate,
+         GenericSolverVersion::FullQualityCertificateDepth5,
+         GenericSolverVersion::FullQualityCertificateDepth6,
+diff --git a/native/craft-kernel/src/generic_solver/opening_recovery.rs b/native/craft-kernel/src/generic_solver/opening_recovery.rs
+new file mode 100644
+index 0000000..e926738
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/opening_recovery.rs
+@@ -0,0 +1,137 @@
++//! Retained positive research component. The adopted v2.2 policy is unchanged.
++use super::*;
++
++pub(super) fn recommend_repair(
++    version: GenericSolverVersion,
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        recipe,
++        crafter,
++        state,
++        objective,
++        risk,
++        context,
++        mask,
++    )?;
++    let mut opening = base;
++    if context.last_action == Some(CraftActionId::Reflect) && state.buffs.manipulation == 0 {
++        let proposal = artisan_continuation::improve_opening(
++            recipe, crafter, state, objective, context, mask, base,
++        );
++        if proposal.action == CraftActionId::Manipulation {
++            opening = proposal;
++        }
++    }
++    Some(artisan_continuation::repair_opening(
++        version, recipe, crafter, state, objective, context, mask, base, opening,
++    ))
++}
++
++pub(super) fn recommend(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        recipe,
++        crafter,
++        state,
++        objective,
++        risk,
++        context,
++        mask,
++    )?;
++    if context.last_action == Some(CraftActionId::Reflect) && state.buffs.manipulation == 0 {
++        let proposal = artisan_continuation::improve_opening(
++            recipe, crafter, state, objective, context, mask, base,
++        );
++        if proposal.action == CraftActionId::Manipulation {
++            return Some(proposal);
++        }
++    }
++    Some(base)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn decision(action: CraftActionId) -> GenericDecision {
++        GenericDecision {
++            action,
++            route: None,
++            persona: PlannerPersona::LegacyContinuation,
++            option: PlannerOption::ProgressWindow,
++        }
++    }
++
++    #[test]
++    fn deferred_window_tracks_actual_success_failure_and_manual_deviation() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let initial = CraftState::initial(&recipe, &crafter);
++        let reflected =
++            branch_state(&recipe, &crafter, &initial, CraftActionId::Reflect, true).unwrap();
++        let mut context = PlannerContext::default();
++        advance_planner_context(
++            &mut context,
++            GenericSolverVersion::OpeningDeferred,
++            decision(CraftActionId::Reflect),
++            &initial,
++            &reflected,
++        );
++        assert!(!context.opening_recovery_pending);
++        for success in [false, true] {
++            let after = branch_state(
++                &recipe,
++                &crafter,
++                &reflected,
++                CraftActionId::RapidSynthesis,
++                success,
++            )
++            .unwrap();
++            let mut observed = context.clone();
++            advance_planner_context(
++                &mut observed,
++                GenericSolverVersion::OpeningDeferred,
++                decision(CraftActionId::RapidSynthesis),
++                &reflected,
++                &after,
++            );
++            assert!(observed.opening_recovery_pending);
++            assert_eq!(after.progress > reflected.progress, success);
++            let next =
++                branch_state(&recipe, &crafter, &after, CraftActionId::Observe, true).unwrap();
++            advance_planner_context(
++                &mut observed,
++                GenericSolverVersion::OpeningDeferred,
++                decision(CraftActionId::Observe),
++                &after,
++                &next,
++            );
++            assert!(!observed.opening_recovery_pending);
++        }
++        let after_manual =
++            branch_state(&recipe, &crafter, &reflected, CraftActionId::Observe, true).unwrap();
++        advance_planner_context(
++            &mut context,
++            GenericSolverVersion::OpeningDeferred,
++            decision(CraftActionId::Observe),
++            &reflected,
++            &after_manual,
++        );
++        assert!(!context.opening_recovery_pending);
++    }
++}
+diff --git a/native/craft-kernel/tests/fixtures/opening_recovery.tsv b/native/craft-kernel/tests/fixtures/opening_recovery.tsv
+new file mode 100644
+index 0000000..33fb994
+--- /dev/null
++++ b/native/craft-kernel/tests/fixtures/opening_recovery.tsv
+@@ -0,0 +1 @@
++native-generic-episode-batch-v7	cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:player-food-medicine-specialist-cosmic-tool-v1@6bf6fe44d6868c00|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:65f60a3305e4054b	episode	generic-craft-external-reference-exp-opening-recovery	balanced	22000	22000	0	hard-quality-max	1	22000	0	0	0	255	none	37528	758	8000	22000	22000	35	180	180	100	100	100	5428	5257	764	1	1	1	0	0	35	764	normal	0	0	0	0	0	0	0	0	0	-	1	0	3	1	0	1	none	-	20453930	0	0	80	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0

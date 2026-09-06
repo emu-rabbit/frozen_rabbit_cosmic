@@ -4,6 +4,14 @@ Frozen Rabbit is a Rust library that recommends one crafting action at a time. Y
 
 ## Add the library
 
+### Updating to solver v2.3
+
+The current policy is `generic-craft-external-reference-v2.3.0`. It adopts the tested opening Manipulation strategy without further tuning. The public Rust API remains `frozen-rabbit-main-solver-api-v1`: configuration, state types, results, and the `recommend` / `observe` / `observe_state` sequence are unchanged. Existing Rust callers only need to update the library source and rebuild. Any caller that explicitly validates the policy string must update its expected value.
+
+The WebAssembly interface remains `rust-web-planner-abi-v1`, with the same exports and request/reply fields. Replace the WASM together with the caller's expected policy string (and the policy in requests); an old v2.2 request is intentionally rejected by the v2.3 production bridge. Do not mix cached files from the two versions. Start a new crafting session after updating.
+
+Solver v2.3 is a policy version, not a Cargo package version or a published Git tag. The Cargo package remains `0.1.0`; no crates.io release is implied.
+
 Use the Git repository as a Cargo dependency:
 
 ```toml
@@ -108,6 +116,14 @@ Frozen Rabbit's original code is licensed under the MIT License. The Artisan-der
 Frozen Rabbit 是一個 Rust 函式庫，每次提供一個製作技能建議。你的應用程式提供配方、巧匠能力、目前製作狀態與可出現的球色；技能使用後，再回報實際結果並取得下一個建議。
 
 ### 加入函式庫
+
+#### 更新至求解器 v2.3
+
+目前策略為 `generic-craft-external-reference-v2.3.0`，直接採用已完成測試的開局掌握，不另調參。Rust 公開介面仍為 `frozen-rabbit-main-solver-api-v1`：設定、狀態型別、回傳結果及 `recommend`／`observe`／`observe_state` 流程皆不變。既有 Rust 呼叫端更新函式庫原始碼並重新編譯即可；若自行檢查策略字串，需同步更新預期值。
+
+WebAssembly 介面仍為 `rust-web-planner-abi-v1`，匯出函式及請求／回覆欄位不變。更換 WASM 時，呼叫端預期版本與請求內的策略字串也要一起更新；v2.3 正式橋接層會拒絕舊 v2.2 請求。避免快取混用兩版檔案，更新後重新開始一件製作。
+
+v2.3 是求解策略版本，不是 Cargo 套件版本或已發布的 Git tag。Cargo 套件仍為 `0.1.0`，不代表已發布至 crates.io。
 
 在 Cargo 專案中使用 Git repository：
 

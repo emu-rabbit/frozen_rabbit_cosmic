@@ -135,10 +135,39 @@ pub(super) fn improve(
     mask: Option<u16>,
     reference: GenericDecision,
 ) -> GenericDecision {
+    improve_with_minimum_iq(
+        recipe, crafter, state, objective, context, mask, reference, 6,
+    )
+}
+
+pub(super) fn improve_opening(
+    recipe: &RecipeProfile,
+    crafter: &CrafterProfile,
+    state: &CraftState,
+    objective: GenericObjective,
+    context: &PlannerContext,
+    mask: Option<u16>,
+    reference: GenericDecision,
+) -> GenericDecision {
+    improve_with_minimum_iq(
+        recipe, crafter, state, objective, context, mask, reference, 1,
+    )
+}
+
+fn improve_with_minimum_iq(
+    recipe: &RecipeProfile,
+    crafter: &CrafterProfile,
+    state: &CraftState,
+    objective: GenericObjective,
+    context: &PlannerContext,
+    mask: Option<u16>,
+    reference: GenericDecision,
+    minimum_iq: i32,
+) -> GenericDecision {
     let preview = preview_action(recipe, crafter, state, reference.action);
     if recipe.required_quality <= 0
         || state.quality >= recipe.quality_max
-        || state.inner_quiet < 6
+        || state.inner_quiet < minimum_iq
         || declared_next_conditions(mask).next().is_none()
         || !(preview.success_rate < 1.0
             || matches!(

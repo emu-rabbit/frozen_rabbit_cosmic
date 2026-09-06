@@ -14,7 +14,7 @@
 
 | ID | 問題 | 為何阻塞 | 需要的 evidence | 結案位置 |
 | --- | --- | --- | --- | --- |
-| RQ-05 | 哪些 hard-quality failures 是策略缺口，哪些接近裝備／assumed world 上限？能否以有限研究成本界定剩餘收益？ | 決定下一個 Rust hypothesis 及尾端停止投入的依據 | 合法策略下界、有效最佳值上界、逐格 gap／unknown 與成本；先看 [改善空間提案](solver-headroom-bounds.md)，尚未實作 Rust adjudicator | Rust evaluation report |
+| RQ-05 | 哪些 hard-quality failures 是策略缺口，哪些接近裝備／assumed world 上限？能否以有限研究成本界定剩餘收益？ | 決定下一個 Rust hypothesis 及尾端停止投入的依據 | 優先弱家族的可執行策略、paired 成品收益與成本；[改善空間提案](solver-headroom-bounds.md) 的投資價值未成立，暫不建置 | Rust evaluation report |
 | RQ-06 | 自然 condition transition 是否有足夠 evidence？ | 限制真實成功率 claim | Patch-aware player traces 或 official data、sample metadata、transition matrix | Data package／research report |
 | RQ-08 | 哪些玩家完整 traces 能補足目前實戰證據？ | 限制實戰 claim，供使用者驗收參考 | 不同 family／裝備／condition sets 的預設策略匿名 full sessions，含 deviation／resync／failure | Golden trace fixtures |
 | RQ-09 | Thiria／Thal's Expert 有哪些可驗證能力值得借用？ | 選擇具體改善假說；不是日常開發 blocker | 確認具體產品／來源、可重現的狀態與輸出、可取得的實作及使用條件；未知部分明示 | 對應研究 report，再更新策略 owner |

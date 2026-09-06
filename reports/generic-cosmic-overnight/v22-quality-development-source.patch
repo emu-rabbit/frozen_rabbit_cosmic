@@ -1,0 +1,542 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 8ae74fa..ee66acb 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -10,8 +10,9 @@ use frozen_rabbit_craft_kernel::research::{
+     COMPLETION_AWARE_PORTFOLIO_POLICY_VERSION, CONDITION_OPPORTUNITY_ABLATION_EXPERIMENT_VERSION,
+     CONDITION_WORK_COMPLETION_GUARD_POLICY_VERSION, CONDITION_WORK_SCHEDULER_POLICY_VERSION,
+     CONSTRUCTION_PORTFOLIO_POLICY_VERSION, COORDINATED_PORTFOLIO_POLICY_VERSION,
+-    EQUIVALENT_PORTFOLIO_POLICY_VERSION, EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,
+-    EXPERIMENTAL_PORTFOLIO_POLICY_VERSION, EXTERNAL_REFERENCE_CERTIFIED_FINISH_EXPERIMENT_VERSION,
++    EARLY_REFINEMENT_EXPERIMENT_VERSION, EQUIVALENT_PORTFOLIO_POLICY_VERSION,
++    EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION, EXPERIMENTAL_PORTFOLIO_POLICY_VERSION,
++    EXTERNAL_REFERENCE_CERTIFIED_FINISH_EXPERIMENT_VERSION,
+     EXTERNAL_REFERENCE_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,
+     FULL_QUALITY_CERTIFICATE_DEPTH5_EXPERIMENT_VERSION,
+     FULL_QUALITY_CERTIFICATE_DEPTH6_EXPERIMENT_VERSION,
+@@ -38,13 +39,13 @@ use frozen_rabbit_craft_kernel::research::{
+     GENERIC_SPECIALIST_RESOURCE_GUARD_POLICY_VERSION,
+     GENERIC_SPECIALIST_RESOURCE_PORTFOLIO_POLICY_VERSION,
+     GENERIC_STRATEGY_PORTFOLIO_MPC_POLICY_VERSION, GENERIC_STRATEGY_PROGRAM_MPC_POLICY_VERSION,
+-    GENERIC_TS_MIGRATION_PORT_POLICY_VERSION, OBJECTIVE_PORTFOLIO_POLICY_VERSION,
+-    ORACLE_PARITY_VERSION, QUALITY_BOUND_PORTFOLIO_POLICY_VERSION,
+-    RESOURCE_CERTIFICATE_EXPERIMENT_VERSION, RESOURCE_PORTFOLIO_POLICY_VERSION,
+-    ROUTE_PORTFOLIO_POLICY_VERSION, execute_generic_episode, format_generic_episode_error,
+-    format_generic_episode_result, generic_episode_build_profile, generic_episode_rows_fnv1a64,
+-    generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+-    validate_generic_episode_batch,
++    GENERIC_TS_MIGRATION_PORT_POLICY_VERSION, MUSCLE_OPENING_EXPERIMENT_VERSION,
++    OBJECTIVE_PORTFOLIO_POLICY_VERSION, ORACLE_PARITY_VERSION,
++    QUALITY_BOUND_PORTFOLIO_POLICY_VERSION, RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
++    RESOURCE_PORTFOLIO_POLICY_VERSION, ROUTE_PORTFOLIO_POLICY_VERSION, execute_generic_episode,
++    format_generic_episode_error, format_generic_episode_result, generic_episode_build_profile,
++    generic_episode_rows_fnv1a64, generic_episode_rustc, generic_episode_target,
++    parse_generic_episode_case, validate_generic_episode_batch,
+ };
+ 
+ fn main() -> ExitCode {
+@@ -94,6 +95,11 @@ fn main() -> ExitCode {
+                     RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::CONDITION_ALLOCATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::EARLY_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
++                    MUSCLE_OPENING_EXPERIMENT_VERSION,
++                    EARLY_REFINEMENT_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 3e03abc..1762729 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -5,6 +5,7 @@ use std::str::FromStr;
+ mod artisan_continuation;
+ mod certified_route;
+ mod portfolio;
++mod quality_construction;
+ mod resource_certificate;
+ pub use portfolio::*;
+ 
+@@ -90,6 +91,16 @@ pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-certified-route";
+ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
++pub const MUSCLE_OPENING_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-muscle-opening";
++pub const EARLY_REFINEMENT_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-early-refinement";
++pub const CONDITION_ALLOCATION_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-condition-allocation";
++pub const EARLY_CONTINUATION_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-early-continuation";
++pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-recovery";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+@@ -109,6 +120,11 @@ pub enum GenericSolverVersion {
+     ResourceCertificate,
+     CertifiedRoute,
+     ArtisanContinuation,
++    MuscleOpening,
++    EarlyRefinement,
++    ConditionAllocation,
++    EarlyContinuation,
++    OpeningRecovery,
+     RustBaselineV1,
+     HardQualityV2,
+     RustPrimaryV3,
+@@ -196,6 +212,11 @@ impl GenericSolverVersion {
+             Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++            Self::MuscleOpening => MUSCLE_OPENING_EXPERIMENT_VERSION,
++            Self::EarlyRefinement => EARLY_REFINEMENT_EXPERIMENT_VERSION,
++            Self::ConditionAllocation => CONDITION_ALLOCATION_EXPERIMENT_VERSION,
++            Self::EarlyContinuation => EARLY_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -299,6 +320,11 @@ impl FromStr for GenericSolverVersion {
+             RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
++            MUSCLE_OPENING_EXPERIMENT_VERSION => Ok(Self::MuscleOpening),
++            EARLY_REFINEMENT_EXPERIMENT_VERSION => Ok(Self::EarlyRefinement),
++            CONDITION_ALLOCATION_EXPERIMENT_VERSION => Ok(Self::ConditionAllocation),
++            EARLY_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::EarlyContinuation),
++            OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -4361,6 +4387,25 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    if matches!(
++        version,
++        GenericSolverVersion::MuscleOpening
++            | GenericSolverVersion::EarlyRefinement
++            | GenericSolverVersion::ConditionAllocation
++            | GenericSolverVersion::EarlyContinuation
++            | GenericSolverVersion::OpeningRecovery
++    ) {
++        return quality_construction::recommend(
++            version,
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::CertifiedRoute
+@@ -5161,6 +5206,18 @@ fn advance_planner_context_inner(
+     after: &CraftState,
+     observe_route: bool,
+ ) {
++    let solver_version = if matches!(
++        solver_version,
++        GenericSolverVersion::MuscleOpening
++            | GenericSolverVersion::EarlyRefinement
++            | GenericSolverVersion::ConditionAllocation
++            | GenericSolverVersion::EarlyContinuation
++            | GenericSolverVersion::OpeningRecovery
++    ) {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if observe_route
+         && matches!(
+             solver_version,
+@@ -5346,6 +5403,16 @@ pub fn planner_context_fingerprint(
+     solver_version: GenericSolverVersion,
+     context: &PlannerContext,
+ ) -> String {
++    if matches!(
++        solver_version,
++        GenericSolverVersion::MuscleOpening
++            | GenericSolverVersion::EarlyRefinement
++            | GenericSolverVersion::ConditionAllocation
++            | GenericSolverVersion::EarlyContinuation
++            | GenericSolverVersion::OpeningRecovery
++    ) {
++        return planner_context_fingerprint(GenericSolverVersion::ExternalReferenceV22, context);
++    }
+     if matches!(
+         solver_version,
+         GenericSolverVersion::CertifiedRoute
+diff --git a/native/craft-kernel/src/generic_solver/artisan_continuation.rs b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+index 2bc73c8..c94a63d 100644
+--- a/native/craft-kernel/src/generic_solver/artisan_continuation.rs
++++ b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+@@ -134,11 +134,40 @@ pub(super) fn improve(
+     context: &PlannerContext,
+     mask: Option<u16>,
+     reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 6,
++    )
++}
++
++pub(super) fn improve_early(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 1,
++    )
++}
++
++fn improve_with_minimum_iq(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++    minimum_iq: i32,
+ ) -> GenericDecision {
+     let preview = preview_action(recipe, crafter, state, reference.action);
+     if recipe.required_quality <= 0
+         || state.quality >= recipe.quality_max
+-        || state.inner_quiet < 6
++        || state.inner_quiet < minimum_iq
+         || declared_next_conditions(mask).next().is_none()
+         || !(preview.success_rate < 1.0
+             || matches!(
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 0f25ae8..deff152 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -79,6 +79,9 @@ mod research_exports {
+         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+         validate_generic_episode_batch,
+     };
++    pub use crate::generic_solver::CONDITION_ALLOCATION_EXPERIMENT_VERSION;
++    pub use crate::generic_solver::EARLY_CONTINUATION_EXPERIMENT_VERSION;
++    pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
+     pub use crate::generic_solver::{
+         AGGRESSIVE_RESOURCE_PORTFOLIO_POLICY_VERSION, ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+         ARTISAN_EXPERT_REFERENCE_POLICY_VERSION, BranchEvidence, CACHED_PORTFOLIO_POLICY_VERSION,
+@@ -90,7 +93,8 @@ mod research_exports {
+         CONSTRUCTION_PORTFOLIO_POLICY_VERSION, COORDINATED_PORTFOLIO_POLICY_VERSION,
+         CandidateEvidence, CandidateProposal, CandidateSource, CompletionEvidence,
+         ConditionAssignmentEvidence, ConditionWork, ContinuationEngine,
+-        EQUIVALENT_PORTFOLIO_POLICY_VERSION, EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,
++        EARLY_REFINEMENT_EXPERIMENT_VERSION, EQUIVALENT_PORTFOLIO_POLICY_VERSION,
++        EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,
+         EXPERIMENTAL_PORTFOLIO_POLICY_VERSION,
+         EXTERNAL_REFERENCE_CERTIFIED_FINISH_EXPERIMENT_VERSION,
+         EXTERNAL_REFERENCE_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION,
+@@ -121,7 +125,7 @@ mod research_exports {
+         GENERIC_SPECIALIST_RESOURCE_PORTFOLIO_POLICY_VERSION,
+         GENERIC_STRATEGY_PORTFOLIO_MPC_POLICY_VERSION, GENERIC_STRATEGY_PROGRAM_MPC_POLICY_VERSION,
+         GENERIC_TS_MIGRATION_PORT_POLICY_VERSION, GUIDE_INTEGRATED_DECISION_MEMORY_VERSION,
+-        GenericDecision, GenericObjective, GenericSolverVersion,
++        GenericDecision, GenericObjective, GenericSolverVersion, MUSCLE_OPENING_EXPERIMENT_VERSION,
+         OBJECTIVE_PORTFOLIO_POLICY_VERSION, PORTFOLIO_HORIZON, PORTFOLIO_MAX_CANDIDATES,
+         PORTFOLIO_SAMPLES, PORTFOLIO_TEACHER_MAX_HORIZON, PORTFOLIO_TEACHER_MAX_SAMPLES,
+         PlannerContext, PlannerOption, PlannerPersona, PortfolioEvaluationBudget,
+diff --git a/native/craft-kernel/tests/generic_episode.rs b/native/craft-kernel/tests/generic_episode.rs
+index 358b010..59f159c 100644
+--- a/native/craft-kernel/tests/generic_episode.rs
++++ b/native/craft-kernel/tests/generic_episode.rs
+@@ -588,6 +588,11 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation()
+         GenericSolverVersion::ResourceCertificate,
+         GenericSolverVersion::CertifiedRoute,
+         GenericSolverVersion::ArtisanContinuation,
++        GenericSolverVersion::MuscleOpening,
++        GenericSolverVersion::EarlyRefinement,
++        GenericSolverVersion::ConditionAllocation,
++        GenericSolverVersion::EarlyContinuation,
++        GenericSolverVersion::OpeningRecovery,
+         GenericSolverVersion::ExpandedFullQualityCertificate,
+         GenericSolverVersion::FullQualityCertificateDepth5,
+         GenericSolverVersion::FullQualityCertificateDepth6,
+diff --git a/native/craft-kernel/src/generic_solver/quality_construction.rs b/native/craft-kernel/src/generic_solver/quality_construction.rs
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/quality_construction.rs
+@@ -0,0 +1,243 @@
++//! Bounded research overlays on v2.2. Existing policy identities stay unchanged.
++use super::*;
++
++fn decision(action: CraftActionId) -> GenericDecision {
++    GenericDecision {
++        action,
++        route: None,
++        persona: PlannerPersona::LegacyContinuation,
++        option: if action_definition(action).category == ActionCategory::Progress {
++            PlannerOption::ProgressWindow
++        } else {
++            PlannerOption::QualityCycle
++        },
++    }
++}
++
++pub(super) fn recommend(
++    version: GenericSolverVersion,
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    if recipe.required_quality > 0 && context.action_uses < context.action_limit {
++        if version == GenericSolverVersion::MuscleOpening && state.step == 1 {
++            let p = preview_action(recipe, crafter, state, CraftActionId::MuscleMemory);
++            if p.legal && state.progress + p.progress_gain < recipe.progress_required {
++                return Some(decision(CraftActionId::MuscleMemory));
++            }
++        }
++        if version == GenericSolverVersion::EarlyRefinement
++            && state.inner_quiet < 10
++            && state.inner_quiet > 0
++            && state.quality < recipe.quality_max
++        {
++            let next = if context.last_action == Some(CraftActionId::BasicTouch)
++                && state.inner_quiet <= 8
++            {
++                Some(CraftActionId::RefinedTouch)
++            } else {
++                None
++            };
++            if let Some(a) = next {
++                let p = preview_action(recipe, crafter, state, a);
++                if p.legal && state.durability > p.durability_cost {
++                    return Some(decision(a));
++                }
++            }
++        }
++    }
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        recipe,
++        crafter,
++        state,
++        objective,
++        risk,
++        context,
++        mask,
++    )?;
++    if version == GenericSolverVersion::EarlyRefinement
++        && recipe.required_quality > 0
++        && state.inner_quiet > 0
++        && state.inner_quiet <= 6
++        && state.quality < recipe.quality_max
++        && context.action_limit.saturating_sub(context.action_uses) >= 3
++        && matches!(
++            state.condition,
++            MaterialCondition::Normal | MaterialCondition::Primed
++        )
++        && matches!(
++            base.action,
++            CraftActionId::Observe | CraftActionId::HastyTouch | CraftActionId::DaringTouch
++        )
++        && state.cp >= 42 + 74
++        && state.durability > 20
++    {
++        let p = preview_action(recipe, crafter, state, CraftActionId::BasicTouch);
++        if p.legal {
++            return Some(decision(CraftActionId::BasicTouch));
++        }
++    }
++    if version == GenericSolverVersion::ConditionAllocation
++        && recipe.required_quality > 0
++        && state.quality < recipe.quality_max
++        && state.inner_quiet > 0
++        && state.inner_quiet <= 8
++        && matches!(
++            state.condition,
++            MaterialCondition::Sturdy | MaterialCondition::Robust
++        )
++        && mask.is_some_and(|m| m & ((1 << 2) | (1 << 5)) != 0)
++        && base.action == CraftActionId::RapidSynthesis
++        && state.cp >= 40 + 74
++        && context.action_limit.saturating_sub(context.action_uses) >= 6
++    {
++        let p = preview_action(recipe, crafter, state, CraftActionId::PreparatoryTouch);
++        if p.legal && state.durability > p.durability_cost {
++            return Some(decision(CraftActionId::PreparatoryTouch));
++        }
++    }
++    if version == GenericSolverVersion::OpeningRecovery
++        && context.last_action == Some(CraftActionId::Reflect)
++        && state.buffs.manipulation == 0
++    {
++        let proposal = artisan_continuation::improve_early(
++            recipe, crafter, state, objective, context, mask, base,
++        );
++        if proposal.action == CraftActionId::Manipulation {
++            return Some(proposal);
++        }
++    }
++    if version == GenericSolverVersion::EarlyContinuation && state.inner_quiet < 6 {
++        return Some(artisan_continuation::improve_early(
++            recipe, crafter, state, objective, context, mask, base,
++        ));
++    }
++    Some(base)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn allocation_spends_only_an_existing_durability_discount() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let mut state = CraftState::initial(&recipe, &crafter);
++        state.step = 10;
++        state.inner_quiet = 2;
++        state.condition = MaterialCondition::Sturdy;
++        state.cp = 500;
++        state.durability = 40;
++        state.quick_innovation_available = false;
++        let objective = GenericObjective {
++            quality_maximum: recipe.quality_max,
++            protected_quality_floor: recipe.quality_max,
++            adaptive_completion: false,
++            quality_utility_kind: QualityUtilityKind::HardQualityMaximum,
++            quality_milestone_count: 1,
++            quality_milestones: [recipe.quality_max, 0, 0, 0],
++        };
++        let context = PlannerContext::default();
++        let choose = |s: &CraftState, mask| {
++            recommend(
++                GenericSolverVersion::ConditionAllocation,
++                &recipe,
++                &crafter,
++                s,
++                objective,
++                RiskPreference::Balanced,
++                &context,
++                Some(mask),
++            )
++            .unwrap()
++            .action
++        };
++        assert_eq!(choose(&state, 255), CraftActionId::PreparatoryTouch);
++        assert_eq!(
++            choose(&state, (1 << 0) | (1 << 3)),
++            CraftActionId::RapidSynthesis
++        );
++        state.cp = 100;
++        assert_eq!(choose(&state, 255), CraftActionId::RapidSynthesis);
++    }
++    #[test]
++    fn research_openings_preserve_non_hard_quality_and_recipe_aliases() {
++        let mut recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let state = CraftState::initial(&recipe, &crafter);
++        let context = PlannerContext::default();
++        let objective = GenericObjective {
++            quality_maximum: recipe.quality_max,
++            protected_quality_floor: recipe.quality_max,
++            adaptive_completion: false,
++            quality_utility_kind: QualityUtilityKind::HardQualityMaximum,
++            quality_milestone_count: 1,
++            quality_milestones: [recipe.quality_max, 0, 0, 0],
++        };
++        for version in [
++            GenericSolverVersion::MuscleOpening,
++            GenericSolverVersion::EarlyRefinement,
++            GenericSolverVersion::ConditionAllocation,
++            GenericSolverVersion::EarlyContinuation,
++            GenericSolverVersion::OpeningRecovery,
++        ] {
++            let a = recommend(
++                version,
++                &recipe,
++                &crafter,
++                &state,
++                objective,
++                RiskPreference::Balanced,
++                &context,
++                Some(255),
++            )
++            .unwrap();
++            assert!(preview_action(&recipe, &crafter, &state, a.action).legal);
++            recipe.canonical_recipe_id += 1;
++            assert_eq!(
++                a,
++                recommend(
++                    version,
++                    &recipe,
++                    &crafter,
++                    &state,
++                    objective,
++                    RiskPreference::Balanced,
++                    &context,
++                    Some(255)
++                )
++                .unwrap()
++            );
++            let mut optional = recipe.clone();
++            optional.required_quality = 0;
++            assert_eq!(
++                recommend(
++                    version,
++                    &optional,
++                    &crafter,
++                    &state,
++                    objective,
++                    RiskPreference::Balanced,
++                    &context,
++                    Some(255)
++                ),
++                recommend_generic_action_with_model(
++                    GenericSolverVersion::ExternalReferenceV22,
++                    &optional,
++                    &crafter,
++                    &state,
++                    objective,
++                    RiskPreference::Balanced,
++                    &context,
++                    Some(255)
++                )
++            );
++        }
++    }
++}
+diff --git a/native/craft-kernel/examples/v22_quality_diagnose.rs b/native/craft-kernel/examples/v22_quality_diagnose.rs
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/examples/v22_quality_diagnose.rs
+@@ -0,0 +1,18 @@
++use frozen_rabbit_craft_kernel::research::*;
++fn main() {
++    let path = std::env::args().nth(1).expect("input TSV");
++    let input = std::fs::read_to_string(path).unwrap();
++    for line in input.lines() {
++        let case = parse_generic_episode_case(line).unwrap();
++        execute_generic_episode_with_observer(&case, |state, _, decision, _, _| {
++            if let Some(d) = decision {
++                let p =
++                    preview_action(&case.rollout.recipe, &case.rollout.crafter, state, d.action);
++                if !p.legal {
++                    println!("{}\n{:?}\n{:?}\n{:?}", case.rollout.case_id, state, d, p);
++                }
++            }
++        })
++        .unwrap();
++    }
++}

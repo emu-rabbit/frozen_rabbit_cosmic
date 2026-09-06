@@ -40,6 +40,41 @@ fn generic_episode_handshake_advertises_current_v2() {
     );
 }
 
+#[test]
+fn retained_opening_recovery_replays_the_frozen_full_quality_gain() {
+    // Synthetic F43 / E03 / normal-heavy sample from opening-recovery-s1.
+    // Expected outcomes were captured from frozen binary 2c236e4f, before retention.
+    let mut case = frozen_rabbit_craft_kernel::research::parse_generic_episode_case(
+        include_str!("fixtures/opening_recovery.tsv").trim(),
+    )
+    .unwrap();
+    assert_eq!(case.solver_version, GenericSolverVersion::OpeningRecovery);
+    let result = execute_generic_episode(&case).unwrap();
+    assert_eq!(
+        &result.actions[..3],
+        &[
+            CraftActionId::QuickInnovation,
+            CraftActionId::Reflect,
+            CraftActionId::Manipulation
+        ]
+    );
+    assert_eq!(result.stop_reason.to_string(), "completed");
+    assert_eq!(result.actions.len(), 57);
+    assert_eq!(result.final_state.quality, 22000);
+    assert_eq!(result.final_state.cp, 99);
+    case.solver_version = GenericSolverVersion::ExternalReferenceV23;
+    let adopted = execute_generic_episode(&case).unwrap();
+    assert_eq!(adopted.actions, result.actions);
+    assert_eq!(adopted.final_state, result.final_state);
+    assert_eq!(adopted.final_cursor, result.final_cursor);
+    assert_eq!(adopted.planner_context, result.planner_context);
+    case.solver_version = GenericSolverVersion::ExternalReferenceV22;
+    let baseline = execute_generic_episode(&case).unwrap();
+    assert_eq!(baseline.stop_reason.to_string(), "failed");
+    assert_eq!(baseline.actions.len(), 77);
+    assert_eq!(baseline.final_state.quality, 19196);
+}
+
 fn recipe(required_quality: i32) -> RecipeProfile {
     RecipeProfile {
         canonical_recipe_id: 36_990,
@@ -588,6 +623,8 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation() 
         GenericSolverVersion::ResourceCertificate,
         GenericSolverVersion::CertifiedRoute,
         GenericSolverVersion::ArtisanContinuation,
+        GenericSolverVersion::OpeningRecovery,
+        GenericSolverVersion::ExternalReferenceV23,
         GenericSolverVersion::ExpandedFullQualityCertificate,
         GenericSolverVersion::FullQualityCertificateDepth5,
         GenericSolverVersion::FullQualityCertificateDepth6,

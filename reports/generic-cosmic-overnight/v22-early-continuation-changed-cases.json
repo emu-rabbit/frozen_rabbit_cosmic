@@ -1,0 +1,359 @@
+[
+  {
+    "id": "cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:player-food-medicine-specialist-cosmic-tool-v1@6bf6fe44d6868c00|world:balanced-iid@b2fb02dee0509772|base-seed:20260906|sample:0|max-steps:80|case:537e81d343f7fc91",
+    "win": true,
+    "recipe": "37528",
+    "mask": "255",
+    "progress": "8000",
+    "quality": "22000",
+    "baseActions": 80,
+    "candActions": 49,
+    "diff": {
+      "step": 2,
+      "before": [
+        "2",
+        "0",
+        "1471",
+        "25",
+        "758",
+        "malleable",
+        "2",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "3",
+        "1",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "rapidSynthesis",
+        "rapidSynthesis",
+        "manipulation",
+        "tricksOfTheTrade"
+      ],
+      "candidate": [
+        "manipulation",
+        "rapidSynthesis",
+        "innovation",
+        "preciseTouch"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:player-food-medicine-specialist-cosmic-tool-v1@6bf6fe44d6868c00|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:65f60a3305e4054b",
+    "win": true,
+    "recipe": "37528",
+    "mask": "255",
+    "progress": "8000",
+    "quality": "22000",
+    "baseActions": 77,
+    "candActions": 57,
+    "diff": {
+      "step": 2,
+      "before": [
+        "2",
+        "0",
+        "1471",
+        "25",
+        "758",
+        "normal",
+        "2",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "3",
+        "1",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "observe",
+        "observe",
+        "observe",
+        "observe"
+      ],
+      "candidate": [
+        "manipulation",
+        "innovation",
+        "observe",
+        "advancedTouch"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:generic-i750-hq-five-meld-template-buffed-v1@56d8b966113da626|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:e5cb94c6badb6d3b",
+    "win": true,
+    "recipe": "37528",
+    "mask": "255",
+    "progress": "8000",
+    "quality": "22000",
+    "baseActions": 69,
+    "candActions": 56,
+    "diff": {
+      "step": 1,
+      "before": [
+        "2",
+        "0",
+        "1020",
+        "25",
+        "770",
+        "malleable",
+        "2",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "rapidSynthesis",
+        "observe",
+        "observe",
+        "observe"
+      ],
+      "candidate": [
+        "manipulation",
+        "innovation",
+        "observe",
+        "advancedTouch"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:generic-i750-hq-five-meld-template-buffed-specialist-v1@5df821a6b5da9ed6|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:8458b273e6c55375",
+    "win": true,
+    "recipe": "37528",
+    "mask": "255",
+    "progress": "8000",
+    "quality": "22000",
+    "baseActions": 80,
+    "candActions": 47,
+    "diff": {
+      "step": 2,
+      "before": [
+        "2",
+        "0",
+        "1534",
+        "25",
+        "785",
+        "normal",
+        "2",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "3",
+        "1",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "observe",
+        "observe",
+        "tricksOfTheTrade",
+        "rapidSynthesis"
+      ],
+      "candidate": [
+        "manipulation",
+        "innovation",
+        "preciseTouch",
+        "rapidSynthesis"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-b630b12a9e02|objective:de492539ae27de04|recipe:36222|equipment:player-food-medicine-specialist-cosmic-tool-v1@6bf6fe44d6868c00|world:normal-heavy-iid@a0706c6be4e805ef|base-seed:20260906|sample:0|max-steps:80|case:d479f78f4a090497",
+    "win": false,
+    "recipe": "36222",
+    "mask": "219",
+    "progress": "6500",
+    "quality": "18000",
+    "baseActions": 47,
+    "candActions": 56,
+    "diff": {
+      "step": 13,
+      "before": [
+        "13",
+        "2272",
+        "2990",
+        "10",
+        "600",
+        "normal",
+        "4",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "3",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "3",
+        "1",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "observe",
+        "rapidSynthesis",
+        "innovation",
+        "observe"
+      ],
+      "candidate": [
+        "prudentTouch",
+        "rapidSynthesis",
+        "observe",
+        "advancedTouch"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-c9c4a2b24964|objective:b15a1dc56fce2fc2|recipe:37005|equipment:generic-i750-hq-five-meld-template-buffed-specialist-v1@5df821a6b5da9ed6|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:0dee89613375d47f",
+    "win": false,
+    "recipe": "37005",
+    "mask": "255",
+    "progress": "8900",
+    "quality": "23000",
+    "baseActions": 54,
+    "candActions": 62,
+    "diff": {
+      "step": 5,
+      "before": [
+        "5",
+        "0",
+        "2454",
+        "20",
+        "742",
+        "malleable",
+        "3",
+        "0",
+        "0",
+        "0",
+        "2",
+        "0",
+        "0",
+        "0",
+        "0",
+        "-",
+        "1",
+        "0",
+        "3",
+        "1",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "rapidSynthesis",
+        "observe",
+        "observe",
+        "manipulation"
+      ],
+      "candidate": [
+        "manipulation",
+        "observe",
+        "advancedTouch",
+        "innovation"
+      ]
+    }
+  },
+  {
+    "id": "cosmic-expert-mechanics-d85b5c75c255|objective:844153b63e806f3b|recipe:37001|equipment:generic-i750-hq-unmelded-buffed-v1@65504c884f912eca|world:balanced-iid@bcabd0b1dec24815|base-seed:20260906|sample:0|max-steps:80|case:728affa4b98272fd",
+    "win": false,
+    "recipe": "37001",
+    "mask": "123",
+    "progress": "7000",
+    "quality": "19500",
+    "baseActions": 54,
+    "candActions": 55,
+    "diff": {
+      "step": 33,
+      "before": [
+        "34",
+        "6795",
+        "2509",
+        "15",
+        "467",
+        "normal",
+        "5",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "3",
+        "0",
+        "0",
+        "observe",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "none",
+        "-"
+      ],
+      "base": [
+        "observe",
+        "hastyTouch",
+        "innovation",
+        "observe"
+      ],
+      "candidate": [
+        "trainedPerfection",
+        "preparatoryTouch",
+        "innovation",
+        "observe"
+      ]
+    }
+  }
+]

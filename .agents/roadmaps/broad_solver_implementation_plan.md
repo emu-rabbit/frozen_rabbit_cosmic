@@ -11,7 +11,7 @@
 | 主線 | 下一個可交付成果 | 驗收依據 |
 | --- | --- | --- |
 | 求解能力 | 從現行基線的實際失敗選出可觀測原因，提出並驗證通用改善；可強化 Artisan、使用過往研究或 Thiria 的可驗證啟發，也可探索自有核心。 | 完成成品品質、hard-quality 滿品質、重要切片與成本；依 [algorithm_verification.md](../skills/domain/algorithm_verification.md) |
-| 剩餘改善空間 | 先以有限成本探索代表性案例的上下界，區分已找到的策略缺口、接近模型上限及 unknown；詳見 [研究提案](../research/solver-headroom-bounds.md)。目前僅完成方案，未啟動新長跑。 | 界限有效性、起點／尾端範圍、gap 收緊量與研究成本，不要求全配方精確最優 |
+| 剩餘改善空間 | [上下界提案](../research/solver-headroom-bounds.md) 的投資價值尚未成立，暫不建置。現階段以弱家族的可執行策略改善及有限研究預算判斷。 | 若重開，先提出會被界限改變的具體決策與低成本可行性證據 |
 | 製作流程 | 補手動 resync、確認紀錄下載的需要範圍、驗證偏離與恢復。 | 玩家可持續回報正確 state；schema／unit test 與實際 UI 驗證分開 |
 | Runtime 可靠性 | 檢查主求解器的 policy-null、錯誤與延遲；有具體問題再修正或評估後備方案。 | [solver_policy_and_safety.md](../skills/domain/solver_policy_and_safety.md)；沒有 policy-null 時不要求獨立快速求解器 |
 | 發布參考 | 整理全 family 的成果、已驗證範圍與限制。 | [發布 evidence](../skills/domain/algorithm_verification.md#發布-evidence) 供參考；使用者自行驗收並決定是否發布 |

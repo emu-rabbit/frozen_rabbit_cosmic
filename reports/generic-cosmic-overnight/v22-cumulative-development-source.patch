@@ -1,0 +1,636 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 8ae74fa..cc51f06 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -94,6 +94,10 @@ fn main() -> ExitCode {
+                     RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_RISK_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_PAIR_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_FORECAST_RESCUE_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 3e03abc..854dc90 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -4,6 +4,7 @@ use std::str::FromStr;
+ 
+ mod artisan_continuation;
+ mod certified_route;
++mod continuation_research;
+ mod portfolio;
+ mod resource_certificate;
+ pub use portfolio::*;
+@@ -90,6 +91,14 @@ pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-certified-route";
+ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
++pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-recovery";
++pub const OPENING_RISK_CONTINUATION_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-risk-continuation";
++pub const OPENING_PAIR_CONTINUATION_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-pair-continuation";
++pub const OPENING_FORECAST_RESCUE_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-forecast-rescue";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+@@ -109,6 +118,10 @@ pub enum GenericSolverVersion {
+     ResourceCertificate,
+     CertifiedRoute,
+     ArtisanContinuation,
++    OpeningRecovery,
++    OpeningRiskContinuation,
++    OpeningPairContinuation,
++    OpeningForecastRescue,
+     RustBaselineV1,
+     HardQualityV2,
+     RustPrimaryV3,
+@@ -196,6 +209,10 @@ impl GenericSolverVersion {
+             Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
++            Self::OpeningRiskContinuation => OPENING_RISK_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningPairContinuation => OPENING_PAIR_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningForecastRescue => OPENING_FORECAST_RESCUE_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -299,6 +316,10 @@ impl FromStr for GenericSolverVersion {
+             RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
++            OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
++            OPENING_RISK_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::OpeningRiskContinuation),
++            OPENING_PAIR_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::OpeningPairContinuation),
++            OPENING_FORECAST_RESCUE_EXPERIMENT_VERSION => Ok(Self::OpeningForecastRescue),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -4361,6 +4382,24 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    if matches!(
++        version,
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::OpeningRiskContinuation
++            | GenericSolverVersion::OpeningPairContinuation
++            | GenericSolverVersion::OpeningForecastRescue
++    ) {
++        return continuation_research::recommend(
++            version,
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::CertifiedRoute
+@@ -5161,6 +5200,27 @@ fn advance_planner_context_inner(
+     after: &CraftState,
+     observe_route: bool,
+ ) {
++    let short_plan = solver_version == GenericSolverVersion::OpeningPairContinuation
++        && decision.route.is_some_and(|r| {
++            r.certified_actions.is_none()
++                && r.setup == Some(decision.action)
++                && r.consumer.is_some()
++        });
++    if observe_route && short_plan {
++        context.route_memory.observe(decision, before, after);
++    }
++    let observe_route = observe_route && !short_plan;
++    let solver_version = if matches!(
++        solver_version,
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::OpeningRiskContinuation
++            | GenericSolverVersion::OpeningPairContinuation
++            | GenericSolverVersion::OpeningForecastRescue
++    ) {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if observe_route
+         && matches!(
+             solver_version,
+@@ -5346,6 +5406,17 @@ pub fn planner_context_fingerprint(
+     solver_version: GenericSolverVersion,
+     context: &PlannerContext,
+ ) -> String {
++    let solver_version = if matches!(
++        solver_version,
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::OpeningRiskContinuation
++            | GenericSolverVersion::OpeningPairContinuation
++            | GenericSolverVersion::OpeningForecastRescue
++    ) {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if matches!(
+         solver_version,
+         GenericSolverVersion::CertifiedRoute
+diff --git a/native/craft-kernel/src/generic_solver/artisan_continuation.rs b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+index 2bc73c8..85db5bb 100644
+--- a/native/craft-kernel/src/generic_solver/artisan_continuation.rs
++++ b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+@@ -12,6 +12,7 @@ struct Input<'a> {
+     objective: GenericObjective,
+     context: &'a PlannerContext,
+     mask: Option<u16>,
++    forecast_rescue: bool,
+ }
+ 
+ #[derive(Clone, Copy, Default)]
+@@ -71,11 +72,35 @@ fn evaluate(
+         let mut state = input.state.clone();
+         let mut context = input.context.clone();
+         let mut decision = Some(root);
++        let mut rescue_probes = 0;
++        let mut proved_full = false;
+         let remaining = context
+             .action_limit
+             .saturating_sub(context.action_uses)
+             .min(80);
+-        for _ in 0..remaining {
++        for turn in 0..remaining {
++            if turn > 0
++                && input.forecast_rescue
++                && rescue_probes < 2
++                && threatens_failure(input.recipe, input.crafter, &state, decision)
++            {
++                rescue_probes += 1;
++                if full_quality_certificate_decision(
++                    input.recipe,
++                    input.crafter,
++                    &state,
++                    &context,
++                    input.mask,
++                    2,
++                )
++                .is_some()
++                {
++                    // The actual v2.2 policy checks this certificate before Artisan.
++                    // Fold only a proved full delivery within the remaining budget.
++                    proved_full = true;
++                    break;
++                }
++            }
+             let Some(next) = decision else {
+                 break;
+             };
+@@ -107,16 +132,32 @@ fn evaluate(
+             if state.terminal != CraftTerminal::None {
+                 break;
+             }
+-            decision = crate::artisan_expert::recommend(
+-                input.recipe,
+-                input.crafter,
+-                &state,
++            decision = if turn == 0 {
++                root.route
++                    .and_then(|route| route.consumer)
++                    .and_then(|action| safe_consumer(input.recipe, input.crafter, &state, action))
++            } else {
++                None
++            }
++            .or_else(|| {
++                crate::artisan_expert::recommend(
++                    input.recipe,
++                    input.crafter,
++                    &state,
++                    input.objective,
++                    &context,
++                    input.mask,
++                )
++            });
++        }
++        if proved_full {
++            value.completed += 1;
++            value.full += 1;
++            value.utility += crate::ts_migration_port::quality_utility(
+                 input.objective,
+-                &context,
+-                input.mask,
++                input.recipe.quality_max,
+             );
+-        }
+-        if state.terminal == CraftTerminal::Completed {
++        } else if state.terminal == CraftTerminal::Completed {
+             value.completed += 1;
+             value.full += u32::from(state.quality >= input.recipe.quality_max);
+             value.utility +=
+@@ -134,11 +175,29 @@ pub(super) fn improve(
+     context: &PlannerContext,
+     mask: Option<u16>,
+     reference: GenericDecision,
++) -> GenericDecision {
++    improve_research(
++        recipe, crafter, state, objective, context, mask, reference, 6, false, false, false,
++    )
++}
++
++pub(super) fn improve_research(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++    minimum_iq: i32,
++    allow_stochastic: bool,
++    allow_pairs: bool,
++    forecast_rescue: bool,
+ ) -> GenericDecision {
+     let preview = preview_action(recipe, crafter, state, reference.action);
+     if recipe.required_quality <= 0
+         || state.quality >= recipe.quality_max
+-        || state.inner_quiet < 6
++        || state.inner_quiet < minimum_iq
+         || declared_next_conditions(mask).next().is_none()
+         || !(preview.success_rate < 1.0
+             || matches!(
+@@ -155,6 +214,7 @@ pub(super) fn improve(
+         objective,
+         context,
+         mask,
++        forecast_rescue,
+     };
+     let baseline = [
+         evaluate(input, reference, 0, 4, false),
+@@ -163,21 +223,35 @@ pub(super) fn improve(
+     let base_score = baseline[0].score() + baseline[1].score();
+     let mut proposed = Vec::new();
+     for &action in CraftActionId::ALL {
++        if allow_pairs {
++            continue;
++        }
+         if action == reference.action
+             || matches!(
+                 action,
+                 CraftActionId::Observe
+                     | CraftActionId::CarefulObservation
+                     | CraftActionId::FinalAppraisal
+-                    | CraftActionId::RapidSynthesis
+-                    | CraftActionId::HastyTouch
+-                    | CraftActionId::DaringTouch
+             )
++            || (!allow_stochastic
++                && matches!(
++                    action,
++                    CraftActionId::RapidSynthesis
++                        | CraftActionId::HastyTouch
++                        | CraftActionId::DaringTouch
++                ))
+         {
+             continue;
+         }
+         let p = preview_action(recipe, crafter, state, action);
+-        if !p.legal || p.success_rate != 1.0 {
++        if !p.legal || (!allow_stochastic && p.success_rate != 1.0) {
++            continue;
++        }
++        // A newly proposed risky action must leave a live state even on failure.
++        if p.success_rate < 1.0
++            && branch_state(recipe, crafter, state, action, false)
++                .is_none_or(|after| after.terminal != CraftTerminal::None)
++        {
+             continue;
+         }
+         let Some(after) = branch_state(recipe, crafter, state, action, true) else {
+@@ -211,6 +285,49 @@ pub(super) fn improve(
+             proposed.push((proposal, a.score() + b.score()));
+         }
+     }
++    if allow_pairs && context.action_limit.saturating_sub(context.action_uses) >= 2 {
++        for (setup, consumer) in [
++            (CraftActionId::BasicTouch, CraftActionId::RefinedTouch),
++            (CraftActionId::Observe, CraftActionId::AdvancedTouch),
++            (CraftActionId::Innovation, CraftActionId::PreparatoryTouch),
++            (CraftActionId::Manipulation, CraftActionId::PreparatoryTouch),
++            (CraftActionId::GreatStrides, CraftActionId::ByregotsBlessing),
++        ] {
++            if (setup == CraftActionId::Innovation && state.buffs.innovation > 0)
++                || (setup == CraftActionId::Manipulation && state.buffs.manipulation > 0)
++                || (setup == CraftActionId::GreatStrides && state.buffs.great_strides > 0)
++                || (setup == CraftActionId::BasicTouch && state.inner_quiet > 8)
++            {
++                continue;
++            }
++            if safe_consumer(recipe, crafter, state, setup).is_none() {
++                continue;
++            }
++            let after = branch_state(recipe, crafter, state, setup, true).unwrap();
++            if after.terminal != CraftTerminal::None
++                || safe_consumer(recipe, crafter, &after, consumer).is_none()
++            {
++                continue;
++            }
++            let mut proposal = action_decision(setup);
++            proposal.route = Some(RoutePlan {
++                intent: RouteIntent::QualityBuild,
++                engine: ContinuationEngine::Semantic,
++                setup: Some(setup),
++                consumer: Some(consumer),
++                interrupt: false,
++                certified_actions: None,
++            });
++            let a = evaluate(input, proposal, 0, 4, false);
++            let b = evaluate(input, proposal, 0, 4, true);
++            if a.completed >= baseline[0].completed
++                && b.completed >= baseline[1].completed
++                && a.score() + b.score() > base_score
++            {
++                proposed.push((proposal, a.score() + b.score()));
++            }
++        }
++    }
+     proposed.sort_by(|a, b| {
+         b.1.total_cmp(&a.1)
+             .then_with(|| a.0.action.cmp(&b.0.action))
+@@ -238,10 +355,76 @@ pub(super) fn improve(
+     reference
+ }
+ 
++pub(super) fn safe_consumer(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    action: CraftActionId,
++) -> Option<GenericDecision> {
++    let p = preview_action(recipe, crafter, state, action);
++    if !p.legal || p.success_rate != 1.0 {
++        return None;
++    }
++    let after = branch_state(recipe, crafter, state, action, true)?;
++    (after.terminal != CraftTerminal::Failed).then(|| action_decision(action))
++}
++
++fn threatens_failure(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    decision: Option<GenericDecision>,
++) -> bool {
++    let Some(decision) = decision else {
++        return true;
++    };
++    let p = preview_action(recipe, crafter, state, decision.action);
++    !p.legal
++        || [true, false].into_iter().any(|success| {
++            (success || p.success_rate < 1.0)
++                && branch_state(recipe, crafter, state, decision.action, success)
++                    .is_none_or(|after| after.terminal == CraftTerminal::Failed)
++        })
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+     #[test]
++    fn forecast_rescue_respects_remaining_actions_and_full_quality() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let mut state = CraftState::initial(&recipe, &crafter);
++        state.quality = recipe.quality_max
++            - preview_action(&recipe, &crafter, &state, CraftActionId::PrudentTouch).quality_gain;
++        state.progress = recipe.progress_required
++            - preview_action(&recipe, &crafter, &state, CraftActionId::BasicSynthesis)
++                .progress_gain;
++        state.durability = 15;
++        state.cp = 25; // Fund Prudent Touch + Basic Synthesis, but not Delicate Synthesis.
++        let wrong_finish = action_decision(CraftActionId::BasicSynthesis);
++        assert!(threatens_failure(
++            &recipe,
++            &crafter,
++            &state,
++            Some(wrong_finish)
++        ));
++        let mut context = PlannerContext {
++            action_uses: 78,
++            action_limit: 80,
++            ..PlannerContext::default()
++        };
++        assert!(
++            full_quality_certificate_decision(&recipe, &crafter, &state, &context, Some(255), 2)
++                .is_some()
++        );
++        context.action_uses = 79;
++        assert!(
++            full_quality_certificate_decision(&recipe, &crafter, &state, &context, Some(255), 2)
++                .is_none()
++        );
++    }
++    #[test]
+     fn candidate_is_legal_and_does_not_read_recipe_identity() {
+         let mut recipe = super::super::tests::hard_quality_recipe();
+         let crafter = super::super::tests::five_meld_buffed_crafter();
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 0f25ae8..da0f465 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -79,6 +79,8 @@ mod research_exports {
+         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+         validate_generic_episode_batch,
+     };
++    pub use crate::generic_solver::OPENING_FORECAST_RESCUE_EXPERIMENT_VERSION;
++    pub use crate::generic_solver::OPENING_PAIR_CONTINUATION_EXPERIMENT_VERSION;
+     pub use crate::generic_solver::{
+         AGGRESSIVE_RESOURCE_PORTFOLIO_POLICY_VERSION, ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+         ARTISAN_EXPERT_REFERENCE_POLICY_VERSION, BranchEvidence, CACHED_PORTFOLIO_POLICY_VERSION,
+@@ -134,6 +136,9 @@ mod research_exports {
+         recommend_portfolio_with_evaluation_budget, recommend_resource_portfolio,
+         recommend_route_portfolio,
+     };
++    pub use crate::generic_solver::{
++        OPENING_RECOVERY_EXPERIMENT_VERSION, OPENING_RISK_CONTINUATION_EXPERIMENT_VERSION,
++    };
+     pub use crate::kernel_support::*;
+     pub use crate::rollout::{
+         ConditionTransitionWeights, ROLLOUT_BATCH_PROTOCOL_VERSION, ROLLOUT_MAX_STEPS,
+diff --git a/native/craft-kernel/tests/generic_episode.rs b/native/craft-kernel/tests/generic_episode.rs
+index 358b010..07e5d9c 100644
+--- a/native/craft-kernel/tests/generic_episode.rs
++++ b/native/craft-kernel/tests/generic_episode.rs
+@@ -588,6 +588,10 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation()
+         GenericSolverVersion::ResourceCertificate,
+         GenericSolverVersion::CertifiedRoute,
+         GenericSolverVersion::ArtisanContinuation,
++        GenericSolverVersion::OpeningRecovery,
++        GenericSolverVersion::OpeningRiskContinuation,
++        GenericSolverVersion::OpeningPairContinuation,
++        GenericSolverVersion::OpeningForecastRescue,
+         GenericSolverVersion::ExpandedFullQualityCertificate,
+         GenericSolverVersion::FullQualityCertificateDepth5,
+         GenericSolverVersion::FullQualityCertificateDepth6,
+diff --git a/native/craft-kernel/src/generic_solver/continuation_research.rs b/native/craft-kernel/src/generic_solver/continuation_research.rs
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/continuation_research.rs
+@@ -0,0 +1,151 @@
++//! Research overlays preserve the adopted v2.2 policy and its route memory.
++use super::*;
++
++pub(super) fn recommend(
++    version: GenericSolverVersion,
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        recipe,
++        crafter,
++        state,
++        objective,
++        risk,
++        context,
++        mask,
++    )?;
++    if context.last_action == Some(CraftActionId::Reflect) && state.buffs.manipulation == 0 {
++        let proposal = artisan_continuation::improve_research(
++            recipe, crafter, state, objective, context, mask, base, 1, false, false, false,
++        );
++        if proposal.action == CraftActionId::Manipulation {
++            return Some(proposal);
++        }
++    }
++    if version == GenericSolverVersion::OpeningRiskContinuation {
++        return Some(artisan_continuation::improve_research(
++            recipe, crafter, state, objective, context, mask, base, 6, true, false, false,
++        ));
++    }
++    if version == GenericSolverVersion::OpeningPairContinuation {
++        if base.route.is_some_and(|r| r.certified_actions.is_some()) {
++            return Some(base);
++        }
++        if context.route_memory.matches(state) {
++            if let Some(plan) = context
++                .route_memory
++                .active
++                .filter(|r| r.certified_actions.is_none() && r.setup == context.last_action)
++            {
++                if let Some(consumer) = plan
++                    .consumer
++                    .and_then(|a| artisan_continuation::safe_consumer(recipe, crafter, state, a))
++                {
++                    return Some(consumer);
++                }
++            }
++        }
++        return Some(artisan_continuation::improve_research(
++            recipe, crafter, state, objective, context, mask, base, 1, false, true, false,
++        ));
++    }
++    if version == GenericSolverVersion::OpeningForecastRescue {
++        return Some(artisan_continuation::improve_research(
++            recipe, crafter, state, objective, context, mask, base, 6, false, false, true,
++        ));
++    }
++    Some(base)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn short_plan_follows_actual_state_and_clears_on_deviation() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let mut state = CraftState::initial(&recipe, &crafter);
++        state.step = 12;
++        state.inner_quiet = 4;
++        state.cp = 500;
++        state.durability = 40;
++        state.quick_innovation_available = false;
++        let objective = GenericObjective {
++            quality_maximum: recipe.quality_max,
++            protected_quality_floor: recipe.quality_max,
++            adaptive_completion: false,
++            quality_utility_kind: QualityUtilityKind::HardQualityMaximum,
++            quality_milestone_count: 1,
++            quality_milestones: [recipe.quality_max, 0, 0, 0],
++        };
++        let root = GenericDecision {
++            action: CraftActionId::BasicTouch,
++            option: PlannerOption::QualityCycle,
++            persona: PlannerPersona::LegacyContinuation,
++            route: Some(RoutePlan {
++                intent: RouteIntent::QualityBuild,
++                engine: ContinuationEngine::Semantic,
++                setup: Some(CraftActionId::BasicTouch),
++                consumer: Some(CraftActionId::RefinedTouch),
++                interrupt: false,
++                certified_actions: None,
++            }),
++        };
++        let after = branch_state(&recipe, &crafter, &state, root.action, true).unwrap();
++        let mut context = PlannerContext::default();
++        advance_planner_context(
++            &mut context,
++            GenericSolverVersion::OpeningPairContinuation,
++            root,
++            &state,
++            &after,
++        );
++        assert!(context.route_memory.matches(&after));
++        assert_eq!(
++            recommend(
++                GenericSolverVersion::OpeningPairContinuation,
++                &recipe,
++                &crafter,
++                &after,
++                objective,
++                RiskPreference::Balanced,
++                &context,
++                Some(255)
++            )
++            .unwrap()
++            .action,
++            CraftActionId::RefinedTouch
++        );
++        let mut resynced = after.clone();
++        resynced.cp = 0;
++        assert!(!context.route_memory.matches(&resynced));
++        assert!(
++            artisan_continuation::safe_consumer(
++                &recipe,
++                &crafter,
++                &resynced,
++                CraftActionId::RefinedTouch
++            )
++            .is_none()
++        );
++        let mut deviated = root;
++        deviated.action = CraftActionId::HastyTouch;
++        let after_deviation =
++            branch_state(&recipe, &crafter, &state, deviated.action, true).unwrap();
++        advance_planner_context(
++            &mut context,
++            GenericSolverVersion::OpeningPairContinuation,
++            deviated,
++            &state,
++            &after_deviation,
++        );
++        assert!(context.route_memory.active.is_none());
++    }
++}

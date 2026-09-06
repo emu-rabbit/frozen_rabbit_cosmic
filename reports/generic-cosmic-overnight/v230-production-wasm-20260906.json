@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "rust-web-wasm-benchmark-v1",
+  "policyVersion": "generic-craft-external-reference-v2.3.0",
+  "abiVersion": "rust-web-planner-abi-v1",
+  "cases": 50,
+  "recommendations": 2347,
+  "actionOrFinalContextMismatches": 0,
+  "mismatches": [],
+  "stopReasons": {
+    "completed": 44,
+    "action-limit": 2,
+    "failed": 4
+  },
+  "wasm": {
+    "fileBytes": 613388,
+    "coldCompileMs": 0.9098000000012689,
+    "coldInstantiateMs": 0.11009999999987485,
+    "memoryBytesAfterRun": 4063232
+  },
+  "warmRecommendation": {
+    "count": 2347,
+    "p50Ms": 5.666099999998551,
+    "p95Ms": 15.181300000000192,
+    "p99Ms": 18.64419999999882,
+    "maxMs": 23.407700000003388,
+    "meanMs": 6.500662164465327
+  },
+  "evidenceBoundary": "Node WebAssembly development evidence; not target-device browser/mobile evidence"
+}

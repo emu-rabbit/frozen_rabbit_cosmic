@@ -8,6 +8,8 @@
 
 ## 版本表
 
+2026-09-06 採用 `generic-craft-external-reference-v2.3.0`：以 v2.2 為底，加入閒靜後的提前掌握比較；完整行為等同 `exp-opening-recovery`，不併入撤回的修補試驗。Web 與公開 Rust API 同步採用，API／WASM ABI 不變。見 [v2.3 採用紀錄](../reports/generic-cosmic-overnight/v230-adoption-20260906.md)。下列 v2.2 紀錄保留當時採用經過。
+
 v1.0 起的主版號標示求解器架構世代。Web 採用、Application／Cargo package 版本與公開發布各自管理。
 
 2026-08-29 使用者校正：往後只有經驗證、有意義的推進才給數字版號，規則由 [開發實作規範](skills/professional/development_standards.md) 擁有。下表既有 v1.2–v1.10 是改用此規則前的研究身份，**不代表九次已驗證的能力升級**；保留原名供重播，不重新編號。

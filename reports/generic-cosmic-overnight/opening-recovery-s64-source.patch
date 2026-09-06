@@ -1,0 +1,364 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 8ae74fa..8923325 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -94,6 +94,7 @@ fn main() -> ExitCode {
+                     RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 3e03abc..b49e521 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -4,6 +4,7 @@ use std::str::FromStr;
+ 
+ mod artisan_continuation;
+ mod certified_route;
++mod opening_recovery;
+ mod portfolio;
+ mod resource_certificate;
+ pub use portfolio::*;
+@@ -90,6 +91,8 @@ pub const CERTIFIED_ROUTE_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-certified-route";
+ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
++pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-opening-recovery";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+@@ -109,6 +112,7 @@ pub enum GenericSolverVersion {
+     ResourceCertificate,
+     CertifiedRoute,
+     ArtisanContinuation,
++    OpeningRecovery,
+     RustBaselineV1,
+     HardQualityV2,
+     RustPrimaryV3,
+@@ -196,6 +200,7 @@ impl GenericSolverVersion {
+             Self::ResourceCertificate => RESOURCE_CERTIFICATE_EXPERIMENT_VERSION,
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
++            Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -299,6 +304,7 @@ impl FromStr for GenericSolverVersion {
+             RESOURCE_CERTIFICATE_EXPERIMENT_VERSION => Ok(Self::ResourceCertificate),
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
++            OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -4361,6 +4367,17 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    if version == GenericSolverVersion::OpeningRecovery {
++        return opening_recovery::recommend(
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::CertifiedRoute
+@@ -5161,6 +5178,11 @@ fn advance_planner_context_inner(
+     after: &CraftState,
+     observe_route: bool,
+ ) {
++    let solver_version = if solver_version == GenericSolverVersion::OpeningRecovery {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if observe_route
+         && matches!(
+             solver_version,
+@@ -5346,6 +5368,11 @@ pub fn planner_context_fingerprint(
+     solver_version: GenericSolverVersion,
+     context: &PlannerContext,
+ ) -> String {
++    let solver_version = if solver_version == GenericSolverVersion::OpeningRecovery {
++        GenericSolverVersion::ExternalReferenceV22
++    } else {
++        solver_version
++    };
+     if matches!(
+         solver_version,
+         GenericSolverVersion::CertifiedRoute
+diff --git a/native/craft-kernel/src/generic_solver/artisan_continuation.rs b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+index 2bc73c8..1964649 100644
+--- a/native/craft-kernel/src/generic_solver/artisan_continuation.rs
++++ b/native/craft-kernel/src/generic_solver/artisan_continuation.rs
+@@ -134,11 +134,40 @@ pub(super) fn improve(
+     context: &PlannerContext,
+     mask: Option<u16>,
+     reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 6,
++    )
++}
++
++pub(super) fn improve_opening(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++) -> GenericDecision {
++    improve_with_minimum_iq(
++        recipe, crafter, state, objective, context, mask, reference, 1,
++    )
++}
++
++fn improve_with_minimum_iq(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    reference: GenericDecision,
++    minimum_iq: i32,
+ ) -> GenericDecision {
+     let preview = preview_action(recipe, crafter, state, reference.action);
+     if recipe.required_quality <= 0
+         || state.quality >= recipe.quality_max
+-        || state.inner_quiet < 6
++        || state.inner_quiet < minimum_iq
+         || declared_next_conditions(mask).next().is_none()
+         || !(preview.success_rate < 1.0
+             || matches!(
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 0f25ae8..f4a1bb8 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -79,6 +79,7 @@ mod research_exports {
+         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+         validate_generic_episode_batch,
+     };
++    pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
+     pub use crate::generic_solver::{
+         AGGRESSIVE_RESOURCE_PORTFOLIO_POLICY_VERSION, ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+         ARTISAN_EXPERT_REFERENCE_POLICY_VERSION, BranchEvidence, CACHED_PORTFOLIO_POLICY_VERSION,
+diff --git a/native/craft-kernel/tests/generic_episode.rs b/native/craft-kernel/tests/generic_episode.rs
+index 358b010..27e00cc 100644
+--- a/native/craft-kernel/tests/generic_episode.rs
++++ b/native/craft-kernel/tests/generic_episode.rs
+@@ -40,6 +40,35 @@ fn generic_episode_handshake_advertises_current_v2() {
+     );
+ }
+ 
++#[test]
++fn retained_opening_recovery_replays_the_frozen_full_quality_gain() {
++    // Synthetic F43 / E03 / normal-heavy sample from opening-recovery-s1.
++    // Expected outcomes were captured from frozen binary 2c236e4f, before retention.
++    let mut case = frozen_rabbit_craft_kernel::research::parse_generic_episode_case(
++        include_str!("fixtures/opening_recovery.tsv").trim(),
++    )
++    .unwrap();
++    assert_eq!(case.solver_version, GenericSolverVersion::OpeningRecovery);
++    let result = execute_generic_episode(&case).unwrap();
++    assert_eq!(
++        &result.actions[..3],
++        &[
++            CraftActionId::QuickInnovation,
++            CraftActionId::Reflect,
++            CraftActionId::Manipulation
++        ]
++    );
++    assert_eq!(result.stop_reason.to_string(), "completed");
++    assert_eq!(result.actions.len(), 57);
++    assert_eq!(result.final_state.quality, 22000);
++    assert_eq!(result.final_state.cp, 99);
++    case.solver_version = GenericSolverVersion::ExternalReferenceV22;
++    let baseline = execute_generic_episode(&case).unwrap();
++    assert_eq!(baseline.stop_reason.to_string(), "failed");
++    assert_eq!(baseline.actions.len(), 77);
++    assert_eq!(baseline.final_state.quality, 19196);
++}
++
+ fn recipe(required_quality: i32) -> RecipeProfile {
+     RecipeProfile {
+         canonical_recipe_id: 36_990,
+@@ -588,6 +617,7 @@ fn evaluator_private_condition_weights_cannot_change_any_first_recommendation()
+         GenericSolverVersion::ResourceCertificate,
+         GenericSolverVersion::CertifiedRoute,
+         GenericSolverVersion::ArtisanContinuation,
++        GenericSolverVersion::OpeningRecovery,
+         GenericSolverVersion::ExpandedFullQualityCertificate,
+         GenericSolverVersion::FullQualityCertificateDepth5,
+         GenericSolverVersion::FullQualityCertificateDepth6,
+diff --git a/tools/evaluate-generic-cosmic-overnight/lib.test.mjs b/tools/evaluate-generic-cosmic-overnight/lib.test.mjs
+index 1aa26c5..8bb29c5 100644
+--- a/tools/evaluate-generic-cosmic-overnight/lib.test.mjs
++++ b/tools/evaluate-generic-cosmic-overnight/lib.test.mjs
+@@ -964,6 +964,39 @@ describe('overnight report validation', () => {
+     corruptSource.report.rows[0].quality += 1
+     assert.throws(() => reuseHistoricalCandidate(corruptSource, currentRows, saved.comparisonContract,
+       'candidate-v2', sampled.binary.handshake), /intact completed/)
++    // Reuse the candidate of an intact three-arm source without flattening or
++    // relabeling its evidence. The reference arm must never become the baseline.
++    const threeSource = structuredClone(source)
++    threeSource.report.schemaVersion = 'native-generic-cosmic-three-arm-matrix-v1'
++    threeSource.report.solvers.reference = 'reference-v1'
++    threeSource.report.rows.push(...saved.rows.filter(row => row.arm === 'candidate')
++      .map(row => ({ ...row, arm: 'reference', solverVersion: 'reference-v1', quality: 0 })))
++    threeSource.report.episodes = candidateRows.length * 3
++    threeSource.reportFingerprint = sha256Value(threeSource.report)
++    validateNativeEvaluatorReport(threeSource.report, { ...sampledExpected,
++      executionIdentity: { ...sampledExpected.executionIdentity, referenceSolver: 'reference-v1' },
++    })
++    const threeReused = reuseHistoricalCandidate(threeSource, currentRows, saved.comparisonContract,
++      'candidate-v2', sampled.binary.handshake)
++    assert.deepEqual(threeReused.rows, reused.rows)
++    assert.equal(threeReused.source.reportFingerprint, threeSource.reportFingerprint)
++    assert.equal(threeReused.source.solverVersion, 'candidate-v2')
++    validateNativeEvaluatorReport({ ...historicalReport, baselineSource: threeReused.source },
++      { ...historicalExpected, baselineShard: threeSource })
++    for (const mutate of [
++      s => { s.report.rows.at(-1).quality = 1 }, // even unused reference evidence is fingerprinted
++      s => { s.report.rows.find(r => r.arm === 'candidate').pairedSeed += 1;
++        s.reportFingerprint = sha256Value(s.report) },
++      s => { s.report.schemaVersion = 'native-generic-cosmic-paired-matrix-v5';
++        s.reportFingerprint = sha256Value(s.report) },
++    ]) {
++      const damaged = structuredClone(threeSource)
++      mutate(damaged)
++      assert.throws(() => reuseHistoricalCandidate(damaged, currentRows, saved.comparisonContract,
++        'candidate-v2', sampled.binary.handshake), /historical baseline/)
++    }
++    assert.throws(() => reuseHistoricalCandidate(threeSource, currentRows, saved.comparisonContract,
++      'reference-v1', sampled.binary.handshake), /historical baseline solver/)
+     for (const mutate of [
+       (row) => { delete row.recommendationDurationsNs },
+       (row) => { row.recommendationDurationsNs.pop() },
+diff --git a/tools/evaluate-generic-cosmic-overnight/read-amd-temperature.ps1 b/tools/evaluate-generic-cosmic-overnight/read-amd-temperature.ps1
+index 943e810..832fe60 100644
+--- a/tools/evaluate-generic-cosmic-overnight/read-amd-temperature.ps1
++++ b/tools/evaluate-generic-cosmic-overnight/read-amd-temperature.ps1
+@@ -97,6 +97,7 @@ try {
+         $taskTemperature = [double]::Parse($taskMatches[0].Groups[1].Value, [Globalization.CultureInfo]::InvariantCulture)
+         if ($taskTemperature -le 0 -or $taskTemperature -ge 150) { throw 'Invalid CPU temperature.' }
+         Save-TemperatureSnapshot 'ok' $taskTemperature $taskStarted $null
++        [Console]::WriteLine(('{0:HH:mm:ss} CPU {1:F1} C' -f (Get-Date), $taskTemperature))
+         $taskProcess.Dispose()
+         $taskProcess = $null
+         $taskDelay = [Math]::Max(0, 3000 - [int]$taskCycle.ElapsedMilliseconds)
+diff --git a/tools/evaluate-native-generic-cosmic/historical.ts b/tools/evaluate-native-generic-cosmic/historical.ts
+index 4ecf713..71b6314 100644
+--- a/tools/evaluate-native-generic-cosmic/historical.ts
++++ b/tools/evaluate-native-generic-cosmic/historical.ts
+@@ -27,10 +27,15 @@ function canonical(value: any): any {
+ export function historicalSource(shardValue: unknown) {
+   const shard = record(shardValue), report = record(shard.report)
+   const digest = createHash('sha256').update(JSON.stringify(canonical(report))).digest('hex')
++  // Fresh two- and three-arm runs both own a candidate arm. Keep the original
++  // report digest/solver identity; never rewrite a three-arm source into v4.
++  // Historical v5 remains excluded, so provenance cannot silently chain.
++  const freshSchema = report.schemaVersion === 'native-generic-cosmic-paired-matrix-v4'
++    || report.schemaVersion === 'native-generic-cosmic-three-arm-matrix-v1'
+   if (shard.status !== 'completed' || shard.reportFingerprint !== digest
+-    || report.schemaVersion !== 'native-generic-cosmic-paired-matrix-v4'
++    || !freshSchema
+     || report.binary?.handshake?.[0] !== 'native-generic-episode-batch-v7') {
+-    throw new Error('historical baseline is not an intact completed native v4 shard')
++    throw new Error('historical baseline is not an intact completed fresh native shard')
+   }
+   for (const value of [shard.configFingerprint, shard.evaluatorBundleSha256, report.binary?.sha256]) {
+     if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) {
+diff --git a/native/craft-kernel/src/generic_solver/opening_recovery.rs b/native/craft-kernel/src/generic_solver/opening_recovery.rs
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/opening_recovery.rs
+@@ -0,0 +1,32 @@
++//! Retained positive research component. The adopted v2.2 policy is unchanged.
++use super::*;
++
++pub(super) fn recommend(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    let base = recommend_generic_action_with_model(
++        GenericSolverVersion::ExternalReferenceV22,
++        recipe,
++        crafter,
++        state,
++        objective,
++        risk,
++        context,
++        mask,
++    )?;
++    if context.last_action == Some(CraftActionId::Reflect) && state.buffs.manipulation == 0 {
++        let proposal = artisan_continuation::improve_opening(
++            recipe, crafter, state, objective, context, mask, base,
++        );
++        if proposal.action == CraftActionId::Manipulation {
++            return Some(proposal);
++        }
++    }
++    Some(base)
++}
+diff --git a/native/craft-kernel/tests/fixtures/opening_recovery.tsv b/native/craft-kernel/tests/fixtures/opening_recovery.tsv
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/tests/fixtures/opening_recovery.tsv
+@@ -0,0 +1,1 @@
++native-generic-episode-batch-v7	cosmic-expert-mechanics-9d5ec4bc323d|objective:b540497aad99d453|recipe:37528|equipment:player-food-medicine-specialist-cosmic-tool-v1@6bf6fe44d6868c00|world:normal-heavy-iid@86db96ef0de9224a|base-seed:20260906|sample:0|max-steps:80|case:65f60a3305e4054b	episode	generic-craft-external-reference-exp-opening-recovery	balanced	22000	22000	0	hard-quality-max	1	22000	0	0	0	255	none	37528	758	8000	22000	22000	35	180	180	100	100	100	5428	5257	764	1	1	1	0	0	35	764	normal	0	0	0	0	0	0	0	0	0	-	1	0	3	1	0	1	none	-	20453930	0	0	80	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0	6	1	1	1	1	1	1	1	0
+diff --git a/tools/evaluate-generic-cosmic-overnight/run-opening-recovery-s64.cmd b/tools/evaluate-generic-cosmic-overnight/run-opening-recovery-s64.cmd
+new file mode 100644
+--- /dev/null
++++ b/tools/evaluate-generic-cosmic-overnight/run-opening-recovery-s64.cmd
+@@ -0,0 +1,33 @@
++@echo off
++setlocal
++if not "%~1"=="" if /i not "%~1"=="--status-only" (
++  echo Usage: run-opening-recovery-s64.cmd [--status-only]
++  exit /b 2
++)
++if not "%~2"=="" exit /b 2
++pushd "%~dp0..\.."
++if errorlevel 1 exit /b 2
++call npm run evaluate:generic-cosmic-overnight -- ^
++  --engine=rust-native ^
++  --native-preview ^
++  --native-binary=evaluation-runs/opening-recovery-development/.artifacts/889253f5f76a47373380e8398a32d783cb1477772e08c139be55a95ee02c8621/craft-kernel-generic-episode.exe ^
++  --native-baseline-solver=generic-craft-external-reference-exp-artisan-continuation ^
++  --native-candidate-solver=generic-craft-external-reference-exp-opening-recovery ^
++  --baseline-dir=evaluation-runs/resource-certificate-development/artisan-continuation-fresh-s64 ^
++  --risk=balanced ^
++  --equipment=E02,E03,E07,E09,E10 ^
++  --world=balanced-iid,normal-heavy-iid ^
++  --seed-count=64 ^
++  --base-seed=20261213 ^
++  --workers=4 ^
++  --max-workers=4 ^
++  --temperature-file=.tmp/overnight-cpu-temperature.json ^
++  --thermal-window=5m ^
++  --time-budget=4h ^
++  --shard-timeout=30m ^
++  --retries=1 ^
++  --output=evaluation-runs/opening-recovery-development ^
++  --run-id=opening-recovery-v23-s64 %1
++set "taskExitCode=%errorlevel%"
++popd
++exit /b %taskExitCode%

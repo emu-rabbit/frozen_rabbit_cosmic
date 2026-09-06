@@ -1,5 +1,5 @@
 export const WEB_PLANNER_ABI = 'rust-web-planner-abi-v1'
-export const WEB_PLANNER_POLICY = 'generic-craft-external-reference-v2.2.0'
+export const WEB_PLANNER_POLICY = 'generic-craft-external-reference-v2.3.0'
 export const WEB_PLANNER_MAX_INPUT_BYTES = 64 * 1024
 
 export type PlannerAdvance =
