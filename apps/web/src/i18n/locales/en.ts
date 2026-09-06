@@ -115,7 +115,7 @@ export default {
     },
     "time": {
       "title": "Considering less waiting when time is short",
-      "first": "For timed missions, the background time estimate starts with your first condition report, with no manual calibration. The website assumes one craft per item, sets aside some time, and divides the remainder equally among unfinished items. Undoing an action or switching items keeps the same countdown.",
+      "first": "For timed missions, the background time estimate starts with your first condition report, with no manual calibration. The website assumes one craft per item, sets aside some time, and divides the remainder equally among unfinished items. Undoing an action or switching items keeps the same countdown. “Craft again” returns the current item to step one with the same equipment and keeps the countdown running. “Reset mission” reopens item and equipment selection; confirming clears mission progress and resets the countdown to start with your first condition report. Closing the panel preserves progress and timing.",
       "second": "With enough time, the solver keeps its usual quality-first approach. If time looks tight, it also compares spending CP to recover durability and reduce waiting, aiming to deliver something valuable before the deadline. These simulated trade-offs can affect final quality and cannot guarantee an on-time finish. This background estimate guides recommendations; use the in-game timer for the actual time remaining."
     },
     "feedback": {

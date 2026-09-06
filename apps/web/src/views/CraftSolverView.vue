@@ -11,6 +11,7 @@ import {
   type MaterialCondition,
 } from '@frozen-rabbit-expert/domain'
 import CraftActionIcon from '@/components/crafting/CraftActionIcon.vue'
+import MissionSetupDialog from '@/components/crafting/MissionSetupDialog.vue'
 import { isDefaultEquipmentProfile } from '@/composables/useEquipmentProfiles'
 import { useActiveCraftSession } from '@/composables/useActiveCraftSession'
 import { useRecommendationOutcome } from '@/composables/useRecommendationOutcome'
@@ -27,6 +28,7 @@ const reportedSuccess = ref<boolean | null>(null)
 const isItemDialogOpen = ref(false)
 const isActionDialogOpen = ref(false)
 const isRestartDialogOpen = ref(false)
+const isResetMissionDialogOpen = ref(false)
 const dialogCloseButton = ref<HTMLButtonElement | null>(null)
 const sessionDownloadUrl = ref('')
 const sessionDownloadFilename = ref('')
@@ -234,6 +236,13 @@ function restart() {
   craft.restart()
 }
 
+function onMissionReset() {
+  isResetMissionDialogOpen.value = false
+  closeDialogs()
+  cancelReport()
+  recommendedSuccess.value = null
+}
+
 function clearSessionDownload() {
   if (sessionDownloadUrl.value) URL.revokeObjectURL(sessionDownloadUrl.value)
   sessionDownloadUrl.value = ''
@@ -247,6 +256,7 @@ function cancelReport() {
 
 function onKeyDown(event: KeyboardEvent) {
   if (event.key !== 'Escape') return
+  if (isResetMissionDialogOpen.value) return
   if (isItemDialogOpen.value || isActionDialogOpen.value || isRestartDialogOpen.value) closeDialogs()
   else if (reportingAction.value) cancelReport()
 }
@@ -427,7 +437,7 @@ onBeforeUnmount(() => {
       <section v-else-if="craft.recommendationError.value || !recommendationAction" class="recommendation-error" role="alert">
         <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
         <div><strong>{{ t('solver.noRecommendation') }}</strong><p>{{ t('solver.noRecommendationDescription') }}</p></div>
-        <button type="button" @click="craft.restart">{{ t('solver.retryFromStart') }}</button>
+        <button type="button" @click="restart">{{ t('solver.retryFromStart') }}</button>
       </section>
 
       <section v-else class="recommendation-card">
@@ -505,8 +515,13 @@ onBeforeUnmount(() => {
       <button type="button" @click="openDialog('restart')">
         <i class="pi pi-refresh" aria-hidden="true"></i>{{ t('solver.restart') }}
       </button>
+      <button type="button" @click="isResetMissionDialogOpen = true">
+        <i class="pi pi-sliders-h" aria-hidden="true"></i>{{ t('solver.resetMission') }}
+      </button>
     </footer>
   </section>
+
+  <MissionSetupDialog v-if="isResetMissionDialogOpen && session" :mission="session.mission" reset @close="isResetMissionDialogOpen = false" @started="onMissionReset" />
 
   <Teleport to="body">
     <div v-if="isItemDialogOpen && session" class="solver-dialog-layer" @click.self="closeDialogs">
@@ -649,7 +664,7 @@ html.dark .report-segmented button.active { border-color: #52a890; background: #
 html.dark .condition-report legend, html.dark .recommendation-success > span { color: #c7ddd6; }
 html.dark .condition-option:hover { border-color: var(--condition-color); background: #19283a; }
 
-.solver-tools { display: flex; width: 100%; justify-content: space-between; gap: .6rem; margin-top: .75rem; }
+.solver-tools { display: flex; flex-wrap: wrap; width: 100%; justify-content: space-between; gap: .6rem; margin-top: .75rem; }
 .solver-tools button { min-height: 2.75rem; border: 1px solid #d6e7e2; border-radius: .75rem; background: rgba(255,255,255,.6); padding: .55rem .85rem; color: #647b74; font-size: .75rem; font-weight: 750; cursor: pointer; }
 .solver-tools button i { margin-right: .4rem; }
 .solver-tools button:disabled { opacity: .45; cursor: not-allowed; }

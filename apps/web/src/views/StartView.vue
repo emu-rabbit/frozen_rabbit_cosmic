@@ -4,17 +4,10 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useMissionData } from '@/services/missionData'
 import { useFavoriteMissions } from '@/composables/useFavoriteMissions'
-import { startCraftSession } from '@/composables/useActiveCraftSession'
-import { plannerRuntime } from '@/runtime/planner'
-import {
-  calculateEquipmentStatsAfterConsumables,
-  findPreferredEquipmentProfileForJob,
-  isDefaultEquipmentProfile,
-  useEquipmentProfiles,
-} from '@/composables/useEquipmentProfiles'
+import MissionSetupDialog from '@/components/crafting/MissionSetupDialog.vue'
 import {
   CRAFT_JOBS, MISSION_PLANETS, MISSION_RANKS, MISSION_TYPES,
-  type CosmicMission, type CraftJob, type DataLocale, type LocalizedNames, type MissionItem,
+  type CosmicMission, type CraftJob, type DataLocale, type LocalizedNames,
   type MissionPlanet, type MissionRank, type MissionType,
 } from '@/types/missionData'
 
@@ -33,19 +26,14 @@ const PAGE_SIZE = 12
 const { t, locale } = useI18n()
 const router = useRouter()
 const missionData = useMissionData()
-const equipmentProfiles = useEquipmentProfiles()
 const favoriteMissions = useFavoriteMissions()
 const query = ref('')
 const visibleCount = ref(PAGE_SIZE)
 const isFilterOpen = ref(false)
 const selectedMission = ref<DeepReadonly<CosmicMission> | null>(null)
-const selectedRecipeId = ref<number | null>(null)
-const selectedEquipmentProfileId = ref<string | null>(null)
 const filterButton = ref<HTMLButtonElement | null>(null)
 const filterCloseButton = ref<HTMLButtonElement | null>(null)
 const filterShell = ref<HTMLElement | null>(null)
-const detailCloseButton = ref<HTMLButtonElement | null>(null)
-const plannerStartPending = ref(false)
 const applied = reactive<MissionFilters>({ jobs: [], ranks: [], planets: [], types: [] })
 const draft = reactive<MissionFilters>({ jobs: [], ranks: [], planets: [], types: [] })
 
@@ -74,35 +62,6 @@ const filteredMissions = computed(() => {
 })
 const visibleMissions = computed(() => filteredMissions.value.slice(0, visibleCount.value))
 const hasFavorites = computed(() => favoriteMissions.favoriteMissionIds.value.length > 0)
-const compatibleEquipmentProfiles = computed(() => selectedMission.value
-  ? equipmentProfiles.profilesForJob(selectedMission.value.job)
-  : [])
-const selectedEquipmentProfile = computed(() => compatibleEquipmentProfiles.value
-  .find(profile => profile.id === selectedEquipmentProfileId.value) ?? null)
-const plannerIsPreparing = computed(() => (
-  plannerRuntime.status.value === 'idle'
-  || plannerRuntime.status.value === 'loading'
-  || plannerStartPending.value
-))
-const plannerCanStart = computed(() => (
-  selectedRecipeId.value !== null
-  && selectedEquipmentProfile.value !== null
-  && plannerRuntime.status.value === 'ready'
-  && !plannerStartPending.value
-))
-const selectedEquipmentSummary = computed(() => {
-  const profile = selectedEquipmentProfile.value
-  if (!profile) return ''
-
-  const stats = calculateEquipmentStatsAfterConsumables(profile, missionData.consumables.value)
-  const parts = [
-    `${stats.craftsmanship.toLocaleString()}/${stats.control.toLocaleString()}/${stats.maxCp.toLocaleString()}`,
-  ]
-  if (profile.relicToolGoodBonus) parts.push(t('missions.equipmentRelicEffect'))
-  if (profile.specialist) parts.push(t('missions.equipmentSpecialist'))
-  return parts.join(' · ')
-})
-
 watch([query, () => JSON.stringify(applied)], () => { visibleCount.value = PAGE_SIZE })
 
 const copyFilters = (from: MissionFilters, to: MissionFilters) => {
@@ -125,60 +84,11 @@ const closeFilters = (restoreFocus = true) => {
 }
 const applyFilters = () => { copyFilters(draft, applied); closeFilters() }
 const clearFilters = () => { copyFilters(emptyFilters(), draft); copyFilters(draft, applied); closeFilters() }
-const preparePlanner = () => {
-  void plannerRuntime.initialize().catch(() => {})
-}
-const openMission = async (mission: DeepReadonly<CosmicMission>) => {
-  selectedMission.value = mission
-  selectedRecipeId.value = mission.items[0]?.recipeId ?? null
-  selectedEquipmentProfileId.value = findPreferredEquipmentProfileForJob(
-    equipmentProfiles.orderedProfiles.value,
-    mission.job,
-  )?.id ?? null
-  preparePlanner()
-  await nextTick()
-  detailCloseButton.value?.focus()
-}
-const closeMission = () => {
-  selectedMission.value = null
-  selectedRecipeId.value = null
-  selectedEquipmentProfileId.value = null
-}
-const profileName = (profile: NonNullable<typeof selectedEquipmentProfile.value>) => {
-  if (isDefaultEquipmentProfile(profile)) return t('equipmentProfiles.defaultName')
-  return profile.name || t('equipmentProfiles.unnamed')
-}
-const itemInputId = (item: DeepReadonly<MissionItem>) => `mission-item-${item.recipeId}`
-const startCrafting = async () => {
-  if (plannerStartPending.value) return
-  plannerStartPending.value = true
-  try {
-    await plannerRuntime.initialize()
-    const mission = selectedMission.value
-    const profile = selectedEquipmentProfile.value
-    const item = mission?.items.find(candidate => candidate.recipeId === selectedRecipeId.value)
-    if (!mission || !item || !profile) return
-    const stats = calculateEquipmentStatsAfterConsumables(profile, missionData.consumables.value)
-    startCraftSession({
-      mission,
-      item,
-      equipmentProfile: profile,
-      crafter: {
-        level: profile.level,
-        craftsmanship: stats.craftsmanship,
-        control: stats.control,
-        maxCp: stats.maxCp,
-        cosmicToolGoodBonus: profile.relicToolGoodBonus,
-        specialist: profile.specialist,
-      },
-    })
-    closeMission()
-    await router.push({ name: 'solver' })
-  } catch {
-    return
-  } finally {
-    plannerStartPending.value = false
-  }
+const openMission = (mission: DeepReadonly<CosmicMission>) => { selectedMission.value = mission }
+const closeMission = () => { selectedMission.value = null }
+const onCraftStarted = () => {
+  closeMission()
+  void router.push({ name: 'solver' })
 }
 const onDocumentPointerDown = (event: PointerEvent) => {
   if (isFilterOpen.value && !filterShell.value?.contains(event.target as Node)) closeFilters(false)
@@ -344,54 +254,5 @@ onBeforeUnmount(() => {
     </template>
   </section>
 
-  <Teleport to="body">
-    <div v-if="selectedMission" class="mission-detail-layer" @click.self="closeMission">
-      <section class="mission-detail" role="dialog" aria-modal="true" :aria-labelledby="`mission-${selectedMission.id}-title`">
-        <button ref="detailCloseButton" class="mission-detail-close" type="button" :aria-label="t('common.close')" @click="closeMission">
-          <i class="pi pi-times" aria-hidden="true"></i>
-        </button>
-        <div class="mission-detail-heading">
-          <img :src="selectedMission.jobIcon" :alt="t(`missions.jobs.${selectedMission.job}`)" />
-          <div>
-            <span>{{ t(`missions.jobs.${selectedMission.job}`) }} · {{ t(`missions.planets.${selectedMission.planet}`) }}</span>
-            <h2 :id="`mission-${selectedMission.id}-title`">{{ localizedName(selectedMission.names) }}</h2>
-          </div>
-        </div>
-        <fieldset class="mission-detail-section">
-          <legend>{{ t('missions.chooseItem') }}</legend>
-          <div class="mission-detail-items">
-            <label v-for="item in selectedMission.items" :key="item.recipeId" class="mission-detail-item" :for="itemInputId(item)">
-              <input :id="itemInputId(item)" v-model="selectedRecipeId" type="radio" name="mission-item" :value="item.recipeId" />
-              <img :src="item.icon" :alt="localizedName(item.names)" />
-              <strong>{{ localizedName(item.names) }}</strong>
-              <i class="pi pi-check" aria-hidden="true"></i>
-            </label>
-          </div>
-        </fieldset>
-        <fieldset class="mission-detail-section">
-          <legend>{{ t('missions.chooseEquipmentProfile') }}</legend>
-          <label class="mission-equipment-select">
-            <span class="sr-only">{{ t('missions.equipmentProfileLabel') }}</span>
-            <select v-model="selectedEquipmentProfileId">
-              <option v-for="profile in compatibleEquipmentProfiles" :key="profile.id" :value="profile.id">
-                {{ profileName(profile) }}
-              </option>
-            </select>
-            <i class="pi pi-chevron-down" aria-hidden="true"></i>
-          </label>
-          <p v-if="selectedEquipmentProfile" class="mission-equipment-summary">
-            {{ selectedEquipmentSummary }}
-          </p>
-        </fieldset>
-        <div v-if="plannerRuntime.status.value === 'error'" class="mission-planner-status--error" role="alert">
-          <span>{{ t('missions.solverLoadError') }}</span>
-          <button type="button" @click="preparePlanner">{{ t('missions.retrySolver') }}</button>
-        </div>
-        <button class="mission-detail-start" type="button" :disabled="!plannerCanStart" aria-live="polite" @click="startCrafting">
-          <i v-if="plannerIsPreparing" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-          {{ t(plannerIsPreparing ? 'missions.preparingSolver' : 'missions.startCrafting') }}
-        </button>
-      </section>
-    </div>
-  </Teleport>
+  <MissionSetupDialog v-if="selectedMission" :mission="selectedMission" @close="closeMission" @started="onCraftStarted" />
 </template>
