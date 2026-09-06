@@ -15,7 +15,6 @@ import { isDefaultEquipmentProfile } from '@/composables/useEquipmentProfiles'
 import { useActiveCraftSession } from '@/composables/useActiveCraftSession'
 import { useRecommendationOutcome } from '@/composables/useRecommendationOutcome'
 import { useMissionData } from '@/services/missionData'
-import { missionRemainingMilliseconds } from '@/services/missionClock'
 import { nextItemInMission, nextSequentialMission as findNextSequentialMission } from '@/services/missionProgression'
 import type { CosmicMission, DataLocale, LocalizedNames } from '@/types/missionData'
 
@@ -33,17 +32,6 @@ const sessionDownloadUrl = ref('')
 const sessionDownloadFilename = ref('')
 
 const session = computed(() => craft.activeSession.value)
-const clockNow = ref(Date.now())
-let clockInterval: ReturnType<typeof setInterval> | undefined
-const missionTimeDisplay = computed(() => {
-  const clock = craft.missionClock.value
-  if (!clock || clock.timeLimitSeconds === 0) return null
-  const remaining = missionRemainingMilliseconds(clock, clockNow.value)
-  if (remaining === null) return t('solver.missionTimerWaiting')
-  const seconds = Math.ceil(remaining / 1000)
-  const time = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
-  return t('solver.missionTimeRemaining', { time })
-})
 const state = computed(() => craft.state.value)
 const recipe = computed(() => session.value?.scenario.recipe ?? null)
 const recommendationAction = computed(() => craft.recommendation.value?.action as CraftActionId | null ?? null)
@@ -279,10 +267,8 @@ watch(() => state.value?.terminal, (terminal) => {
 
 onMounted(() => {
   document.addEventListener('keydown', onKeyDown)
-  clockInterval = setInterval(() => { clockNow.value = Date.now() }, 1000)
 })
 onBeforeUnmount(() => {
-  if (clockInterval) clearInterval(clockInterval)
   document.removeEventListener('keydown', onKeyDown)
   clearSessionDownload()
 })
@@ -293,7 +279,6 @@ onBeforeUnmount(() => {
     <header class="solver-context">
       <div class="solver-heading">
         <p>{{ localizedName(session.mission.names) }} · {{ t(`missions.jobs.${session.mission.job}`) }}</p>
-        <p v-if="missionTimeDisplay" class="mission-timer">{{ missionTimeDisplay }}</p>
         <button
           class="solver-item-switch"
           type="button"
