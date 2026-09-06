@@ -73,13 +73,53 @@ export default {
     rabbitQuestion: 'Why freeze the rabbit? Can I roast it instead?',
     rabbitAnswer: 'No.',
     algorithmQuestion: 'How does the solver algorithm work?',
-    algorithmAnswer: "The v2.2 solver builds on Artisan's Expert Solver. It considers resource actions and searches for full-quality finishing routes of up to 12 actions. A route is accepted only after verification across every condition allowed for the recipe, and is checked again after each reported action. For recipes that require maximum quality, when no certified finish is available and Artisan suggests waiting or a skill that can fail, the solver also simulates guaranteed-success alternatives followed by Artisan's continuation. It changes the recommendation only with sufficient supporting evidence under two condition assumptions. This comparison is an estimate, not a guarantee of success; otherwise, it follows Artisan's recommendation.",
+    algorithmAnswer: "The v2.3 solver builds on Artisan's Expert Solver, with additional strategies tested for worthwhile trade-offs between results and computation time. Read the detailed explanation {guide}.",
+    algorithmLink: "here",
     optimalQuestion: "Does this website's solver produce the optimal solution?",
     optimalAnswer: 'The backbone is an experimentally tested, capable decision-tree algorithm; it does not produce an optimal solution through brute-force enumeration.',
     integrationQuestion: "Can I integrate this website's solver into my project?",
     integrationAnswer: "See the {guide} for integration instructions. Artisan's BSD license terms remain in effect, and your implementation must also include this project's MIT license.",
     integrationGuideLink: 'GitHub guide',
     footer: 'Have more questions? Feel free to report on GitHub or email: {email}',
+  },
+  algorithm: {
+    "back": "Back to FAQ",
+    "version": "Solver v2.3",
+    "title": "How does the solver choose your next action?",
+    "intro": "In an expert craft, one failed action or a helpful condition can change what comes next. The solver uses your gear, recipe, and each result you report to choose an action for the situation you're in.",
+    "priority": "Complete the craft while turning the durability and CP you have left into as much quality as possible.",
+    "foundation": {
+      "title": "Built on Artisan's crafting decisions",
+      "first": "The solver builds on Artisan's Expert Solver. It checks progress, quality, durability, CP, and active effects to decide when to advance synthesis, raise quality, recover durability, or wait for a helpful condition.",
+      "second": "It then looks for a suitable finishing sequence and, in certain situations, compares how other actions might work out before recommending your next move."
+    },
+    "finish": {
+      "title": "Finding a full-quality finish",
+      "first": "Near the end of a craft, one more Touch might reach maximum quality but leave too little durability to finish. The solver considers progress, quality, and costs together, looking for a sequence that achieves both. It can include actions that recover durability or reduce consumption.",
+      "second": "Alongside short sequences, it tries finishing routes of up to 12 actions and checks the conditions that could follow under the crafting rules. When it finds a route that works across those conditions, it recommends the first action, then checks whether to continue after your next report."
+    },
+    "compare": {
+      "title": "Looking at alternatives to waiting",
+      "first": "Sometimes waiting for a useful condition or taking a chance on an action is the original recommendation. For recipes that require maximum quality, if there is no verified finish yet, the solver also compares using another guaranteed-success action first, followed by Artisan's decisions.",
+      "second": "It simulates several continuations, including a more even mix of conditions and a mix with more Normal conditions. It switches when neither mix loses completed or maximum-quality crafts and the alternative produces enough additional maximum-quality results. These simulations help compare choices; you still report the condition that actually appears."
+    },
+    "opening": {
+      "title": "New in v2.3: earlier Manipulation",
+      "first": "Manipulation restores durability over subsequent actions, but costs CP up front. After Reflect, v2.3 compares using it now with continuing synthesis or waiting. As a result, you may see Manipulation recommended earlier than before.",
+      "second": "There is a trade-off: the current helpful condition may pass, and less CP will remain for other actions. The solver carries those costs into its simulations. It chooses early Manipulation when the comparison supports it, the action is available, and its effect is not already active."
+    },
+    "feedback": {
+      "title": "Continuing from your actual result",
+      "first": "After each report of success or failure and the next condition, the solver updates your remaining resources and effects before choosing again. The same recipe and gear can lead to different sequences when the results along the way differ.",
+      "second": "If you use another legal action, simply report what you used. The solver continues from the new state and checks any planned finish again, so you don't need to force the craft back onto an earlier recommendation."
+    },
+    "limits": {
+      "title": "How gear and conditions affect the outcome",
+      "first": "Your gear determines the progress and quality gained from actions and the CP available to spend. Conditions change an action's effects and costs. A run of unfavorable conditions or failed actions can leave resources tight, even after a promising opening.",
+      "second": "The solver looks for good choices using the state it knows, but cannot predict the next condition. To keep each recommendation timely, it also searches only some of the possible sequences. Better routes may exist, and some crafts can still end in failure."
+    },
+    "sourceIntro": "Thanks to Artisan for the expert-crafting solver this work builds on.",
+    "sourceLink": "View the original Artisan project"
   },
   welcome: {
     title: "Welcome to Frozen Rabbit's Cosmic",

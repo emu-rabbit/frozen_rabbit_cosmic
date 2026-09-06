@@ -21,7 +21,11 @@ const { t } = useI18n()
               <h2>{{ t('faq.algorithmQuestion') }}</h2>
               <div class="faq-answer-row">
                 <div class="faq-badge faq-badge--answer" aria-hidden="true">A</div>
-                <p>{{ t('faq.algorithmAnswer') }}</p>
+                <i18n-t keypath="faq.algorithmAnswer" scope="global" tag="p">
+                  <template #guide>
+                    <RouterLink :to="{ name: 'algorithm' }" class="faq-inline-link">{{ t('faq.algorithmLink') }}</RouterLink>
+                  </template>
+                </i18n-t>
               </div>
             </div>
           </div>

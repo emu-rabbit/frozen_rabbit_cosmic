@@ -34,6 +34,11 @@ export const router = createRouter({
           component: () => import('@/views/FaqView.vue'),
         },
         {
+          path: 'algorithm',
+          name: 'algorithm',
+          component: () => import('@/views/AlgorithmView.vue'),
+        },
+        {
           path: 'settings',
           name: 'settings',
           component: () => import('@/views/SettingsView.vue'),
