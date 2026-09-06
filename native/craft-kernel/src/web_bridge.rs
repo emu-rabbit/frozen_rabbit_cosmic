@@ -8,8 +8,8 @@ use crate::{
 };
 
 use crate::generic_solver::{
-    CraftTimeBudget, TIME_BUDGETED_RECOVERY_POLICY_VERSION, GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
-    recommend_generic_action_with_time_budget,
+    CraftTimeBudget, GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
+    TIME_BUDGETED_RECOVERY_POLICY_VERSION, recommend_generic_action_with_time_budget,
 };
 
 pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v2";
@@ -131,7 +131,11 @@ impl WebPlannerSession {
             ));
         }
         if time_budget.is_some()
-            && !matches!(case.solver_version, GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24)
+            && !matches!(
+                case.solver_version,
+                GenericSolverVersion::TimeBudgetedRecovery
+                    | GenericSolverVersion::ExternalReferenceV24
+            )
         {
             return Err("time budget requires the time-budgeted policy".into());
         }

@@ -4,17 +4,21 @@ use std::str::FromStr;
 
 mod artisan_continuation;
 mod certified_route;
+mod compact_policy;
 mod opening_recovery;
 mod portfolio;
 mod resource_certificate;
-mod time_aware_recovery;
-mod compact_policy;
 mod short_certified_finish;
+mod time_aware_recovery;
 
-pub const COMPACT_RECOVERY_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-compact-recovery";
-pub const SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-short-certified-finish";
-pub const TIME_BUDGETED_RECOVERY_POLICY_VERSION: &str = "generic-craft-external-reference-exp-time-budgeted-recovery";
-pub const GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION: &str = "generic-craft-external-reference-v2.4.0";
+pub const COMPACT_RECOVERY_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-compact-recovery";
+pub const SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION: &str =
+    "generic-craft-external-reference-exp-short-certified-finish";
+pub const TIME_BUDGETED_RECOVERY_POLICY_VERSION: &str =
+    "generic-craft-external-reference-exp-time-budgeted-recovery";
+pub const GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION: &str =
+    "generic-craft-external-reference-v2.4.0";
 
 /// Caller-observed remaining allowance for this craft, not a mechanics limit.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -24,14 +28,27 @@ pub struct CraftTimeBudget {
 }
 
 impl CraftTimeBudget {
-    pub fn new(remaining_milliseconds: u64, expected_action_milliseconds: u32) -> Result<Self, String> {
-        if expected_action_milliseconds == 0 { return Err("expected action time must be positive".into()); }
-        Ok(Self { remaining_milliseconds, expected_action_milliseconds })
+    pub fn new(
+        remaining_milliseconds: u64,
+        expected_action_milliseconds: u32,
+    ) -> Result<Self, String> {
+        if expected_action_milliseconds == 0 {
+            return Err("expected action time must be positive".into());
+        }
+        Ok(Self {
+            remaining_milliseconds,
+            expected_action_milliseconds,
+        })
     }
-    pub const fn remaining_milliseconds(self) -> u64 { self.remaining_milliseconds }
-    pub const fn expected_action_milliseconds(self) -> u32 { self.expected_action_milliseconds }
+    pub const fn remaining_milliseconds(self) -> u64 {
+        self.remaining_milliseconds
+    }
+    pub const fn expected_action_milliseconds(self) -> u32 {
+        self.expected_action_milliseconds
+    }
     fn available_actions(self) -> u32 {
-        (self.remaining_milliseconds / u64::from(self.expected_action_milliseconds)).min(u64::from(u32::MAX)) as u32
+        (self.remaining_milliseconds / u64::from(self.expected_action_milliseconds))
+            .min(u64::from(u32::MAX)) as u32
     }
 }
 
@@ -47,12 +64,19 @@ pub fn recommend_generic_action_with_time_budget(
     mask: Option<u16>,
     time_budget: Option<CraftTimeBudget>,
 ) -> Option<GenericDecision> {
-    if matches!(version, GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24) {
+    if matches!(
+        version,
+        GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24
+    ) {
         if let Some(budget) = time_budget {
-            return compact_policy::recommend_with_time_budget(recipe, crafter, state, objective, risk, context, mask, budget);
+            return compact_policy::recommend_with_time_budget(
+                recipe, crafter, state, objective, risk, context, mask, budget,
+            );
         }
     }
-    recommend_generic_action_with_model(version, recipe, crafter, state, objective, risk, context, mask)
+    recommend_generic_action_with_model(
+        version, recipe, crafter, state, objective, risk, context, mask,
+    )
 }
 pub use portfolio::*;
 
@@ -4437,10 +4461,31 @@ pub fn recommend_generic_action_with_model(
         );
     }
     if version == GenericSolverVersion::CompactRecovery {
-        return compact_policy::recommend(recipe, crafter, state, objective, risk, context, random_condition_mask);
+        return compact_policy::recommend(
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            random_condition_mask,
+        );
     }
-    if matches!(version, GenericSolverVersion::ShortCertifiedFinish | GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24) {
-        return short_certified_finish::recommend(recipe, crafter, state, objective, risk, context, random_condition_mask);
+    if matches!(
+        version,
+        GenericSolverVersion::ShortCertifiedFinish
+            | GenericSolverVersion::TimeBudgetedRecovery
+            | GenericSolverVersion::ExternalReferenceV24
+    ) {
+        return short_certified_finish::recommend(
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            random_condition_mask,
+        );
     }
     if matches!(version, GenericSolverVersion::EagerRecovery) {
         return time_aware_recovery::recommend(

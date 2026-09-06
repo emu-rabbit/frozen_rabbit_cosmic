@@ -219,7 +219,9 @@ fn paid_recovery(
 ) -> Option<GenericDecision> {
     // Even the entire remaining action allowance fits: an uncertain pilot
     // must not manufacture time pressure when the caller supplied ample time.
-    if available_actions.is_some_and(|budget| budget >= context.action_limit.saturating_sub(context.action_uses)) {
+    if available_actions
+        .is_some_and(|budget| budget >= context.action_limit.saturating_sub(context.action_uses))
+    {
         return Some(base);
     }
     if state.quality >= recipe.quality_max
