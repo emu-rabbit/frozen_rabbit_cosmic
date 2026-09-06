@@ -38,7 +38,7 @@ const sections = ['foundation', 'finish', 'compare', 'opening', 'feedback', 'lim
 
 <style>
 .algorithm-view { width: 100%; max-width: 52rem; margin: 0 auto; padding: 2rem 2rem 5rem; }
-.algorithm-back { min-height: 44px; margin-bottom: 1.5rem; }
+.algorithm-back { min-height: 44px; margin-bottom: 1.5rem; text-decoration: none; }
 .algorithm-header { margin-bottom: 2.5rem; }
 .algorithm-version { color: #367360; font-size: .8rem; font-weight: 800; letter-spacing: .06em; margin: 0 0 .75rem; }
 .algorithm-header .page-description { max-width: 42rem; line-height: 1.9; }
