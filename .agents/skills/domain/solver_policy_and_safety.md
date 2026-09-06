@@ -67,6 +67,7 @@ Mechanics completion rule 和 solver utility 分開。配方品質上限由 reci
 ## 預設策略
 
 - 產品只支援一套策略，現有 code／wire identity 仍稱 `Balanced`。它使用單調增加到 `qualityMax`／100% HQ 的完整品質效用，不降低品質慾望，也不把 protected floor 當成任務完成。
+- 時間友善須分開品質相同的較短收尾與可能交換品質的付費回復。對外的當件時間預算是 optional；沒有預算時不因此增加付費回復，時間緊迫時才以有界續作估計決定是否介入。估計的品質不劣不是全品質證明；限時資料不足時保留未知，不以固定每件步數上限偽裝遊戲期限。實作與效果見 current state。
 - 只有可見的大幅檔位／滿品質機率提升，才可交換少量完成率；未跨檔的小幅平均品質增加不構成交換理由。
 - Stable／Aggressive 只為既有 solver identity、歷史 evidence 與 protocol replay 保留解析能力。新策略不為它們分流、調參或擴大評測；重新支援必須等預設策略足夠好後由使用者另行決定。
 

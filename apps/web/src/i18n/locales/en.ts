@@ -73,7 +73,7 @@ export default {
     rabbitQuestion: 'Why freeze the rabbit? Can I roast it instead?',
     rabbitAnswer: 'No.',
     algorithmQuestion: 'How does the solver algorithm work?',
-    algorithmAnswer: "The v2.3 solver builds on Artisan's Expert Solver, with additional strategies tested for worthwhile trade-offs between results and computation time. Read the detailed explanation {guide}.",
+    algorithmAnswer: "The v2.4 solver builds on Artisan's Expert Solver, combining full-quality finishing routes, comparisons of possible outcomes, and mission time estimates. Each recommendation follows the results you report. Read the detailed explanation {guide}.",
     algorithmLink: "here",
     optimalQuestion: "Does this website's solver produce the optimal solution?",
     optimalAnswer: 'The backbone is an experimentally tested, capable decision-tree algorithm; it does not produce an optimal solution through brute-force enumeration.',
@@ -84,10 +84,10 @@ export default {
   },
   algorithm: {
     "back": "Back to FAQ",
-    "version": "Solver v2.3",
+    "version": "Solver v2.4",
     "title": "How does the solver choose your next action?",
     "intro": "In an expert craft, one failed action or a helpful condition can change what comes next. The solver uses your gear, recipe, and each result you report to choose an action for the situation you're in.",
-    "priority": "Complete the craft while turning the durability and CP you have left into as much quality as possible.",
+    "priority": "Make the most of durability and CP to produce valuable quality, while considering faster ways to finish when mission time is running short.",
     "foundation": {
       "title": "Built on Artisan's crafting decisions",
       "first": "The solver builds on Artisan's Expert Solver. It checks progress, quality, durability, CP, and active effects to decide when to advance synthesis, raise quality, recover durability, or wait for a helpful condition.",
@@ -104,9 +104,19 @@ export default {
       "second": "It simulates several continuations, including a more even mix of conditions and a mix with more Normal conditions. It switches when neither mix loses completed or maximum-quality crafts and the alternative produces enough additional maximum-quality results. These simulations help compare choices; you still report the condition that actually appears."
     },
     "opening": {
-      "title": "New in v2.3: earlier Manipulation",
-      "first": "Manipulation restores durability over subsequent actions, but costs CP up front. After Reflect, v2.3 compares using it now with continuing synthesis or waiting. As a result, you may see Manipulation recommended earlier than before.",
+      "title": "Planning durability recovery earlier",
+      "first": "Manipulation restores durability over subsequent actions, but costs CP up front. After Reflect, the solver compares using it now with continuing synthesis or waiting, so it may recommend Manipulation earlier in the craft.",
       "second": "There is a trade-off: the current helpful condition may pass, and less CP will remain for other actions. The solver carries those costs into its simulations. It chooses early Manipulation when the comparison supports it, the action is available, and its effect is not already active."
+    },
+    "shortFinish": {
+      "title": "v2.4: fewer actions for a full-quality finish",
+      "first": "When a full-quality finishing route is already available, or quality is already full, the solver looks for a shorter route. It only recommends that route's first action after checking that it can still complete the craft at full quality.",
+      "second": "This adjustment also works without a mission timer. It can remove some unnecessary actions, but only checks a limited set of combinations, so it does not always find the shortest possible route."
+    },
+    "time": {
+      "title": "Considering less waiting when time is short",
+      "first": "For timed missions, the estimated countdown starts with your first condition report, with no manual calibration. The website assumes one craft per item, sets aside some time, and divides the remainder equally among unfinished items. Undoing an action or switching items keeps the same countdown.",
+      "second": "With enough time, the solver keeps its usual quality-first approach. If time looks tight, it also compares spending CP to recover durability and reduce waiting, aiming to deliver something valuable before the deadline. These simulated trade-offs can affect final quality and cannot guarantee an on-time finish. The countdown is a local estimate; keep an eye on the in-game timer too."
     },
     "feedback": {
       "title": "Continuing from your actual result",

@@ -1,0 +1,427 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 2bafde0..b261b3c 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -96,6 +96,11 @@ fn main() -> ExitCode {
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+                     frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::EAGER_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::COMPACT_FINISH_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::GUARDED_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::EFFICIENT_QUALITY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::RELIABLE_PROGRESS_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 8e3cd81..182ed12 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -7,6 +7,8 @@ mod certified_route;
+ mod opening_recovery;
+ mod portfolio;
+ mod resource_certificate;
++mod time_aware_recovery;
++mod compact_policy;
+ pub use portfolio::*;
+ 
+ use crate::{
+@@ -95,7 +97,13 @@ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
+ pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-opening-recovery";
++pub const EAGER_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-eager-recovery";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
++pub const COMPACT_FINISH_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-compact-finish";
++pub const GUARDED_RECOVERY_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-guarded-recovery";
++pub const EFFICIENT_QUALITY_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-efficient-quality";
++pub const RELIABLE_PROGRESS_EXPERIMENT_VERSION: &str = "generic-craft-external-reference-exp-reliable-progress";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+ 
+@@ -163,6 +171,11 @@ pub enum GenericSolverVersion {
+     OpportunityReserveGuideDirectProbe,
+     RiskForwardDirectProbe,
+     ExternalReferenceV23,
++    EagerRecovery,
++    CompactFinish,
++    GuardedRecovery,
++    EfficientQuality,
++    ReliableProgress,
+ }
+ 
+ impl GenericSolverVersion {
+@@ -205,6 +218,11 @@ impl GenericSolverVersion {
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+             Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
++            Self::EagerRecovery => EAGER_RECOVERY_EXPERIMENT_VERSION,
++            Self::CompactFinish => COMPACT_FINISH_EXPERIMENT_VERSION,
++            Self::GuardedRecovery => GUARDED_RECOVERY_EXPERIMENT_VERSION,
++            Self::EfficientQuality => EFFICIENT_QUALITY_EXPERIMENT_VERSION,
++            Self::ReliableProgress => RELIABLE_PROGRESS_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -310,6 +328,11 @@ impl FromStr for GenericSolverVersion {
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
+             OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
++            EAGER_RECOVERY_EXPERIMENT_VERSION => Ok(Self::EagerRecovery),
++            COMPACT_FINISH_EXPERIMENT_VERSION => Ok(Self::CompactFinish),
++            GUARDED_RECOVERY_EXPERIMENT_VERSION => Ok(Self::GuardedRecovery),
++            EFFICIENT_QUALITY_EXPERIMENT_VERSION => Ok(Self::EfficientQuality),
++            RELIABLE_PROGRESS_EXPERIMENT_VERSION => Ok(Self::ReliableProgress),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -4372,6 +4395,27 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    let compact_mode = match version {
++        GenericSolverVersion::CompactFinish => Some(compact_policy::Mode::Finish),
++        GenericSolverVersion::GuardedRecovery => Some(compact_policy::Mode::Recovery),
++        GenericSolverVersion::EfficientQuality => Some(compact_policy::Mode::Quality),
++        GenericSolverVersion::ReliableProgress => Some(compact_policy::Mode::Progress),
++        _ => None,
++    };
++    if let Some(mode) = compact_mode {
++        return compact_policy::recommend(mode, recipe, crafter, state, objective, risk, context, random_condition_mask);
++    }
++    if matches!(version, GenericSolverVersion::EagerRecovery) {
++        return time_aware_recovery::recommend(
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+@@ -5188,7 +5232,13 @@ fn advance_planner_context_inner(
+ ) {
+     let solver_version = if matches!(
+         solver_version,
+-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::ExternalReferenceV23
++            | GenericSolverVersion::EagerRecovery
++            | GenericSolverVersion::CompactFinish
++            | GenericSolverVersion::GuardedRecovery
++            | GenericSolverVersion::EfficientQuality
++            | GenericSolverVersion::ReliableProgress
+     ) {
+         GenericSolverVersion::ExternalReferenceV22
+     } else {
+@@ -5381,7 +5431,13 @@ pub fn planner_context_fingerprint(
+ ) -> String {
+     let solver_version = if matches!(
+         solver_version,
+-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::ExternalReferenceV23
++            | GenericSolverVersion::EagerRecovery
++            | GenericSolverVersion::CompactFinish
++            | GenericSolverVersion::GuardedRecovery
++            | GenericSolverVersion::EfficientQuality
++            | GenericSolverVersion::ReliableProgress
+     ) {
+         GenericSolverVersion::ExternalReferenceV22
+     } else {
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 2d8f3c6..0967af2 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -79,6 +79,8 @@ mod research_exports {
+         generic_episode_rustc, generic_episode_target, parse_generic_episode_case,
+         validate_generic_episode_batch,
+     };
++    pub use crate::generic_solver::EAGER_RECOVERY_EXPERIMENT_VERSION;
++    pub use crate::generic_solver::{COMPACT_FINISH_EXPERIMENT_VERSION, GUARDED_RECOVERY_EXPERIMENT_VERSION, EFFICIENT_QUALITY_EXPERIMENT_VERSION, RELIABLE_PROGRESS_EXPERIMENT_VERSION};
+     pub use crate::generic_solver::GENERIC_EXTERNAL_REFERENCE_V22_POLICY_VERSION;
+     pub use crate::generic_solver::OPENING_RECOVERY_EXPERIMENT_VERSION;
+     pub use crate::generic_solver::{
+diff --git a/native/craft-kernel/src/web_bridge.rs b/native/craft-kernel/src/web_bridge.rs
+index a61159b..ac1754a 100644
+--- a/native/craft-kernel/src/web_bridge.rs
++++ b/native/craft-kernel/src/web_bridge.rs
+@@ -103,6 +103,7 @@ impl WebPlannerSession {
+                 GenericSolverVersion::ResourceCertificate
+                     | GenericSolverVersion::CertifiedRoute
+                     | GenericSolverVersion::ArtisanContinuation
++                    | GenericSolverVersion::EagerRecovery
+             );
+         if case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION
+             && !research_policy
+@@ -326,14 +327,19 @@ mod tests {
+ 
+     #[test]
+     fn candidate_web_policy_requires_explicit_research_build() {
+-        let mut case = f36_case();
+-        case.solver_version = GenericSolverVersion::ArtisanContinuation;
+-        let mut session = WebPlannerSession::default();
+-        let reply = session.recommend_case(&case, WebPlannerAdvance::Reset);
+-        if cfg!(feature = "research-web-policies") {
+-            assert_eq!(reply.unwrap().policy_version, case.solver_version.as_str());
+-        } else {
+-            assert!(reply.unwrap_err().contains("Web planner requires"));
++        for solver_version in [
++            GenericSolverVersion::ArtisanContinuation,
++            GenericSolverVersion::EagerRecovery,
++        ] {
++            let mut case = f36_case();
++            case.solver_version = solver_version;
++            let mut session = WebPlannerSession::default();
++            let reply = session.recommend_case(&case, WebPlannerAdvance::Reset);
++            if cfg!(feature = "research-web-policies") {
++                assert_eq!(reply.unwrap().policy_version, case.solver_version.as_str());
++            } else {
++                assert!(reply.unwrap_err().contains("Web planner requires"));
++            }
+         }
+     }
+ 
+diff --git a/native/craft-kernel/src/generic_solver/compact_policy.rs b/native/craft-kernel/src/generic_solver/compact_policy.rs
+new file mode 100644
+index 0000000..e44356c
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/compact_policy.rs
+@@ -0,0 +1,138 @@
++//! Development-only quality-preserving action economy. No mission clock,
++//! evaluator weights, real RNG seed, or recipe/equipment identity is read.
++use super::*;
++
++#[derive(Clone, Copy, PartialEq, Eq)]
++pub(super) enum Mode { Finish, Recovery, Quality, Progress }
++
++#[derive(Clone, Copy, Default)]
++struct Outcome { completed: bool, full: bool, utility: f64, actions: u32 }
++
++#[derive(Clone, Copy)]
++struct Input<'a> {
++    recipe: &'a RecipeProfile,
++    crafter: &'a CrafterProfile,
++    state: &'a CraftState,
++    objective: GenericObjective,
++    context: &'a PlannerContext,
++    mask: Option<u16>,
++}
++
++fn decision(action: CraftActionId) -> GenericDecision {
++    GenericDecision { route: None, action, persona: PlannerPersona::LegacyContinuation,
++        option: match action_definition(action).category {
++            ActionCategory::Progress => PlannerOption::ProgressWindow,
++            ActionCategory::Quality => PlannerOption::QualityCycle,
++            ActionCategory::Repair => PlannerOption::Recovery,
++            _ => PlannerOption::ResourceRecovery,
++        }
++    }
++}
++
++fn evaluate(input: Input<'_>, root: GenericDecision, offset: u32, samples: u32, scarce: bool) -> Vec<Outcome> {
++    let mut weights = [0.0; MATERIAL_CONDITION_COUNT];
++    for condition in declared_next_conditions(input.mask) { weights[condition.index()] = 1.0; }
++    if scarce && weights[0] > 0.0 { weights[0] = (weights.iter().sum::<f64>() - 1.0).max(1.0) * 2.0; }
++    (offset..offset + samples).map(|sample| {
++        let mut random = EpisodeRandomStream::new(0x3b72_5f19_u32.wrapping_add(sample.wrapping_mul(0x9e37_79b9)));
++        let mut cursor = RandomDrawCursor { condition_draws: 0, success_draws: 0 };
++        let mut state = input.state.clone();
++        let mut context = input.context.clone();
++        let mut next = Some(root);
++        let mut outcome = Outcome::default();
++        let remaining = context.action_limit.saturating_sub(context.action_uses).min(80);
++        for _ in 0..remaining {
++            let Some(action) = next else { break };
++            let preview = preview_action(input.recipe, input.crafter, &state, action.action);
++            if !preview.legal { break; }
++            let draw = draw_simulated_action_outcome(&preview, &state, &weights, &mut random, cursor);
++            let Ok(after) = apply_observed_outcome(input.recipe, input.crafter, &state, action.action, draw.observed) else { break };
++            advance_planner_context(&mut context, GenericSolverVersion::ArtisanExpertReference, action, &state, &after.next_state);
++            state = after.next_state;
++            cursor = draw.cursor_after;
++            outcome.actions += 1;
++            if state.terminal != CraftTerminal::None { break; }
++            next = crate::artisan_expert::recommend(input.recipe, input.crafter, &state, input.objective, &context, input.mask);
++        }
++        outcome.completed = state.terminal == CraftTerminal::Completed;
++        outcome.full = outcome.completed && state.quality >= input.recipe.quality_max;
++        if outcome.completed { outcome.utility = crate::ts_migration_port::quality_utility(input.objective, state.quality); }
++        outcome
++    }).collect()
++}
++
++// Compare only paired completed crafts for action savings: early failures
++// never earn speed credit. Marginal completion, full quality and utility must
++// all be no worse under EACH planning assumption. This is sampled evidence.
++fn improvement(base: &[Outcome], proposal: &[Outcome]) -> Option<f64> {
++    let count = |xs: &[Outcome], full: bool| xs.iter().filter(|x| if full { x.full } else { x.completed }).count();
++    if count(proposal, false) < count(base, false) || count(proposal, true) < count(base, true)
++        || proposal.iter().map(|x| x.utility).sum::<f64>() + 1e-9 < base.iter().map(|x| x.utility).sum::<f64>() {
++        return None;
++    }
++    let paired: Vec<_> = base.iter().zip(proposal).filter(|(a,b)| a.completed && b.completed).collect();
++    if paired.is_empty() { return None; }
++    let saved = paired.iter().map(|(a,b)| f64::from(a.actions) - f64::from(b.actions)).sum::<f64>() / paired.len() as f64;
++    if saved < 1.0 { return None; }
++    Some(saved + 4.0 * (count(proposal, true) - count(base, true)) as f64)
++}
++
++pub(super) fn recommend(mode: Mode, recipe: &RecipeProfile, crafter: &CrafterProfile,
++    state: &CraftState, objective: GenericObjective, risk: RiskPreference,
++    context: &PlannerContext, mask: Option<u16>) -> Option<GenericDecision> {
++    let base = opening_recovery::recommend(recipe, crafter, state, objective, risk, context, mask)?;
++    if mode == Mode::Finish {
++        // Iterative deepening favors the shortest all-condition certificate,
++        // instead of the first action having any four-action certificate.
++        if base.option == PlannerOption::CertifiedSuffix || state.quality >= recipe.quality_max {
++            for depth in 1..=3 {
++                if let Some(short) = full_quality_certificate_decision(recipe, crafter, state, context, mask, depth) { return Some(short); }
++            }
++        }
++        return Some(base);
++    }
++    if state.quality >= recipe.quality_max || base.option == PlannerOption::CertifiedSuffix
++        || declared_next_conditions(mask).next().is_none() { return Some(base); }
++    let actions: &[CraftActionId] = match mode {
++        Mode::Recovery if base.action == CraftActionId::Observe && state.durability <= 25 && state.buffs.manipulation == 0 =>
++            &[CraftActionId::Manipulation, CraftActionId::MastersMend, CraftActionId::ImmaculateMend],
++        Mode::Quality if state.buffs.great_strides == 0 && matches!(base.action, CraftActionId::Observe | CraftActionId::HastyTouch | CraftActionId::PrudentTouch) && state.durability > 10 =>
++            &[CraftActionId::PreparatoryTouch, CraftActionId::PrudentTouch, CraftActionId::BasicTouch],
++        Mode::Progress if base.action == CraftActionId::RapidSynthesis =>
++            &[CraftActionId::Groundwork, CraftActionId::CarefulSynthesis, CraftActionId::PrudentSynthesis],
++        _ => return Some(base),
++    };
++    let proposals: Vec<_> = actions.iter().copied().filter(|&a| a != base.action).filter(|&a| {
++        let p = preview_action(recipe, crafter, state, a);
++        p.legal && p.success_rate == 1.0 && branch_state(recipe, crafter, state, a, true).is_some_and(|s| s.terminal != CraftTerminal::Failed)
++    }).map(decision).collect();
++    if proposals.is_empty() { return Some(base); }
++    let input = Input { recipe, crafter, state, objective, context, mask };
++    let pilot = [evaluate(input, base, 0, 4, false), evaluate(input, base, 0, 4, true)];
++    let mut candidates: Vec<_> = proposals.into_iter().filter_map(|proposal| {
++        let a = improvement(&pilot[0], &evaluate(input, proposal, 0, 4, false))?;
++        let b = improvement(&pilot[1], &evaluate(input, proposal, 0, 4, true))?;
++        Some((proposal, a+b))
++    }).collect();
++    candidates.sort_by(|a,b| b.1.total_cmp(&a.1).then_with(|| a.0.action.cmp(&b.0.action)));
++    if candidates.is_empty() { return Some(base); }
++    let confirm = [evaluate(input, base, 103, 16, false), evaluate(input, base, 103, 16, true)];
++    for (proposal, _) in candidates.into_iter().take(2) {
++        if improvement(&confirm[0], &evaluate(input, proposal, 103, 16, false)).is_some()
++            && improvement(&confirm[1], &evaluate(input, proposal, 103, 16, true)).is_some() { return Some(proposal); }
++    }
++    Some(base)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn failed_short_routes_never_count_as_action_savings() {
++        let full = Outcome { completed: true, full: true, utility: 1.0, actions: 20 };
++        let fast_failure = Outcome { actions: 1, ..Outcome::default() };
++        assert!(improvement(&[full], &[fast_failure]).is_none());
++        assert!(improvement(&[full], &[Outcome { full: false, actions: 10, ..full }]).is_none());
++        assert!(improvement(&[full], &[Outcome { actions: 18, ..full }]).is_some());
++    }
++}
+diff --git a/native/craft-kernel/src/generic_solver/time_aware_recovery.rs b/native/craft-kernel/src/generic_solver/time_aware_recovery.rs
+new file mode 100644
+index 0000000..28ce459
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/time_aware_recovery.rs
+@@ -0,0 +1,87 @@
++//! Retained development candidate: pay for recovery instead of indefinitely
++//! fishing for Pliant. Uses observable resources, not the mission countdown.
++use super::*;
++
++pub(super) fn recommend(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++) -> Option<GenericDecision> {
++    let base = opening_recovery::recommend(recipe, crafter, state, objective, risk, context, mask)?;
++    Some(replace_wait(recipe, crafter, state, base))
++}
++
++fn replace_wait(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    base: GenericDecision,
++) -> GenericDecision {
++    if base.action != CraftActionId::Observe
++        || state.buffs.manipulation > 0
++        || state.durability > 10
++        || state.quality >= recipe.quality_max
++    {
++        return base;
++    }
++    // Leave CP for a quality cashout and a Careful Synthesis. This is only a
++    // spending guard, not a proof of eventual completion or full quality.
++    let cashout = if state.inner_quiet > 0 {
++        action_definition(CraftActionId::ByregotsBlessing).cp_cost
++    } else {
++        0
++    };
++    let reserve = cashout + action_definition(CraftActionId::CarefulSynthesis).cp_cost;
++    let preview = preview_action(recipe, crafter, state, CraftActionId::Manipulation);
++    if !preview.legal || state.cp < action_definition(CraftActionId::Manipulation).cp_cost + reserve
++    {
++        return base;
++    }
++    GenericDecision {
++        route: None,
++        action: CraftActionId::Manipulation,
++        persona: PlannerPersona::LegacyContinuation,
++        option: PlannerOption::Recovery,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn stalled_low_iq_recovery_preserves_useful_waits_and_cp_reserve() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let mut state = CraftState::initial(&recipe, &crafter);
++        state.step = 34;
++        state.durability = 5;
++        state.cp = 600;
++        state.inner_quiet = 4;
++        let base = GenericDecision {
++            action: CraftActionId::Observe,
++            route: None,
++            persona: PlannerPersona::LegacyContinuation,
++            option: PlannerOption::ResourceRecovery,
++        };
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, base).action,
++            CraftActionId::Manipulation
++        );
++        state.buffs.manipulation = 2;
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, base).action,
++            CraftActionId::Observe
++        );
++        state.buffs.manipulation = 0;
++        state.cp = 100;
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, base).action,
++            CraftActionId::Observe
++        );
++    }
++}

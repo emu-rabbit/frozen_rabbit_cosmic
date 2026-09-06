@@ -1,0 +1,14 @@
+{
+  "policy": "generic-craft-external-reference-v2.4.0",
+  "sourcePolicy": "generic-craft-external-reference-exp-time-budgeted-recovery",
+  "nativeCases": 12,
+  "nativeNonTimingDifferences": 0,
+  "probeSha256": "1d3ae13a7dff2e906dec0f89b66d9541460240928add7e0eeabb93bbfd3fc8f0",
+  "wasmSha256": "3367e2624c82c393bff4cac17f231213dad3f4f4e1db580b1955793d22aa9ea2",
+  "wasmCases": 12,
+  "wasmRecommendations": 454,
+  "wasmActionOrFinalContextDifferences": 0,
+  "p95Ms": 20.40730000000076,
+  "maxMs": 26.90479999999934,
+  "interpretation": "Version promotion parity on 12 saved integration cases (8 tight, 2 omitted, 2 ample); not independent quality confirmation."
+}

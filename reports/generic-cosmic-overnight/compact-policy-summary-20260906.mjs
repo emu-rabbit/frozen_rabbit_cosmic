@@ -1,0 +1,21 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const root='evaluation-runs/compact-policy-development'
+const names=['screen-finish-recovery','screen-quality-progress','screen-combined','confirm-seeds-one-two','confirm-seeds-three-four']
+const runs=Object.fromEntries(names.map(n=>[n,JSON.parse(fs.readFileSync(root+'/'+n+'/result.json'))]))
+const rows=[...runs['confirm-seeds-one-two'].rows,...runs['confirm-seeds-three-four'].rows]
+assert.equal(rows.length,2000);assert.equal(new Set(rows.map(r=>r.caseId)).size,2000)
+const q=xs=>{xs.sort((a,b)=>a-b);return Object.fromEntries([['p50',.5],['p95',.95],['max',1]].map(([k,p])=>[k,xs[Math.ceil(xs.length*p)-1]??null]))}
+function summary(rs){
+ const both=rs.filter(r=>r.baselineFull&&r.full),matched=rs.filter(r=>r.baselineCompleted&&r.completed)
+ return {n:rs.length,baselineCompleted:rs.filter(r=>r.baselineCompleted).length,completed:rs.filter(r=>r.completed).length,baselineFull:rs.filter(r=>r.baselineFull).length,full:rs.filter(r=>r.full).length,completionWins:rs.filter(r=>!r.baselineCompleted&&r.completed).length,completionLosses:rs.filter(r=>r.baselineCompleted&&!r.completed).length,fullWins:rs.filter(r=>!r.baselineFull&&r.full).length,fullLosses:rs.filter(r=>r.baselineFull&&!r.full).length,bothFull:both.length,meanActionDelta:both.length?both.reduce((s,r)=>s+r.actions-r.baselineActions,0)/both.length:null,matchedCompleted:matched.length,matchedCompletedMeanActionDelta:matched.length?matched.reduce((s,r)=>s+r.actions-r.baselineActions,0)/matched.length:null,tierUp:matched.filter(r=>r.tier>r.baselineTier).length,tierDown:matched.filter(r=>r.tier<r.baselineTier).length,baselineCompletedActions:q(rs.filter(r=>r.baselineCompleted).map(r=>r.baselineActions)),completedActions:q(rs.filter(r=>r.completed).map(r=>r.actions)),baselineFailedActions:q(rs.filter(r=>!r.baselineCompleted).map(r=>r.baselineActions)),failedActions:q(rs.filter(r=>!r.completed).map(r=>r.actions)),completedSteps:q(rs.filter(r=>r.completed).map(r=>r.steps)),observe:q(rs.map(r=>r.observe)),stops:Object.fromEntries(Object.entries(Object.groupBy(rs,r=>r.stop)).map(([k,v])=>[k,v.length]))}
+}
+const group=(key)=>Object.fromEntries(Object.entries(Object.groupBy(rows,key)).map(([k,v])=>[k,summary(v)]))
+const clusters=Object.values(Object.groupBy(rows,r=>r.family)).map(rs=>({n:rs.length,complete:rs.reduce((s,r)=>s+Number(r.completed)-Number(r.baselineCompleted),0),full:rs.reduce((s,r)=>s+Number(r.full)-Number(r.baselineFull),0),both:rs.filter(r=>r.full&&r.baselineFull).length,actionDelta:rs.filter(r=>r.full&&r.baselineFull).reduce((s,r)=>s+r.actions-r.baselineActions,0)}))
+let seed=20260906;const random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296}
+const bootstrap=Array.from({length:2000},()=>{let n=0,c=0,f=0,b=0,a=0;for(let j=0;j<clusters.length;j++){const x=clusters[Math.floor(random()*clusters.length)];n+=x.n;c+=x.complete;f+=x.full;b+=x.both;a+=x.actionDelta}return [c/n*100,f/n*100,a/b]})
+const interval=k=>{const xs=bootstrap.map(r=>r[k]).sort((a,b)=>a-b);return [xs[Math.floor(xs.length*.025)],xs[Math.ceil(xs.length*.975)-1]]}
+const confirmation={...summary(rows),intervals:{method:'descriptive 95% family-cluster percentile bootstrap, 2000 resamples; conditional on development selection, not a simultaneous family guarantee',completionDeltaPercentagePoints:interval(0),fullDeltaPercentagePoints:interval(1),meanPairedFullActionDelta:interval(2)},objectives:group(r=>r.kind),worlds:group(r=>r.world),equipment:group(r=>r.equipment),families:group(r=>r.family),cells:group(r=>[r.family,r.equipment,r.world].join('|'))}
+const result={baselineCommit:'128c09a0c357cfca3abdd28225654aba5fceb24d',runs,confirmation,timings:Object.fromEntries(names.map(n=>[n,JSON.parse(fs.readFileSync(root+'/'+n+'/timing.json'))])),player:JSON.parse(fs.readFileSync(root+'/player-confirmation/result.json')),postHocF15:JSON.parse(fs.readFileSync(root+'/f15-followup/result.json')),validation:{finalParity:JSON.parse(fs.readFileSync(root+'/final-parity.json')),wasm:JSON.parse(fs.readFileSync(root+'/wasm-parity.json'))}}
+fs.writeFileSync('reports/generic-cosmic-overnight/compact-policy-results-20260906.json',JSON.stringify(result,null,2))
+console.log(JSON.stringify({...confirmation,objectives:undefined,equipment:undefined,families:undefined,cells:undefined},null,2))

@@ -2,7 +2,7 @@
 
 ## 文件角色
 
-本檔定義單件 craft 的可重播 state／event 邊界。跨件 Mission controller 不在目前產品範圍，不在此 contract 預留 state。
+本檔定義單件 craft 的可重播 state／event 邊界。使用者選定的本機任務時間估計獨立於 CraftState；其他跨件 controller 不在目前產品範圍。
 
 Code owner：
 
@@ -55,6 +55,8 @@ Profiles 在一次 craft 中 immutable；換配方或裝備會開始新 craft，
 ## Session events
 
 欄位、必填性與 union 由 [events.ts](../../packages/protocol/src/events.ts) 擁有，本檔只說明語意，避免複製一套會漂移的 TypeScript schema。
+
+時間預算從 `expert-session-v0.12.0` 起是 optional metadata：`craftActionUsed.plannerTimeBudget` 保存該動作所對應推薦實際收到的當件時間與操作速度；`missionTiming` 保存任務計時起點及分配設定。舊紀錄省略這些欄位仍可 mechanics replay。Undo 重播過去推薦時使用當時保存的預算，最後一次新推薦才使用現在剩餘時間；撤回動作不回復已流逝的任務時間。
 
 | Event | 語意 |
 | --- | --- |

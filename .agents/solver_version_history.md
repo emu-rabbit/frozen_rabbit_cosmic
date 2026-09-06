@@ -8,6 +8,8 @@
 
 ## 版本表
 
+2026-09-06 使用者採用 `generic-craft-external-reference-v2.4.0`：以 v2.3 為基底加入短滿品質收尾，只有收到 optional 時間預算且判定有壓力時，才額外比較消耗 CP 的耐久回復。行為等同拆分後的 `exp-time-budgeted-recovery`，Web 與 Rust façade 同步採用；API／WASM ABI v2，Application／Cargo 仍為 0.1.0。見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。下段保留 v2.3 的歷史採用經過。
+
 2026-09-06 採用 `generic-craft-external-reference-v2.3.0`：以 v2.2 為底，加入閒靜後的提前掌握比較；完整行為等同 `exp-opening-recovery`，不併入撤回的修補試驗。Web 與公開 Rust API 同步採用，API／WASM ABI 不變。見 [v2.3 採用紀錄](../reports/generic-cosmic-overnight/v230-adoption-20260906.md)。下列 v2.2 紀錄保留當時採用經過。
 
 v1.0 起的主版號標示求解器架構世代。Web 採用、Application／Cargo package 版本與公開發布各自管理。

@@ -1,0 +1,236 @@
+diff --git a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+index 2bafde0..57a2566 100644
+--- a/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
++++ b/native/craft-kernel/src/bin/craft-kernel-generic-episode.rs
+@@ -96,6 +96,8 @@ fn main() -> ExitCode {
+                     CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+                     ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+                     frozen_rabbit_craft_kernel::research::OPENING_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::TIME_AWARE_RECOVERY_EXPERIMENT_VERSION,
++                    frozen_rabbit_craft_kernel::research::EAGER_RECOVERY_EXPERIMENT_VERSION,
+                     GENERIC_RUST_BASELINE_POLICY_VERSION,
+                     GENERIC_HARD_QUALITY_POLICY_VERSION,
+                     GENERIC_RUST_PRIMARY_POLICY_VERSION,
+diff --git a/native/craft-kernel/src/generic_solver.rs b/native/craft-kernel/src/generic_solver.rs
+index 8e3cd81..b730988 100644
+--- a/native/craft-kernel/src/generic_solver.rs
++++ b/native/craft-kernel/src/generic_solver.rs
+@@ -7,6 +7,7 @@ mod certified_route;
+ mod opening_recovery;
+ mod portfolio;
+ mod resource_certificate;
++mod time_aware_recovery;
+ pub use portfolio::*;
+ 
+ use crate::{
+@@ -95,6 +96,10 @@ pub const ARTISAN_CONTINUATION_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-artisan-continuation";
+ pub const OPENING_RECOVERY_EXPERIMENT_VERSION: &str =
+     "generic-craft-external-reference-exp-opening-recovery";
++pub const TIME_AWARE_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-time-aware-recovery";
++pub const EAGER_RECOVERY_EXPERIMENT_VERSION: &str =
++    "generic-craft-external-reference-exp-eager-recovery";
+ pub const GENERIC_PLANNER_CONTEXT_VERSION: &str = "generic-planner-context-v3";
+ pub const GUIDE_INTEGRATED_DECISION_MEMORY_VERSION: &str =
+     "guide-integrated-decision-memory-v0.5.0";
+@@ -163,6 +168,8 @@ pub enum GenericSolverVersion {
+     OpportunityReserveGuideDirectProbe,
+     RiskForwardDirectProbe,
+     ExternalReferenceV23,
++    TimeAwareRecovery,
++    EagerRecovery,
+ }
+ 
+ impl GenericSolverVersion {
+@@ -205,6 +212,8 @@ impl GenericSolverVersion {
+             Self::CertifiedRoute => CERTIFIED_ROUTE_EXPERIMENT_VERSION,
+             Self::ArtisanContinuation => ARTISAN_CONTINUATION_EXPERIMENT_VERSION,
+             Self::OpeningRecovery => OPENING_RECOVERY_EXPERIMENT_VERSION,
++            Self::TimeAwareRecovery => TIME_AWARE_RECOVERY_EXPERIMENT_VERSION,
++            Self::EagerRecovery => EAGER_RECOVERY_EXPERIMENT_VERSION,
+             Self::ExpandedFullQualityCertificate => {
+                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
+             }
+@@ -310,6 +319,8 @@ impl FromStr for GenericSolverVersion {
+             CERTIFIED_ROUTE_EXPERIMENT_VERSION => Ok(Self::CertifiedRoute),
+             ARTISAN_CONTINUATION_EXPERIMENT_VERSION => Ok(Self::ArtisanContinuation),
+             OPENING_RECOVERY_EXPERIMENT_VERSION => Ok(Self::OpeningRecovery),
++            TIME_AWARE_RECOVERY_EXPERIMENT_VERSION => Ok(Self::TimeAwareRecovery),
++            EAGER_RECOVERY_EXPERIMENT_VERSION => Ok(Self::EagerRecovery),
+             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
+                 Ok(Self::ExpandedFullQualityCertificate)
+             }
+@@ -4372,6 +4383,21 @@ pub fn recommend_generic_action_with_model(
+             random_condition_mask,
+         );
+     }
++    if matches!(
++        version,
++        GenericSolverVersion::TimeAwareRecovery | GenericSolverVersion::EagerRecovery
++    ) {
++        return time_aware_recovery::recommend(
++            recipe,
++            crafter,
++            state,
++            objective,
++            risk,
++            context,
++            random_condition_mask,
++            version == GenericSolverVersion::EagerRecovery,
++        );
++    }
+     if matches!(
+         version,
+         GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
+@@ -5188,7 +5214,10 @@ fn advance_planner_context_inner(
+ ) {
+     let solver_version = if matches!(
+         solver_version,
+-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::ExternalReferenceV23
++            | GenericSolverVersion::TimeAwareRecovery
++            | GenericSolverVersion::EagerRecovery
+     ) {
+         GenericSolverVersion::ExternalReferenceV22
+     } else {
+@@ -5381,7 +5410,10 @@ pub fn planner_context_fingerprint(
+ ) -> String {
+     let solver_version = if matches!(
+         solver_version,
+-        GenericSolverVersion::OpeningRecovery | GenericSolverVersion::ExternalReferenceV23
++        GenericSolverVersion::OpeningRecovery
++            | GenericSolverVersion::ExternalReferenceV23
++            | GenericSolverVersion::TimeAwareRecovery
++            | GenericSolverVersion::EagerRecovery
+     ) {
+         GenericSolverVersion::ExternalReferenceV22
+     } else {
+diff --git a/native/craft-kernel/src/lib.rs b/native/craft-kernel/src/lib.rs
+index 2d8f3c6..4dd2e89 100644
+--- a/native/craft-kernel/src/lib.rs
++++ b/native/craft-kernel/src/lib.rs
+@@ -136,6 +136,9 @@ mod research_exports {
+         recommend_portfolio_with_evaluation_budget, recommend_resource_portfolio,
+         recommend_route_portfolio,
+     };
++    pub use crate::generic_solver::{
++        EAGER_RECOVERY_EXPERIMENT_VERSION, TIME_AWARE_RECOVERY_EXPERIMENT_VERSION,
++    };
+     pub use crate::kernel_support::*;
+     pub use crate::rollout::{
+         ConditionTransitionWeights, ROLLOUT_BATCH_PROTOCOL_VERSION, ROLLOUT_MAX_STEPS,
+diff --git a/native/craft-kernel/src/generic_solver/time_aware_recovery.rs b/native/craft-kernel/src/generic_solver/time_aware_recovery.rs
+new file mode 100644
+--- /dev/null
++++ b/native/craft-kernel/src/generic_solver/time_aware_recovery.rs
+@@ -0,0 +1,108 @@
++//! Bounded development experiment: pay for recovery instead of indefinitely
++//! fishing for Pliant. A resource window includes Observe, Tricks and buffs;
++//! it is observed history, not elapsed mission time or future conditions.
++use super::*;
++
++pub(super) fn recommend(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    objective: GenericObjective,
++    risk: RiskPreference,
++    context: &PlannerContext,
++    mask: Option<u16>,
++    eager: bool,
++) -> Option<GenericDecision> {
++    let base = opening_recovery::recommend(recipe, crafter, state, objective, risk, context, mask)?;
++    Some(replace_wait(recipe, crafter, state, context, base, eager))
++}
++
++fn replace_wait(
++    recipe: &RecipeProfile,
++    crafter: &CrafterProfile,
++    state: &CraftState,
++    context: &PlannerContext,
++    base: GenericDecision,
++    eager: bool,
++) -> GenericDecision {
++    if base.action != CraftActionId::Observe
++        || state.buffs.manipulation > 0
++        || state.durability > 10
++        || state.quality >= recipe.quality_max
++        || (!eager
++            && (context.active_option != PlannerOption::ResourceRecovery
++                || context.option_steps < 3))
++    {
++        return base;
++    }
++    // Leave CP for a quality cashout and a Careful Synthesis. This is only a
++    // spending guard, not a proof of eventual completion or full quality.
++    let cashout = if state.inner_quiet > 0 {
++        action_definition(CraftActionId::ByregotsBlessing).cp_cost
++    } else {
++        0
++    };
++    let reserve = cashout + action_definition(CraftActionId::CarefulSynthesis).cp_cost;
++    let preview = preview_action(recipe, crafter, state, CraftActionId::Manipulation);
++    if !preview.legal || state.cp < action_definition(CraftActionId::Manipulation).cp_cost + reserve
++    {
++        return base;
++    }
++    GenericDecision {
++        route: None,
++        action: CraftActionId::Manipulation,
++        persona: PlannerPersona::LegacyContinuation,
++        option: PlannerOption::Recovery,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn stalled_low_iq_recovery_preserves_useful_waits_and_cp_reserve() {
++        let recipe = super::super::tests::hard_quality_recipe();
++        let crafter = super::super::tests::five_meld_buffed_crafter();
++        let mut state = CraftState::initial(&recipe, &crafter);
++        state.step = 34;
++        state.durability = 5;
++        state.cp = 600;
++        state.inner_quiet = 4;
++        let mut context = PlannerContext {
++            active_option: PlannerOption::ResourceRecovery,
++            option_steps: 3,
++            ..PlannerContext::default()
++        };
++        let base = GenericDecision {
++            action: CraftActionId::Observe,
++            route: None,
++            persona: PlannerPersona::LegacyContinuation,
++            option: PlannerOption::ResourceRecovery,
++        };
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, &context, base, false).action,
++            CraftActionId::Manipulation
++        );
++        context.option_steps = 2;
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, &context, base, false).action,
++            CraftActionId::Observe
++        );
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, &context, base, true).action,
++            CraftActionId::Manipulation
++        );
++        state.buffs.manipulation = 2;
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, &context, base, true).action,
++            CraftActionId::Observe
++        );
++        state.buffs.manipulation = 0;
++        state.cp = 100;
++        assert_eq!(
++            replace_wait(&recipe, &crafter, &state, &context, base, true).action,
++            CraftActionId::Observe
++        );
++    }
++}

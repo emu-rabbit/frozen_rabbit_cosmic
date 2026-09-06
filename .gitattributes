@@ -1,0 +1,2 @@
+# Research patches are byte-preserved evidence; their context markers are data.
+reports/**/*.patch -text -whitespace

@@ -68,7 +68,7 @@ family
 
 Aggregate 只作入口。結論必須指出是裝備壓力、condition assumption、資料缺口或策略缺口；未知時明示 mixed／inconclusive。
 
-製作長度目前是觀察量尺，不是自動 release gate。任務倒數、技能動畫、網路與玩家回報延遲尚未進入模型，所以不能從 actions／steps 直接換算任務是否來得及；但 family × equipment × world 的長尾應被保留，供後續用 live 任務時間資料建立門檻。
+製作長度須參與限時任務的策略效果比較，但不是自動 release gate。任務資料可保存總限時，尚無遊戲剩餘倒數；技能動畫、網路與玩家回報延遲也不能由單步 solver latency 代替。用每招秒數估算時明示假設、保留其他任務操作時間，並分開報兩件都完成、品質檔位與時間內成果。不能把提早失敗的短路線列為省時收益；family × equipment × world 的長尾與 live 事件耗時仍須保留。
 
 ## 正確性與效果驗收
 

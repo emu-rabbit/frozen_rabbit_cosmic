@@ -46,7 +46,7 @@ Rust policy 可以有意地超越 frozen TypeScript 行為；TS→Rust 只需要
 
 第三方 Rust 整合的穩定入口是 `native/craft-kernel/src/main_solver.rs`。它固定路由目前採用的 `Balanced` 主求解器，以 `MainSolverConfig`／`MainSolverSession` 提供 recommend→observe state-feedback loop，並隱藏 evaluator、歷史 identities 與 planner memory 細節。新增其他語言 adapter 時應建立在這個 façade 上；不得讓公開 contract 依賴 141 欄評測 TSV，也不得在 adapter 複製 policy。
 
-目前主策略在 `native/craft-kernel/src/generic_solver.rs` 的 external-reference 路由：先嘗試滿品質完工證明，無證明時取得 Artisan 建議，符合 hard-quality 介入條件時再以 `artisan_continuation.rs` 比較續作。`certified_route.rs` 重用 `generic_solver/portfolio/` 的 v1 endgame 提案器，再獨立驗證完整路線；v1 的共同 scorer 並非現行產品必經路徑。修改前從 `main_solver.rs`／Web identity 追實際呼叫路徑，不以目錄名稱推定 ownership。
+目前主策略在 `native/craft-kernel/src/generic_solver.rs` 的 external-reference 路由：基線包含滿品質完工證明、Artisan 建議、`artisan_continuation.rs` 續作比較與開局耐久回復；`short_certified_finish.rs` 再檢查較短的滿品質收尾，`compact_policy.rs` 依 optional 當件時間預算判斷是否額外比較耐久回復。`certified_route.rs` 重用 `generic_solver/portfolio/` 的 v1 endgame 提案器，再獨立驗證完整路線；v1 的共同 scorer 並非現行產品必經路徑。修改前從 `main_solver.rs`／Web identity 追實際呼叫路徑，不以目錄名稱推定 ownership。
 
 保留 Artisan、改良混合策略或建立自有核心都依 [產品使命](../mission/project_mission.md) 的玩家成果判斷。共同 portfolio 是可用設計，不是所有新策略都必須遷入的目標架構。
 
@@ -95,7 +95,7 @@ Web 已移除 frozen solver runtime dependency。目前主策略在 timeout／Wo
 - Catalog identity 和 objective binding 由 data package 擁有。
 - `CraftState` 只保存客觀單件製作狀態。
 - Planner intent 保存於獨立 context。
-- 跨件 MissionState 不在目前產品 contract；歷史型別或研究不得反向要求 runtime 預留欄位。
+- 任務時間估計由 Web `missionClock` 擁有，當件 optional 時間預算傳給 Rust；它不屬於 CraftState。其他跨件材料、分數或 Duty Action state 不在目前 contract。
 - `conditionSelected`、`craftActionUsed`、`craftActionResolved` 與 `stateResynced` 是可重播 interaction 的核心。
 
 ## Build 與 deployment

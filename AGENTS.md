@@ -57,7 +57,7 @@
 - 舊 TypeScript solver 已凍結，只能作歷史參考。新的策略迭代、測試與改善只在 Rust 進行。
 - Web 已選 Rust→WASM；架構與程式入口見 [technical_architecture.md](.agents/skills/professional/technical_architecture.md)。
 - 求解器的目標契約見 [solver_policy_and_safety.md](.agents/skills/domain/solver_policy_and_safety.md)；實作落差見 current state，不能把目標當已完成。
-- 跨件材料、分數、倒數與 Duty Action 的 Mission controller 不在目前承諾範圍；不得為它預先增加 runtime 複雜度。
+- 已依使用者決策加入本機任務倒數與每品項一件的平均時間分配，契約由 product_architecture.md 擁有；其餘跨件材料、分數與 Duty Action controller 不在目前承諾範圍。
 - 玩家實戰推薦 local-first，不讀取遊戲記憶體或封包、不自動按鍵、不做 bot 或 automation。
 
 ## 工作樹與外部副作用

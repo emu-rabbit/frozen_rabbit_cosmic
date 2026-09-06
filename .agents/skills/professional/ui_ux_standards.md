@@ -18,6 +18,8 @@
 
 任務清單與明細依畫面使用可搜尋、可捲動的列表／dialog；mobile 優先保持主要操作可及，不要求所有選擇器固定採 bottom sheet。切換或重新開始會完整重設當次 craft，不沿用 pending action 或 history。
 
+限時任務顯示本機估計剩餘時間；同任務重做或換品項不重設任務倒數。起算與時間分配由 [產品架構](../mission/product_architecture.md) 擁有，UI 不要求玩家手動校準。
+
 ## 每一步資訊層級
 
 1. 目前 condition（球色）、進展、品質、耐久、CP 與重要 buffs。

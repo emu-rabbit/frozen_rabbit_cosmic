@@ -4,13 +4,13 @@ Frozen Rabbit is a Rust library that recommends one crafting action at a time. Y
 
 ## Add the library
 
-### Updating to solver v2.3
+### Updating to v2.4
 
-The current policy is `generic-craft-external-reference-v2.3.0`. It adopts the tested opening Manipulation strategy without further tuning. The public Rust API remains `frozen-rabbit-main-solver-api-v1`: configuration, state types, results, and the `recommend` / `observe` / `observe_state` sequence are unchanged. Existing Rust callers only need to update the library source and rebuild. Any caller that explicitly validates the policy string must update its expected value.
+Solver v2.4 recommends shorter full-quality finishing routes and can use an optional time budget to consider durability recovery when time is tight. The policy identity is `generic-craft-external-reference-v2.4.0`; the public API is `frozen-rabbit-main-solver-api-v2`. Existing `recommend(&state)` calls remain valid. Use `recommend_with_options` when your application can provide the time available for the current craft.
 
-The WebAssembly interface remains `rust-web-planner-abi-v1`, with the same exports and request/reply fields. Replace the WASM together with the caller's expected policy string (and the policy in requests); an old v2.2 request is intentionally rejected by the v2.3 production bridge. Do not mix cached files from the two versions. Start a new crafting session after updating.
+The WebAssembly interface is `rust-web-planner-abi-v2`, retaining the exports and seven-cell reply. The existing request body remains valid; an optional `time-budget:<remaining milliseconds>:<expected action milliseconds>` cell may precede the advance cell. Use the v2.4 policy when supplying a time budget. Missing means no deadline pressure; zero remaining time means expired and does not change mechanics completion or the action limit. Replace WASM and the caller's expected ABI/policy together, then start a new session.
 
-Solver v2.3 is a policy version, not a Cargo package version or a published Git tag. The Cargo package remains `0.1.0`; no crates.io release is implied.
+Solver v2.4 is a policy version, not a Cargo package version or a published Git tag. The Cargo package remains `0.1.0`; no crates.io release is implied.
 
 Use the Git repository as a Cargo dependency:
 
@@ -86,6 +86,23 @@ The actual action may differ from the recommendation. The solver validates it an
 
 Call `recommend` again only after reporting the previous result. Create one `MainSolverSession` per craft.
 
+## Optional time budget
+
+```rust
+use frozen_rabbit_craft_kernel::main_solver::{CraftTimeBudget, MainSolverRequestOptions};
+
+let options = MainSolverRequestOptions {
+    time_budget: Some(CraftTimeBudget::new(270_000, 5_300)?),
+};
+let result = solver.recommend_with_options(&state, options)?;
+```
+
+This example allows 270 seconds for the current craft and estimates 5.3 seconds per player action. Both values are milliseconds. Remaining time may be zero; expected action time must be positive. Provide an updated budget with each recommendation. To omit it, use `recommend(&state)` or `MainSolverRequestOptions::default()`.
+
+The budget belongs to your application: the library does not start a clock, identify missions, divide time among items, or subtract a reserve. Allocate those amounts before passing the budget. Without a budget, the solver still uses shorter certified full-quality finishes but does not enable the additional time-pressure recovery comparison. A tight budget allows that comparison; it cannot guarantee unchanged quality or an on-time finish. An expired budget does not end the craft or override the configured action limit.
+
+For reference, Cosmic's website starts its local estimate at the first condition report. It assumes one craft per item, reserves 30 seconds, and divides the remaining time equally among unfinished items, using 5.3 seconds per action. These are application estimates, not required library settings or a synchronized in-game clock.
+
 ## Handle results
 
 | Result | Meaning |
@@ -117,13 +134,13 @@ Frozen Rabbit 是一個 Rust 函式庫，每次提供一個製作技能建議。
 
 ### 加入函式庫
 
-#### 更新至求解器 v2.3
+#### 更新至 v2.4
 
-目前策略為 `generic-craft-external-reference-v2.3.0`，直接採用已完成測試的開局掌握，不另調參。Rust 公開介面仍為 `frozen-rabbit-main-solver-api-v1`：設定、狀態型別、回傳結果及 `recommend`／`observe`／`observe_state` 流程皆不變。既有 Rust 呼叫端更新函式庫原始碼並重新編譯即可；若自行檢查策略字串，需同步更新預期值。
+v2.4 會尋找較短的滿品質收尾，並可依選填的時間預算，在時間吃緊時比較恢復耐久的做法。策略識別為 `generic-craft-external-reference-v2.4.0`，公開 API 為 `frozen-rabbit-main-solver-api-v2`。既有 `recommend(&state)` 呼叫仍可使用；應用程式能提供當件剩餘時間時，再使用 `recommend_with_options`。
 
-WebAssembly 介面仍為 `rust-web-planner-abi-v1`，匯出函式及請求／回覆欄位不變。更換 WASM 時，呼叫端預期版本與請求內的策略字串也要一起更新；v2.3 正式橋接層會拒絕舊 v2.2 請求。避免快取混用兩版檔案，更新後重新開始一件製作。
+WebAssembly 介面為 `rust-web-planner-abi-v2`，匯出函式及七欄回覆保留。原有請求 body 可繼續使用；optional 的 `time-budget:<剩餘毫秒>:<每招預估毫秒>` 欄可加在 advance 欄之前，請搭配 v2.4 策略使用。省略代表無時間壓力；剩餘零代表到期，不改寫遊戲完成條件或 action limit。WASM、呼叫端預期 ABI 與策略字串一起更新，之後重新開始製作。
 
-v2.3 是求解策略版本，不是 Cargo 套件版本或已發布的 Git tag。Cargo 套件仍為 `0.1.0`，不代表已發布至 crates.io。
+v2.4 是求解策略版本，不是 Cargo 套件版本或已發布的 Git tag。Cargo 套件仍為 `0.1.0`，不代表已發布至 crates.io。
 
 在 Cargo 專案中使用 Git repository：
 
@@ -198,6 +215,23 @@ state = transition.next_state;
 實際技能可以不同於推薦技能。求解器會先驗證結果，再從實際狀態繼續。
 
 回報上一個技能結果後，才能再次呼叫 `recommend`。每次製作建立一個 `MainSolverSession`。
+
+### 選填時間預算
+
+```rust
+use frozen_rabbit_craft_kernel::main_solver::{CraftTimeBudget, MainSolverRequestOptions};
+
+let options = MainSolverRequestOptions {
+    time_budget: Some(CraftTimeBudget::new(270_000, 5_300)?),
+};
+let result = solver.recommend_with_options(&state, options)?;
+```
+
+這個範例分配 270 秒給目前製作，並預估每次玩家操作需要 5.3 秒；兩個值的單位都是毫秒。剩餘時間可為零，每次操作時間必須大於零。每次要求建議時，請傳入更新後的預算；不提供時間時，使用 `recommend(&state)` 或 `MainSolverRequestOptions::default()` 即可。
+
+時間配置由應用程式負責：函式庫不啟動倒數、不辨識任務、不分配品項時間，也不扣除預留時間。請先完成配置，再傳入當件預算。省略預算時仍會使用有滿品質證明的較短收尾，但不啟用額外的時間壓力回復比較。時間吃緊會允許這項比較，並不保證品質完全相同或一定趕上期限；預算歸零也不會結束製作或覆蓋設定的技能次數上限。
+
+宇宙網站的配置可作參考：第一顆球色回報後開始本機計時，假設每個品項製作一件，預留 30 秒，再把剩餘時間平均分給未完成品項，每招估計 5.3 秒。這些是應用程式的估計，不是函式庫的必要設定，也不是與遊戲同步的倒數。
 
 ### 處理回傳結果
 

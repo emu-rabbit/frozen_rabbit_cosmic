@@ -16,6 +16,8 @@
 - mechanics family identity；
 - 玩家顯示名稱、職業與搜尋 metadata。
 
+任務 metadata 保存 `WKSMissionUnit.MissionTime` 的 `timeLimitSeconds`，正整數代表整個任務的總限時，0 代表無時間限制；缺值或無效數字必須報錯，不能當作不限時。任務出現時段另由 `types: timed` 與出現條件表示，與接取後的倒數不同。這項資料不修改單件 mechanics family，也不代表已接入遊戲剩餘倒數；來源核對見 [限時任務研究](../../../reports/generic-cosmic-overnight/time-aware-recovery-development-20260906.md)。
+
 相同 family 代表所有會改變求解的 mechanics、condition set 與 objective semantics 相同。現階段假設 family 內配方可以共用求解與評測；遊戲 trace 出現反例時，先修正 data／family identity，再判斷是否需要新策略訊號。
 
 Catalog identity、數量與 hashes 由 data package／importer 擁有，本檔不複製 snapshot。
@@ -73,10 +75,16 @@ Mechanics 先產生合法技能與 state transition；solver 再比較路線。S
 
 完整事件契約見 [session_state_and_events.md](../../specs/session_state_and_events.md)。
 
+## 任務時間估計
+
+使用者於 2026-09-06 決定：第一次實際回報球色時開始本機倒數，不增加手動校準；初始自動 Normal 與不需球色的操作不啟動計時。同一任務跨品項共用倒數，先按每品項一件，平均分配剩餘時間給尚未完成的品項。完成品項才移出分母；切換、重做當件與 undo 不重置任務時間，新選任務才重置。此為明示產品近似，不聲稱掌握遊戲必做份數或真實剩餘秒數。
+
+UI 顯示估計剩餘時間；求解器只收到 optional 的當件可用時間與操作速度，不讀任務 identity。未傳預算、不限時或尚未開始計時時，只增加有滿品質證明的較短收尾；時間壓力的策略判斷由 Rust 擁有。時間歸零不改寫 mechanics terminal，也不自動停止建議。
+
 ## 發布決策
 
 使用者自行驗收並決定是否發布；agent 提供 family matrix、完成成品品質、錯誤與 latency、操作驗證及 synthetic／live 證據界線作參考。產品不維護配方成熟度標籤，不以平均值掩蓋失敗。
 
 ## 明確移出的範圍
 
-跨件材料、任務分數、倒數與 Duty Action controller 不在目前產品承諾。歷史結果可保留在 evaluation output，但 active architecture 不為它預留扁平 state、UI 或 runtime branch。
+除上述本機時間估計與平均分配外，跨件材料、任務分數與 Duty Action controller 不在目前產品承諾。歷史結果可保留在 evaluation output，但不為其他 controller 功能預留扁平 state、UI 或 runtime branch。

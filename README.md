@@ -29,6 +29,7 @@ Website: [Open Frozen Rabbit's Cosmic](https://emu-rabbit.github.io/frozen_rabbi
 - **Recommendations that follow the craft**: Each result updates progress, quality, durability, CP, and active effects before the next suggestion.
 - **Room for your own choices**: Used a different available action? Report it and continue from the actual result.
 - **Undo and craft records**: Undo a mistaken entry, or download the craft record once the craft ends to help explain a problem.
+- **Time-aware guidance in v2.4**: Look for shorter full-quality finishes, and consider less waiting when mission time is tight. The estimated countdown starts with your first condition report and is shared across the mission's items. Faster routes can involve quality trade-offs; the in-game timer remains your reference.
 
 ### Gear and Comfort
 
@@ -86,7 +87,7 @@ The production website is written to `apps/web/dist`. When hosting under a subpa
 
 The Rust solver can also be used from another application. Provide the recipe, crafter stats, and current craft state; request a recommendation, then report the actual action result to get the next one.
 
-The [solver integration guide](native/craft-kernel/README.md) covers Git and local Cargo dependencies, configuration, the `recommend` / `observe` flow, and result handling in English and Traditional Chinese. A [complete Rust example](native/craft-kernel/examples/main_solver.rs) is included. The crate is not currently published on crates.io.
+The [solver integration guide](native/craft-kernel/README.md) covers Git and local Cargo dependencies, configuration, the `recommend` / `observe` flow, optional time budgets in v2.4, and result handling in English and Traditional Chinese. A [complete Rust example](native/craft-kernel/examples/main_solver.rs) is included. The crate is not currently published on crates.io.
 
 ## Credits and Licenses
 
@@ -153,6 +154,7 @@ FINAL FANTASY XIV © SQUARE ENIX. This is a fan-made community tool, not affilia
 - **跟著實際結果調整**：每次回報後，依目前的進展、品質、耐久、CP 與技能效果，重新建議下一招。
 - **也能照自己的想法走**：用了其他可用技能？照實回報，就能從新的狀態繼續。
 - **復原與製作紀錄**：誤按可以復原；製作結束後，也能下載紀錄，方便回報遇到的問題。
+- **v2.4 的時間判斷**：尋找較短的滿品質收尾，並在任務時間吃緊時考慮減少等球。第一顆球色回報後開始估計倒數，同任務的品項共用剩餘時間。加快製作仍可能有品質取捨，實際期限請以遊戲內倒數為準。
 
 #### 裝備與舒適度
 
@@ -210,7 +212,7 @@ npm run docs:check  # 檢查文件格式與連結
 
 想在自己的工具裡使用求解器，也可以直接串接 Rust 函式庫。提供配方、角色數值與目前製作狀態，取得建議後，再回報實際技能結果，就能繼續取得下一步。
 
-[求解器串接指引](native/craft-kernel/README.md) 提供中英文說明，涵蓋 Git／本機 Cargo 安裝、設定方式、`recommend`／`observe` 呼叫流程與回傳結果處理，另附[完整 Rust 範例](native/craft-kernel/examples/main_solver.rs)。目前尚未發布至 crates.io。
+[求解器串接指引](native/craft-kernel/README.md) 提供中英文說明，涵蓋 Git／本機 Cargo 安裝、設定方式、`recommend`／`observe` 呼叫流程、v2.4 的選填時間預算與回傳結果處理，另附[完整 Rust 範例](native/craft-kernel/examples/main_solver.rs)。目前尚未發布至 crates.io。
 
 ### 致謝與授權
 

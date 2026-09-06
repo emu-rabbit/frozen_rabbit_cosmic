@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { externalLinks } from '@/config/externalLinks'
 
 const { t } = useI18n()
-const sections = ['foundation', 'finish', 'compare', 'opening', 'feedback', 'limits'] as const
+const sections = ['foundation', 'finish', 'shortFinish', 'compare', 'opening', 'time', 'feedback', 'limits'] as const
 </script>
 
 <template>
