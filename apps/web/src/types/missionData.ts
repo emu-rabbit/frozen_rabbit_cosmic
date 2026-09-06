@@ -7,7 +7,7 @@ export type MissionRank = 'a' | 'ex' | 'ex-plus' | 'master'
 export type MissionPlanet = 'sinus-ardorum' | 'phaenna' | 'oizys' | 'auxesia'
 export type MissionType = 'timed' | 'weather'
 
-export const MISSION_DATA_FORMAT = 3
+export const MISSION_DATA_FORMAT = 4
 export const CRAFT_JOBS: CraftJob[] = [
   'carpenter', 'blacksmith', 'armorer', 'goldsmith',
   'leatherworker', 'weaver', 'alchemist', 'culinarian',
@@ -58,6 +58,8 @@ export interface MissionItem {
 
 export interface CosmicMission {
   id: number
+  /** WKSMissionUnit.MissionTime; total allowance, not remaining time. Zero means no time limit. */
+  timeLimitSeconds: number
   names: LocalizedNames
   job: CraftJob
   jobId: number

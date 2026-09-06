@@ -83,6 +83,7 @@ async function decode(manifest: MissionDataManifest, bytes: ArrayBuffer): Promis
   if (missionIds.size !== value.missions.length || value.missions.some(mission => (
     !Number.isSafeInteger(mission.id)
     || mission.id <= 0
+    || !Number.isSafeInteger(mission.timeLimitSeconds) || mission.timeLimitSeconds < 0
     || !Array.isArray(mission.items)
     || mission.items.length === 0
     || (mission.nextMissionId !== undefined && (

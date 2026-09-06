@@ -44,6 +44,7 @@ const item: MissionItem = {
 }
 const mission: CosmicMission = {
   id: 1,
+  timeLimitSeconds: 600,
   names: { tw: '測試任務' },
   job: 'weaver',
   jobId: 8,

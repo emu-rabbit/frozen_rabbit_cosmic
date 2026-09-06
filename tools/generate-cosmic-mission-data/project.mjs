@@ -1,4 +1,4 @@
-export const FORMAT_VERSION = 3
+export const FORMAT_VERSION = 4
 const XIVAPI_JOB_ICON_BASE = 'https://xivapi.com/cj/1/'
 
 export const JOB_ID = {
@@ -183,11 +183,11 @@ function parseSpecialConditions(csv) {
   return result
 }
 
-function parseMissionRows(csv, specialConditionCsv) {
+export function parseMissionRows(csv, specialConditionCsv) {
   const specialConditions = parseSpecialConditions(specialConditionCsv)
   const lines = csv.replace(/^\uFEFF/, '').split(/\r?\n/).filter(Boolean)
   const header = parseCsvLine(lines.shift(), 1)
-  const required = ['#', 'Name', 'LockedBehind', 'WKSMissionRecipe', 'WKSMissionLotterySpecialCond']
+  const required = ['#', 'Name', 'LockedBehind', 'WKSMissionRecipe', 'WKSMissionLotterySpecialCond', 'MissionTime']
   for (const name of required) if (!header.includes(name)) throw new Error(`WKSMissionUnit.csv: missing ${name}`)
   const byRecipeId = new Map()
   const byUnitId = new Map()
@@ -204,6 +204,10 @@ function parseMissionRows(csv, specialConditionCsv) {
     }
     if (!Number.isSafeInteger(missionId) || missionId < 0) throw new Error('invalid mission recipe identity')
     if (missionId === 0) return
+    const timeLimitSeconds = Number(get('MissionTime'))
+    if (get('MissionTime').trim() === '' || !Number.isSafeInteger(timeLimitSeconds) || timeLimitSeconds < 0) {
+      throw new Error(`mission ${missionId}: invalid MissionTime`)
+    }
     if (byRecipeId.has(missionId)) throw new Error(`ambiguous mission unit for mission recipe ${missionId}`)
     if (byUnitId.has(unitId)) throw new Error(`duplicate mission unit ${unitId}`)
     const specialConditionId = Number(get('WKSMissionLotterySpecialCond'))
@@ -213,6 +217,7 @@ function parseMissionRows(csv, specialConditionCsv) {
       unitId,
       missionId,
       lockedBehindUnitId,
+      timeLimitSeconds,
       nameEn: get('Name').replace(/[\uE000-\uF8FF]/g, '').trim(),
       timed: specialCondition.startTimeHour !== 0 || specialCondition.endTimeHour !== 0,
       weather: specialCondition.weatherRequired !== 0,
@@ -359,6 +364,7 @@ export function projectMissionData({ recipes, source, sources }) {
       const planet = planetForRecipe(recipe.recipeId)
       const group = groups.get(missionId) ?? {
         id: missionId,
+        timeLimitSeconds: missionRow.timeLimitSeconds,
         names: Object.fromEntries(Object.entries(missionNames).flatMap(([locale, values]) => {
           const name = values.get(missionId)
           return name ? [[locale, name]] : []

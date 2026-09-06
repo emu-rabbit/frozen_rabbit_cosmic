@@ -82,6 +82,7 @@ export async function verifyPackages(directory, suppliedManifest) {
     if (missionIds.size !== decoded.missions.length || decoded.missions.some(mission => (
       !Array.isArray(mission.items)
       || mission.items.length === 0
+      || !Number.isSafeInteger(mission.timeLimitSeconds) || mission.timeLimitSeconds < 0
       || (mission.nextMissionId !== undefined && (
         !Number.isSafeInteger(mission.nextMissionId)
         || !missionIds.has(mission.nextMissionId)
