@@ -1,6 +1,8 @@
 # 目前狀態
 
-`last_verified: 2026-09-06`
+`last_verified: 2026-09-07`
+
+目前 feature branch `codex/all-cosmic-crafting` 正在擴大宇宙任務支援。已收錄 1,584 配方／138 個既有 signature family；普通球色走 `generic-craft-exp-cosmic-standard`，其他球色委派 v2.4。這是描述性實驗，未升 solver 數字版號、未部署，也未達成全任務穩定品質保證。低等級技能與威力、Rust Web 結算已整合；測試範圍及失敗由 [Standard 階段報告](../reports/cosmic-standard-20260907.md) 管理。下列 v2.4 說明保留作既有高難策略基準。
 
 目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Application／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 

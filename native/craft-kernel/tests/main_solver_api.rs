@@ -58,7 +58,7 @@ fn recommended_action(status: MainSolverStatus) -> CraftActionId {
 fn public_session_supports_the_recommend_observe_loop() {
     assert_eq!(
         MAIN_SOLVER_POLICY_VERSION,
-        "generic-craft-external-reference-v2.4.0"
+        "generic-craft-exp-cosmic-standard"
     );
     assert_eq!(MAIN_SOLVER_API_VERSION, "frozen-rabbit-main-solver-api-v2");
     let config = config(80);

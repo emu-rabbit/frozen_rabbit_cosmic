@@ -8,8 +8,9 @@ use crate::{
 };
 
 use crate::generic_solver::{
-    CraftTimeBudget, GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
-    TIME_BUDGETED_RECOVERY_POLICY_VERSION, recommend_generic_action_with_time_budget,
+    COSMIC_STANDARD_EXPERIMENT_VERSION, CraftTimeBudget,
+    GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION, TIME_BUDGETED_RECOVERY_POLICY_VERSION,
+    recommend_generic_action_with_time_budget,
 };
 
 pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v2";
@@ -123,6 +124,7 @@ impl WebPlannerSession {
         if case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_POLICY_VERSION
             && case.solver_version.as_str() != TIME_BUDGETED_RECOVERY_POLICY_VERSION
             && case.solver_version.as_str() != GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION
+            && case.solver_version.as_str() != COSMIC_STANDARD_EXPERIMENT_VERSION
             && !research_policy
         {
             return Err(format!(
@@ -135,6 +137,7 @@ impl WebPlannerSession {
                 case.solver_version,
                 GenericSolverVersion::TimeBudgetedRecovery
                     | GenericSolverVersion::ExternalReferenceV24
+                    | GenericSolverVersion::CosmicStandard
             )
         {
             return Err("time budget requires the time-budgeted policy".into());

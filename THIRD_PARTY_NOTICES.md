@@ -14,6 +14,13 @@ game outcome parity with the Artisan plugin.
 
 The adapted policy is distributed under the BSD 3-Clause License:
 
+
+`native/craft-kernel/src/generic_solver/standard_policy.rs` also draws on
+Artisan's `StandardSolver.cs` (upstream main, consulted 2026-09-07) for ordinary
+condition, combo and repair priorities. It uses a separately implemented bounded
+completion planner and is not a source-faithful port or an outcome-parity claim.
+The following Artisan copyright and license notice also applies to that work.
+
 ```text
 BSD 3-Clause License
 

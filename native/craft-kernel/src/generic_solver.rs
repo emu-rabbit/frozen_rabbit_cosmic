@@ -9,7 +9,10 @@ mod opening_recovery;
 mod portfolio;
 mod resource_certificate;
 mod short_certified_finish;
+mod standard_policy;
 mod time_aware_recovery;
+
+pub const COSMIC_STANDARD_EXPERIMENT_VERSION: &str = "generic-craft-exp-cosmic-standard";
 
 pub const COMPACT_RECOVERY_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-compact-recovery";
@@ -64,6 +67,22 @@ pub fn recommend_generic_action_with_time_budget(
     mask: Option<u16>,
     time_budget: Option<CraftTimeBudget>,
 ) -> Option<GenericDecision> {
+    if version == GenericSolverVersion::CosmicStandard {
+        if standard_policy::supports(mask) {
+            return standard_policy::recommend(recipe, crafter, state, objective, context);
+        }
+        return recommend_generic_action_with_time_budget(
+            GenericSolverVersion::ExternalReferenceV24,
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            mask,
+            time_budget,
+        );
+    }
     if matches!(
         version,
         GenericSolverVersion::TimeBudgetedRecovery | GenericSolverVersion::ExternalReferenceV24
@@ -241,6 +260,7 @@ pub enum GenericSolverVersion {
     ShortCertifiedFinish,
     TimeBudgetedRecovery,
     ExternalReferenceV24,
+    CosmicStandard,
 }
 
 impl GenericSolverVersion {
@@ -288,6 +308,7 @@ impl GenericSolverVersion {
             Self::ShortCertifiedFinish => SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION,
             Self::TimeBudgetedRecovery => TIME_BUDGETED_RECOVERY_POLICY_VERSION,
             Self::ExternalReferenceV24 => GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
+            Self::CosmicStandard => COSMIC_STANDARD_EXPERIMENT_VERSION,
             Self::ExpandedFullQualityCertificate => {
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
@@ -398,6 +419,7 @@ impl FromStr for GenericSolverVersion {
             SHORT_CERTIFIED_FINISH_EXPERIMENT_VERSION => Ok(Self::ShortCertifiedFinish),
             TIME_BUDGETED_RECOVERY_POLICY_VERSION => Ok(Self::TimeBudgetedRecovery),
             GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION => Ok(Self::ExternalReferenceV24),
+            COSMIC_STANDARD_EXPERIMENT_VERSION => Ok(Self::CosmicStandard),
             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
                 Ok(Self::ExpandedFullQualityCertificate)
             }
@@ -4447,6 +4469,19 @@ pub fn recommend_generic_action_with_model(
     context: &PlannerContext,
     random_condition_mask: Option<u16>,
 ) -> Option<GenericDecision> {
+    if version == GenericSolverVersion::CosmicStandard {
+        return recommend_generic_action_with_time_budget(
+            version,
+            recipe,
+            crafter,
+            state,
+            objective,
+            risk,
+            context,
+            random_condition_mask,
+            None,
+        );
+    }
     if state.terminal != CraftTerminal::None {
         return None;
     }
@@ -5312,6 +5347,11 @@ fn advance_planner_context_inner(
     after: &CraftState,
     observe_route: bool,
 ) {
+    let solver_version = if solver_version == GenericSolverVersion::CosmicStandard {
+        GenericSolverVersion::ExternalReferenceV24
+    } else {
+        solver_version
+    };
     let solver_version = if matches!(
         solver_version,
         GenericSolverVersion::OpeningRecovery
@@ -5511,6 +5551,11 @@ pub fn planner_context_fingerprint(
     solver_version: GenericSolverVersion,
     context: &PlannerContext,
 ) -> String {
+    let solver_version = if solver_version == GenericSolverVersion::CosmicStandard {
+        GenericSolverVersion::ExternalReferenceV24
+    } else {
+        solver_version
+    };
     let solver_version = if matches!(
         solver_version,
         GenericSolverVersion::OpeningRecovery

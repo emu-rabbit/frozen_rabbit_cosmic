@@ -1,0 +1,3715 @@
+{
+  "policy": "generic-craft-exp-cosmic-standard",
+  "mechanics": "cosmic-craft-mechanics-v0.7.0-level-traits",
+  "kind": "development-fixed-tapes",
+  "cases": [
+    {
+      "level": 10,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6171428571428571,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.6171428571428571,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.3657142857142857,
+      "actions": 3
+    },
+    {
+      "level": 10,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.9773755656108597,
+      "actions": 10
+    },
+    {
+      "level": 10,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 7
+    },
+    {
+      "level": 10,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 10,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6352941176470588,
+      "actions": 9
+    },
+    {
+      "level": 10,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 10,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 10,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.4,
+      "actions": 3
+    },
+    {
+      "level": 10,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 6
+    },
+    {
+      "level": 10,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.4740740740740741,
+      "actions": 3
+    },
+    {
+      "level": 30,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.3697478991596639,
+      "actions": 7
+    },
+    {
+      "level": 30,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 30,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.46554621848739497,
+      "actions": 7
+    },
+    {
+      "level": 30,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 5
+    },
+    {
+      "level": 30,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8224734042553191,
+      "actions": 13
+    },
+    {
+      "level": 30,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 30,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 30,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 7
+    },
+    {
+      "level": 30,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5761245674740484,
+      "actions": 12
+    },
+    {
+      "level": 30,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 30,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 30,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 30,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4793028322440087,
+      "actions": 7
+    },
+    {
+      "level": 30,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 5
+    },
+    {
+      "level": 30,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.9477124183006536,
+      "actions": 8
+    },
+    {
+      "level": 30,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 3
+    },
+    {
+      "level": 50,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5964285714285714,
+      "actions": 15
+    },
+    {
+      "level": 50,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 50,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 50,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 50,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 50,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 50,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 50,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 50,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 50,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 50,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 50,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 50,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7731481481481481,
+      "actions": 15
+    },
+    {
+      "level": 50,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 50,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 50,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 7
+    },
+    {
+      "level": 70,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 70,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 70,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 70,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 70,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 70,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 70,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 70,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 7
+    },
+    {
+      "level": 70,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 70,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 70,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 70,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 70,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 10
+    },
+    {
+      "level": 70,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 70,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 70,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 90,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 90,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 90,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 90,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 90,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.692639673571877,
+      "actions": 24
+    },
+    {
+      "level": 90,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 90,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 22
+    },
+    {
+      "level": 90,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 90,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4709967320261438,
+      "actions": 21
+    },
+    {
+      "level": 90,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 90,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 90,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 90,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 90,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 90,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 10
+    },
+    {
+      "level": 90,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 100,
+      "recipeId": 36165,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36165,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36165,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36165,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36166,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36166,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36166,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36166,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36167,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36167,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36167,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36167,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36170,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36170,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36170,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36170,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36171,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 31
+    },
+    {
+      "level": 100,
+      "recipeId": 36171,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 39
+    },
+    {
+      "level": 100,
+      "recipeId": 36171,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 36171,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36172,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36172,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36172,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36172,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36173,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36173,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36173,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36173,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.06066176470588235,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36175,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.22549019607843138,
+      "actions": 41
+    },
+    {
+      "level": 100,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.43223039215686276,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36175,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36177,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7863295880149813,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36177,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36177,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36177,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4620527306967985,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36179,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6676553672316384,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36179,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36181,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5598666666666666,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36181,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 40
+    },
+    {
+      "level": 100,
+      "recipeId": 36181,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8999333333333334,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36181,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36182,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36182,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36182,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36182,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4338095238095238,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36183,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8134523809523809,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36183,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36184,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8665123456790124,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36184,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36184,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36184,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36185,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.766872427983539,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36185,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36185,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36185,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36186,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7711538461538462,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 36186,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36186,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36186,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36187,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8044061302681992,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 36187,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36187,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36187,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36188,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36188,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36188,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36188,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36189,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.05892857142857143,
+      "actions": 35
+    },
+    {
+      "level": 100,
+      "recipeId": 36189,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.2976190476190476,
+      "actions": 80
+    },
+    {
+      "level": 100,
+      "recipeId": 36189,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6896428571428571,
+      "actions": 35
+    },
+    {
+      "level": 100,
+      "recipeId": 36189,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36191,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5034772182254197,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36191,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 36
+    },
+    {
+      "level": 100,
+      "recipeId": 36191,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8092925659472422,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36191,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36192,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 8
+    },
+    {
+      "level": 100,
+      "recipeId": 36192,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 8
+    },
+    {
+      "level": 100,
+      "recipeId": 36192,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7542857142857143,
+      "actions": 32
+    },
+    {
+      "level": 100,
+      "recipeId": 36192,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 51
+    },
+    {
+      "level": 100,
+      "recipeId": 36193,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.32521428571428573,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36193,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 36
+    },
+    {
+      "level": 100,
+      "recipeId": 36193,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7942857142857143,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36193,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 35
+    },
+    {
+      "level": 100,
+      "recipeId": 36199,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.3642281879194631,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36199,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 32
+    },
+    {
+      "level": 100,
+      "recipeId": 36199,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8332885906040268,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36199,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36209,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.2842276422764228,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36209,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.9075609756097561,
+      "actions": 40
+    },
+    {
+      "level": 100,
+      "recipeId": 36209,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6522764227642276,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36209,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36210,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.436948051948052,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36210,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36210,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36210,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36211,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.33194690265486726,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36211,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36211,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5651327433628318,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36211,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36212,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36212,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36212,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36212,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "failed",
+      "quality": 0,
+      "actions": 3
+    },
+    {
+      "level": 100,
+      "recipeId": 36213,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.38385057471264367,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36213,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 41
+    },
+    {
+      "level": 100,
+      "recipeId": 36213,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8774712643678161,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36213,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36214,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.1668711656441718,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36214,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.37104294478527605,
+      "actions": 60
+    },
+    {
+      "level": 100,
+      "recipeId": 36214,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.41699386503067487,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 36214,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.7975460122699386,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36215,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.19140350877192983,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36215,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.3967251461988304,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36215,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5416374269005848,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36215,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 29
+    },
+    {
+      "level": 100,
+      "recipeId": 36216,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.3073758865248227,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36216,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.7612056737588653,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36216,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.588936170212766,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36216,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36217,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5756315789473684,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36217,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36217,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8339473684210527,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36217,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36218,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.579698275862069,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36218,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36218,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.88,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36218,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 100,
+      "recipeId": 36669,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.436948051948052,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36669,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36669,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36669,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36672,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4176271186440678,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36672,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 32
+    },
+    {
+      "level": 100,
+      "recipeId": 36672,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36672,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36676,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.55672,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36676,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 31
+    },
+    {
+      "level": 100,
+      "recipeId": 36676,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36676,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36950,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36950,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36950,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36950,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 9
+    },
+    {
+      "level": 100,
+      "recipeId": 36951,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36951,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36951,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36951,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36952,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36952,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36952,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36952,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36955,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36955,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36955,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36955,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36956,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36956,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36956,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 10
+    },
+    {
+      "level": 100,
+      "recipeId": 36956,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36957,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36957,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36957,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 100,
+      "recipeId": 36957,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36958,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36958,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36958,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 100,
+      "recipeId": 36958,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36960,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4843253968253968,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36960,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36960,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36960,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36962,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36962,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36962,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36962,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36964,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.9293560606060606,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36964,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36964,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36964,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36966,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8370967741935483,
+      "actions": 29
+    },
+    {
+      "level": 100,
+      "recipeId": 36966,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36966,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36966,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36967,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36967,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36967,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36967,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5623456790123457,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36968,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36968,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36969,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36969,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36969,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36969,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 100,
+      "recipeId": 36970,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36970,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36970,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36970,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36971,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36971,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36971,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 36971,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 36972,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36972,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36972,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36972,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 36973,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36973,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36973,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 100,
+      "recipeId": 36973,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36974,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5431818181818182,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36974,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36974,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36974,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36976,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7077272727272728,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36976,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36976,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 36976,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36977,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 32
+    },
+    {
+      "level": 100,
+      "recipeId": 36977,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 52
+    },
+    {
+      "level": 100,
+      "recipeId": 36977,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36977,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 36
+    },
+    {
+      "level": 100,
+      "recipeId": 36978,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8235238095238095,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36978,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36978,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36978,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36984,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4448360655737705,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36984,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 32
+    },
+    {
+      "level": 100,
+      "recipeId": 36984,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 26
+    },
+    {
+      "level": 100,
+      "recipeId": 36984,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36988,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.43766129032258067,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36988,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36988,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7862096774193549,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 36988,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 36989,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.2737777777777778,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 36989,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.8081666666666667,
+      "actions": 37
+    },
+    {
+      "level": 100,
+      "recipeId": 36989,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6474444444444445,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36989,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 31
+    },
+    {
+      "level": 100,
+      "recipeId": 36993,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6512162162162162,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36993,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 36993,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36993,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 36994,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 30
+    },
+    {
+      "level": 100,
+      "recipeId": 36994,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 33
+    },
+    {
+      "level": 100,
+      "recipeId": 36994,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 36994,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36995,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.44307142857142856,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 36995,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36995,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7235714285714285,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 36995,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 36996,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.3990441176470588,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 36996,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 36
+    },
+    {
+      "level": 100,
+      "recipeId": 36996,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8008823529411765,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 36996,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37406,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 37406,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 37406,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 37406,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 100,
+      "recipeId": 37500,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 100,
+      "recipeId": 37500,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37500,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 8
+    },
+    {
+      "level": 100,
+      "recipeId": 37500,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 11
+    },
+    {
+      "level": 100,
+      "recipeId": 37501,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37501,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 37501,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 14
+    },
+    {
+      "level": 100,
+      "recipeId": 37501,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 37504,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5085416666666667,
+      "actions": 23
+    },
+    {
+      "level": 100,
+      "recipeId": 37504,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 37504,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 37504,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37506,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7438461538461538,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37506,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37506,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 37506,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 37507,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 37507,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37507,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 15
+    },
+    {
+      "level": 100,
+      "recipeId": 37507,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 37509,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6381147540983606,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37509,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 29
+    },
+    {
+      "level": 100,
+      "recipeId": 37509,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.9220628415300547,
+      "actions": 29
+    },
+    {
+      "level": 100,
+      "recipeId": 37509,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37511,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.27234848484848484,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37511,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.5183712121212121,
+      "actions": 41
+    },
+    {
+      "level": 100,
+      "recipeId": 37511,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 37511,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 31
+    },
+    {
+      "level": 100,
+      "recipeId": 37513,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.408,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37513,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.5924,
+      "actions": 53
+    },
+    {
+      "level": 100,
+      "recipeId": 37513,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 22
+    },
+    {
+      "level": 100,
+      "recipeId": 37513,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37514,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5756481481481481,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37514,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 31
+    },
+    {
+      "level": 100,
+      "recipeId": 37514,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 37514,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 37515,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8149193548387097,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37515,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 13
+    },
+    {
+      "level": 100,
+      "recipeId": 37515,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 37515,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 12
+    },
+    {
+      "level": 100,
+      "recipeId": 37516,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.4077173913043478,
+      "actions": 17
+    },
+    {
+      "level": 100,
+      "recipeId": 37516,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 21
+    },
+    {
+      "level": 100,
+      "recipeId": 37516,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.7667391304347826,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 37516,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 16
+    },
+    {
+      "level": 100,
+      "recipeId": 37517,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.6512162162162162,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37517,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37517,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 18
+    },
+    {
+      "level": 100,
+      "recipeId": 37517,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37518,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.47575342465753423,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37518,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 35
+    },
+    {
+      "level": 100,
+      "recipeId": 37518,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.8098630136986301,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37518,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 19
+    },
+    {
+      "level": 100,
+      "recipeId": 37522,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.3997887323943662,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37522,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 29
+    },
+    {
+      "level": 100,
+      "recipeId": 37522,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37522,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 20
+    },
+    {
+      "level": 100,
+      "recipeId": 37984,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.23355450236966824,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37984,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.5398578199052133,
+      "actions": 45
+    },
+    {
+      "level": 100,
+      "recipeId": 37984,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5162085308056872,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37984,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37985,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0.27688775510204083,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37985,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "failed",
+      "quality": 0.889795918367347,
+      "actions": 61
+    },
+    {
+      "level": 100,
+      "recipeId": 37985,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "failed",
+      "quality": 0.6917857142857143,
+      "actions": 28
+    },
+    {
+      "level": 100,
+      "recipeId": 37985,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 25
+    },
+    {
+      "level": 100,
+      "recipeId": 37987,
+      "band": 1,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.29012448132780083,
+      "actions": 27
+    },
+    {
+      "level": 100,
+      "recipeId": 37987,
+      "band": 1,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 0.8436929460580913,
+      "actions": 56
+    },
+    {
+      "level": 100,
+      "recipeId": 37987,
+      "band": 1.5,
+      "tape": "normal",
+      "terminal": "completed",
+      "quality": 0.5626141078838174,
+      "actions": 24
+    },
+    {
+      "level": 100,
+      "recipeId": 37987,
+      "band": 1.5,
+      "tape": "colors",
+      "terminal": "completed",
+      "quality": 1,
+      "actions": 28
+    }
+  ]
+}

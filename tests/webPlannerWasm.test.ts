@@ -56,6 +56,18 @@ function recommend(exports: PlannerWasmExports, request: string) {
 }
 
 describe('time-budgeted Web planner boundary', () => {
+  it('delegates existing expert worlds to the unchanged v2.4 decision path', async () => {
+    const scenario = cosmicExpertScenarioDataByRecipeId(37006)!
+    const crafter: CrafterProfile = { level: 100, craftsmanship: 5408, control: 5237, maxCp: 749, cosmicToolGoodBonus: true, specialist: true }
+    const exports = await loadWasm()
+    for (const condition of ['normal', 'good', 'pliant'] as const) {
+      const state = { ...createInitialCraftState(scenario.recipe, crafter), condition }
+      const episode = createPlannerEpisode(scenario, crafter, state)
+      const candidate = recommend(exports, `reset\t${episode}`).trim().split('\t')
+      const baseline = recommend(exports, `reset\t${episode.replace(WEB_PLANNER_POLICY, 'generic-craft-external-reference-v2.4.0')}`).trim().split('\t')
+      expect(candidate.slice(3)).toEqual(baseline.slice(3))
+    }
+  })
   it('accepts an omitted, ample, and zero time budget without inventing a craft stop', async () => {
     const scenario = cosmicExpertScenarioDataByRecipeId(37006)!
     const crafter: CrafterProfile = { level: 100, craftsmanship: 5408, control: 5237, maxCp: 749, cosmicToolGoodBonus: true, specialist: true }
@@ -71,7 +83,7 @@ describe('time-budgeted Web planner boundary', () => {
     expect(() => parsePlannerReply(recommend(exports, `time-budget:5:0\treset\t${episode}`))).toThrow('positive')
   })
   it('loads the production WASM and returns a version-checked recommendation', async () => {
-    expect(WEB_PLANNER_POLICY).toBe('generic-craft-external-reference-v2.4.0')
+    expect(WEB_PLANNER_POLICY).toBe('generic-craft-exp-cosmic-standard')
     const exports = await loadWasm()
     const fixturePrefix = readFileSync(fixturePath, 'utf8').trim().replace(
       'generic-craft-route-portfolio-v1.12.0',

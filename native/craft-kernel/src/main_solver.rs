@@ -7,7 +7,7 @@ use std::fmt;
 
 pub use crate::generic_solver::CraftTimeBudget;
 use crate::generic_solver::{
-    GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION, recommend_generic_action_with_time_budget,
+    COSMIC_STANDARD_EXPERIMENT_VERSION, recommend_generic_action_with_time_budget,
 };
 use crate::{
     GenericDecision, GenericObjective, GenericSolverVersion, PlannerContext, QualityUtilityKind,
@@ -32,7 +32,7 @@ pub use crate::types::{
 pub const MAIN_SOLVER_API_VERSION: &str = "frozen-rabbit-main-solver-api-v2";
 
 /// Identity of the decision policy used by [`MainSolverSession`].
-pub const MAIN_SOLVER_POLICY_VERSION: &str = GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION;
+pub const MAIN_SOLVER_POLICY_VERSION: &str = COSMIC_STANDARD_EXPERIMENT_VERSION;
 
 /// Default maximum number of observed actions in one craft.
 pub const DEFAULT_MAIN_SOLVER_ACTION_LIMIT: u32 = 80;
@@ -436,7 +436,7 @@ impl MainSolverSession {
             return Ok(MainSolverStatus::ActionLimitReached);
         }
         let decision = recommend_generic_action_with_time_budget(
-            GenericSolverVersion::ExternalReferenceV24,
+            GenericSolverVersion::CosmicStandard,
             &self.config.recipe,
             &self.config.crafter,
             state,
@@ -530,7 +530,7 @@ impl MainSolverSession {
         if action == pending.decision.action {
             advance_planner_context(
                 &mut self.context,
-                GenericSolverVersion::ExternalReferenceV24,
+                GenericSolverVersion::CosmicStandard,
                 pending.decision,
                 &pending.before_state,
                 after_state,
