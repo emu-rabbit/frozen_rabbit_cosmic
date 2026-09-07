@@ -6,6 +6,7 @@ mod artisan_continuation;
 mod certified_route;
 mod compact_policy;
 mod opening_recovery;
+mod ordinary_search;
 mod portfolio;
 mod resource_certificate;
 mod short_certified_finish;
@@ -13,6 +14,7 @@ mod standard_policy;
 mod time_aware_recovery;
 
 pub const COSMIC_STANDARD_EXPERIMENT_VERSION: &str = "generic-craft-exp-cosmic-standard";
+pub const COSMIC_STANDARD_SEARCH_VERSION: &str = "generic-craft-exp-cosmic-standard-search";
 
 pub const COMPACT_RECOVERY_EXPERIMENT_VERSION: &str =
     "generic-craft-external-reference-exp-compact-recovery";
@@ -67,8 +69,16 @@ pub fn recommend_generic_action_with_time_budget(
     mask: Option<u16>,
     time_budget: Option<CraftTimeBudget>,
 ) -> Option<GenericDecision> {
-    if version == GenericSolverVersion::CosmicStandard {
+    if matches!(
+        version,
+        GenericSolverVersion::CosmicStandard | GenericSolverVersion::CosmicStandardSearch
+    ) {
         if standard_policy::supports(mask) {
+            if version == GenericSolverVersion::CosmicStandardSearch {
+                if let Some(result) = ordinary_search::recommend(recipe, crafter, state, context) {
+                    return Some(result);
+                }
+            }
             return standard_policy::recommend(recipe, crafter, state, objective, context);
         }
         return recommend_generic_action_with_time_budget(
@@ -261,6 +271,7 @@ pub enum GenericSolverVersion {
     TimeBudgetedRecovery,
     ExternalReferenceV24,
     CosmicStandard,
+    CosmicStandardSearch,
 }
 
 impl GenericSolverVersion {
@@ -309,6 +320,7 @@ impl GenericSolverVersion {
             Self::TimeBudgetedRecovery => TIME_BUDGETED_RECOVERY_POLICY_VERSION,
             Self::ExternalReferenceV24 => GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION,
             Self::CosmicStandard => COSMIC_STANDARD_EXPERIMENT_VERSION,
+            Self::CosmicStandardSearch => COSMIC_STANDARD_SEARCH_VERSION,
             Self::ExpandedFullQualityCertificate => {
                 EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION
             }
@@ -420,6 +432,7 @@ impl FromStr for GenericSolverVersion {
             TIME_BUDGETED_RECOVERY_POLICY_VERSION => Ok(Self::TimeBudgetedRecovery),
             GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION => Ok(Self::ExternalReferenceV24),
             COSMIC_STANDARD_EXPERIMENT_VERSION => Ok(Self::CosmicStandard),
+            COSMIC_STANDARD_SEARCH_VERSION => Ok(Self::CosmicStandardSearch),
             EXPANDED_FULL_QUALITY_CERTIFICATE_EXPERIMENT_VERSION => {
                 Ok(Self::ExpandedFullQualityCertificate)
             }
@@ -4469,7 +4482,10 @@ pub fn recommend_generic_action_with_model(
     context: &PlannerContext,
     random_condition_mask: Option<u16>,
 ) -> Option<GenericDecision> {
-    if version == GenericSolverVersion::CosmicStandard {
+    if matches!(
+        version,
+        GenericSolverVersion::CosmicStandard | GenericSolverVersion::CosmicStandardSearch
+    ) {
         return recommend_generic_action_with_time_budget(
             version,
             recipe,
@@ -5347,6 +5363,24 @@ fn advance_planner_context_inner(
     after: &CraftState,
     observe_route: bool,
 ) {
+    let observe_route = if solver_version == GenericSolverVersion::CosmicStandardSearch
+        && decision.route.is_some_and(|r| r.normal_actions.is_some())
+    {
+        context.route_memory.active = decision.route.and_then(|mut r| {
+            let mut actions = r.normal_actions?;
+            if actions.len <= 1 || actions.actions[0] != decision.action {
+                return None;
+            }
+            actions.actions.rotate_left(1);
+            actions.len -= 1;
+            actions.actions[actions.len as usize..].fill(CraftActionId::BasicSynthesis);
+            r.normal_actions = Some(actions);
+            Some(r)
+        });
+        false
+    } else {
+        observe_route
+    };
     let solver_version = if solver_version == GenericSolverVersion::CosmicStandard {
         GenericSolverVersion::ExternalReferenceV24
     } else {
@@ -5551,6 +5585,12 @@ pub fn planner_context_fingerprint(
     solver_version: GenericSolverVersion,
     context: &PlannerContext,
 ) -> String {
+    if solver_version == GenericSolverVersion::CosmicStandardSearch {
+        return format!(
+            "ordinary-search:{}:{:?}",
+            context.action_uses, context.route_memory.active
+        );
+    }
     let solver_version = if solver_version == GenericSolverVersion::CosmicStandard {
         GenericSolverVersion::ExternalReferenceV24
     } else {

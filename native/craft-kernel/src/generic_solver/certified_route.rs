@@ -81,6 +81,7 @@ fn decision(actions: &[CraftActionId]) -> GenericDecision {
             consumer: None,
             interrupt: false,
             certified_actions: Some(stored),
+            normal_actions: None,
         }),
     }
 }
@@ -255,6 +256,7 @@ mod tests {
             consumer: None,
             interrupt: false,
             certified_actions: None,
+            normal_actions: None,
         };
         assert_eq!(
             format!("{route:?}"),

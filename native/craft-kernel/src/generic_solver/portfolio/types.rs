@@ -100,6 +100,8 @@ impl CertifiedActions {
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
 pub struct RoutePlan {
+    /// A Normal-continuation witness, not an all-condition certificate.
+    pub normal_actions: Option<NormalActions>,
     pub intent: RouteIntent,
     pub engine: ContinuationEngine,
     pub setup: Option<CraftActionId>,
@@ -121,8 +123,17 @@ impl std::fmt::Debug for RoutePlan {
         if let Some(actions) = self.certified_actions {
             d.field("certified_actions", &actions);
         }
+        if let Some(actions) = self.normal_actions {
+            d.field("normal_actions", &actions);
+        }
         d.finish()
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct NormalActions {
+    pub actions: [CraftActionId; 48],
+    pub len: u8,
 }
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]

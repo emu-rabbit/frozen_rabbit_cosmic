@@ -503,6 +503,7 @@ pub(super) fn attach_route(
     decision.route = Some(RoutePlan {
         intent: intent(decision.action),
         certified_actions: None,
+        normal_actions: None,
         engine,
         setup: None,
         consumer: None,

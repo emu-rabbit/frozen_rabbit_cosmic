@@ -37,7 +37,7 @@ fn settings(case: &kernel::GenericEpisodeCase) -> Settings {
 fn snapshot(state: &kernel::CraftState) -> Value {
     json!({"cp":state.cp,"durability":state.durability,"progress":state.progress,
         "quality":state.quality,"innerQuiet":state.inner_quiet,"step":state.step,
-        "terminal":state.terminal.as_str(),"buffs":format!("{:?}",state.buffs)})
+        "terminal":state.terminal.as_str(),"condition":state.condition.as_str(),"buffs":format!("{:?}",state.buffs)})
 }
 
 fn replay(case: &kernel::GenericEpisodeCase, settings: &Settings, actions: &[Action]) -> Value {
@@ -136,7 +136,7 @@ fn main() {
             let result = kernel::execute_generic_episode(&case).unwrap();
             json!({"event":"policy","caseId":case.rollout.case_id,"solver":case.solver_version.as_str(),
                 "seed":case.rollout.seed,"risk":case.risk.as_str(),"stop":result.stop_reason.as_str(),
-                "local":snapshot(&result.final_state),"computeNs":result.recommendation_ns,
+                "local":snapshot(&result.final_state),"computeNs":result.recommendation_ns,"maxRecommendationNs":result.recommendation_max_ns,
                 "actions":result.actions.iter().map(|a|a.as_str()).collect::<Vec<_>>(),
                 "steps":result.steps.iter().map(|s|json!({"action":s.action.as_str(),"success":s.success,
                     "before":snapshot(&s.before_state),"after":snapshot(&s.after_state)})).collect::<Vec<_>>()})

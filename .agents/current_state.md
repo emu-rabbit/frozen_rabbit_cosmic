@@ -6,6 +6,8 @@
 
 目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Application／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 
+普通路線搜尋候選已依使用者要求階段收尾，未採用，未達成近乎滿品質的可靠度目標；實作、開發樣本與反例見 [搜尋階段報告](../reports/cosmic-standard-search-stage-20260907.md)。本輪不繼續調參或啟動長跑。
+
 ## 目前方向
 
 做出手把手帶玩家完成高難配方的網頁，並持續提升求解能力。品質與限時內完成都要納入取捨；目標由 [產品使命](skills/mission/project_mission.md) 擁有。舊合併 Compact Recovery 長跑揭露了局部品質代價，因此使用者選擇拆分短收尾與時間壓力回復。舊結果由 [長跑判讀](../reports/generic-cosmic-overnight/compact-recovery-s64-review-20260906.md) 擁有，下一步驗證範圍見 [active brief](overnight_review_brief.md)。完整上界分析器不作主線。

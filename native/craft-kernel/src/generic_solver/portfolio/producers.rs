@@ -51,6 +51,7 @@ fn prepared_decision(
     decision.route = Some(RoutePlan {
         intent: intent(consumer),
         certified_actions: None,
+        normal_actions: None,
         engine,
         setup: Some(setup),
         consumer: Some(consumer),
