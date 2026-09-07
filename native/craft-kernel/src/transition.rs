@@ -1,4 +1,4 @@
-use crate::actions::action_definition;
+use crate::actions::{action_definition, action_min_level};
 use crate::types::{
     ActionPreview, CraftActionId, CraftBuffs, CraftFailureReason, CraftState, CraftTerminal,
     CrafterProfile, ExplanationCode, IllegalActionReason, MaterialCondition, ObservedActionOutcome,
@@ -79,9 +79,20 @@ fn adjusted_success_rate(state: &CraftState, base_rate: f64) -> f64 {
     .min(1.0)
 }
 
-fn action_progress_potency(state: &CraftState, action: CraftActionId) -> Option<i32> {
+fn action_progress_potency(
+    crafter: &CrafterProfile,
+    state: &CraftState,
+    action: CraftActionId,
+) -> Option<i32> {
     let definition = action_definition(action);
-    let potency = definition.progress_potency?;
+    let potency = match action {
+        CraftActionId::BasicSynthesis if crafter.level < 31 => 100,
+        CraftActionId::RapidSynthesis if crafter.level < 63 => 250,
+        CraftActionId::CarefulSynthesis if crafter.level < 82 => 150,
+        CraftActionId::Groundwork if crafter.level < 86 => 300,
+        CraftActionId::DelicateSynthesis if crafter.level < 94 => 100,
+        _ => definition.progress_potency?,
+    };
     if action == CraftActionId::Groundwork
         && !state.trained_perfection_active
         && state.durability < durability_cost_before_perfection(state, definition.durability_cost)
@@ -96,9 +107,26 @@ fn formula_inputs(
     recipe: &RecipeProfile,
     crafter: &CrafterProfile,
 ) -> (RecipeFormulaInput, CrafterFormulaInput) {
+    // First RecipeLevelTable row for each job level in the pinned game data.
+    const LEVELS_51_100: [u32; 50] = [
+        115, 125, 130, 133, 136, 139, 142, 145, 148, 150, 255, 265, 270, 273, 276, 279, 282, 285,
+        288, 290, 381, 395, 400, 403, 406, 409, 412, 415, 418, 430, 517, 520, 525, 530, 535, 540,
+        545, 550, 555, 560, 650, 653, 656, 660, 665, 670, 675, 680, 685, 690,
+    ];
+    let crafter_recipe_level = if crafter.level <= 50 {
+        crafter.level
+    } else {
+        LEVELS_51_100[(crafter.level.min(100) - 51) as usize]
+    };
     (
         RecipeFormulaInput {
-            recipe_level: recipe.recipe_level,
+            // The legacy formula helper compares against level 100. Express
+            // the actual comparison here without changing its replay API.
+            recipe_level: if crafter_recipe_level <= recipe.recipe_level {
+                690
+            } else {
+                0
+            },
             progress_divider: recipe.progress_divider,
             quality_divider: recipe.quality_divider,
             progress_modifier: recipe.progress_modifier,
@@ -117,7 +145,7 @@ fn progress_gain(
     state: &CraftState,
     action: CraftActionId,
 ) -> i32 {
-    let Some(potency) = action_progress_potency(state, action) else {
+    let Some(potency) = action_progress_potency(crafter, state, action) else {
         return 0;
     };
     let (recipe_formula, crafter_formula) = formula_inputs(recipe, crafter);
@@ -211,6 +239,8 @@ pub fn preview_action(
 
     let reason = if state.terminal != CraftTerminal::None {
         Some(IllegalActionReason::Terminal)
+    } else if crafter.level < action_min_level(action_id) {
+        Some(IllegalActionReason::Level)
     } else if action.specialist_only && !crafter.specialist {
         Some(IllegalActionReason::Specialist)
     } else if action_id == CraftActionId::CarefulObservation
@@ -371,7 +401,11 @@ fn apply_legal_observed_outcome(
         }
         if preview.quality_gain > 0 {
             quality += preview.quality_gain;
-            inner_quiet = (inner_quiet + 1).min(10);
+            inner_quiet = if crafter.level >= 11 {
+                (inner_quiet + 1).min(10)
+            } else {
+                0
+            };
             if matches!(
                 action_id,
                 CraftActionId::PreciseTouch
@@ -397,7 +431,7 @@ fn apply_legal_observed_outcome(
         if action_id == CraftActionId::ByregotsBlessing {
             inner_quiet = 0;
         }
-        if action_id == CraftActionId::HastyTouch {
+        if action_id == CraftActionId::HastyTouch && crafter.level >= 96 {
             buffs.expedience = applied_status_duration(state, 1);
         }
         match action_id {

@@ -2,7 +2,7 @@ use std::fmt;
 use std::str::FromStr;
 
 pub const MATERIAL_CONDITION_COUNT: usize = 11;
-pub const CRAFT_MECHANICS_VERSION: &str = "cosmic-craft-mechanics-v0.6.0-ordinary-conditions";
+pub const CRAFT_MECHANICS_VERSION: &str = "cosmic-craft-mechanics-v0.7.0-level-traits";
 
 macro_rules! string_enum {
     (
@@ -228,12 +228,16 @@ impl CraftState {
             inner_quiet: 0,
             buffs: CraftBuffs::default(),
             combo_from: None,
-            trained_perfection_available: true,
+            trained_perfection_available: crafter.level >= 100,
             trained_perfection_active: false,
-            careful_observation_uses_left: if crafter.specialist { 3 } else { 0 },
-            heart_and_soul_available: crafter.specialist,
+            careful_observation_uses_left: if crafter.specialist && crafter.level >= 55 {
+                3
+            } else {
+                0
+            },
+            heart_and_soul_available: crafter.specialist && crafter.level >= 86,
             heart_and_soul_active: false,
-            quick_innovation_available: crafter.specialist,
+            quick_innovation_available: crafter.specialist && crafter.level >= 96,
             terminal: CraftTerminal::None,
             failure_reason: None,
         }
@@ -261,6 +265,7 @@ string_enum! {
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum IllegalActionReason {
         Terminal => "terminal",
+        Level => "level",
         Specialist => "specialist",
         CarefulObservationExhausted => "careful-observation-exhausted",
         HeartAndSoulActive => "heart-and-soul-active",

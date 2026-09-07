@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useMissionData } from '@/services/missionData'
 import { startCraftSession } from '@/composables/useActiveCraftSession'
 import { plannerRuntime } from '@/runtime/planner'
+import { GENERATED_COSMIC_RECIPES } from '@frozen-rabbit-expert/data'
 import {
   calculateEquipmentStatsAfterConsumables,
   findPreferredEquipmentProfileForJob,
@@ -34,6 +35,11 @@ const compatibleEquipmentProfiles = computed(() => selectedMission.value
   : [])
 const selectedEquipmentProfile = computed(() => compatibleEquipmentProfiles.value
   .find(profile => profile.id === selectedEquipmentProfileId.value) ?? null)
+const requiredLevel = computed(() => {
+  const recipe = GENERATED_COSMIC_RECIPES.find(row => row.recipeId === selectedRecipeId.value)
+  return recipe?.maxAdjustableJobLevel ? 10 : recipe?.recipeLevel ?? 100
+})
+const levelIsValid = computed(() => (selectedEquipmentProfile.value?.level ?? 0) >= requiredLevel.value)
 const plannerIsPreparing = computed(() => (
   plannerRuntime.status.value === 'idle'
   || plannerRuntime.status.value === 'loading'
@@ -42,6 +48,7 @@ const plannerIsPreparing = computed(() => (
 const plannerCanStart = computed(() => (
   selectedRecipeId.value !== null
   && selectedEquipmentProfile.value !== null
+  && levelIsValid.value
   && plannerRuntime.status.value === 'ready'
   && !plannerStartPending.value
 ))
@@ -81,7 +88,7 @@ const profileName = (profile: NonNullable<typeof selectedEquipmentProfile.value>
 }
 const itemInputId = (item: DeepReadonly<MissionItem>) => `mission-item-${item.recipeId}`
 const startCrafting = async () => {
-  if (plannerStartPending.value) return
+  if (plannerStartPending.value || !levelIsValid.value) return
   plannerStartPending.value = true
   try {
     await plannerRuntime.initialize()
@@ -151,6 +158,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <p v-if="reset" class="mission-equipment-summary">{{ t('solver.resetMissionDescription') }}</p>
+        <p v-if="selectedEquipmentProfile && !levelIsValid" role="alert">{{ t('missions.requiredLevel', { level: requiredLevel }) }}</p>
         <fieldset class="mission-detail-section">
           <legend>{{ t('missions.chooseItem') }}</legend>
           <div class="mission-detail-items">

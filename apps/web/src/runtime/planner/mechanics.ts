@@ -1,7 +1,7 @@
 import { ACTIONS, assertCraftState, type ActionPreview, type CraftActionId, type CraftState, type CrafterProfile, type MaterialCondition, type ObservedActionOutcome, type RecipeProfile, type TransitionResult } from '@frozen-rabbit-expert/domain'
 import { encodeState } from './episode'
 
-export const WEB_MECHANICS_VERSION = 'cosmic-craft-mechanics-v0.6.0-ordinary-conditions'
+export const WEB_MECHANICS_VERSION = 'cosmic-craft-mechanics-v0.7.0-level-traits'
 interface MechanicsExports extends WebAssembly.Exports {
   memory: WebAssembly.Memory
   frozen_rabbit_web_input_resize(length: number): number

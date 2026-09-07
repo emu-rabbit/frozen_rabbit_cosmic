@@ -37,6 +37,102 @@ fn successful(next_condition: MaterialCondition) -> ObservedActionOutcome {
 }
 
 #[test]
+fn low_level_actions_and_traits_follow_unlock_boundaries() {
+    let recipe = recipe();
+    let mut crafter = crafter();
+    crafter.level = 10;
+    let state = CraftState::initial(&recipe, &crafter);
+    assert!(!state.trained_perfection_available);
+    assert!(!preview_action(&recipe, &crafter, &state, CraftActionId::Observe).legal);
+    assert!(!preview_action(&recipe, &crafter, &state, CraftActionId::Reflect).legal);
+    let next = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::HastyTouch,
+        successful(MaterialCondition::Normal),
+    )
+    .unwrap()
+    .next_state;
+    assert_eq!(next.inner_quiet, 0);
+    assert_eq!(next.buffs.expedience, 0);
+    crafter.level = 11;
+    let next = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::BasicTouch,
+        successful(MaterialCondition::Normal),
+    )
+    .unwrap()
+    .next_state;
+    assert_eq!(next.inner_quiet, 1);
+    crafter.level = 13;
+    assert!(preview_action(&recipe, &crafter, &state, CraftActionId::Observe).legal);
+    for (action, level, lower, upper) in [
+        (CraftActionId::BasicSynthesis, 31, 300, 360),
+        (CraftActionId::RapidSynthesis, 63, 750, 1500),
+        (CraftActionId::CarefulSynthesis, 82, 450, 540),
+        (CraftActionId::Groundwork, 86, 900, 1080),
+        (CraftActionId::DelicateSynthesis, 94, 300, 450),
+    ] {
+        // Base progress floor(5380*10/180+2) = 300.
+        crafter.level = level - 1;
+        assert_eq!(
+            preview_action(&recipe, &crafter, &state, action).progress_gain,
+            lower
+        );
+        crafter.level = level;
+        assert_eq!(
+            preview_action(&recipe, &crafter, &state, action).progress_gain,
+            upper
+        );
+    }
+    crafter.level = 95;
+    let next = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::HastyTouch,
+        successful(MaterialCondition::Normal),
+    )
+    .unwrap()
+    .next_state;
+    assert_eq!(next.buffs.expedience, 0);
+    crafter.level = 96;
+    let next = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::HastyTouch,
+        successful(MaterialCondition::Normal),
+    )
+    .unwrap()
+    .next_state;
+    assert_eq!(next.buffs.expedience, 1);
+}
+
+#[test]
+fn level_modifier_uses_the_crafters_actual_recipe_level() {
+    let mut recipe = recipe();
+    recipe.recipe_level = 50;
+    recipe.progress_modifier = 90.0;
+    let mut crafter = crafter();
+    crafter.level = 50;
+    let state = CraftState::initial(&recipe, &crafter);
+    // floor((5380*10/180+2)*0.9) = 270; level-31 potency = 120.
+    assert_eq!(
+        preview_action(&recipe, &crafter, &state, CraftActionId::BasicSynthesis).progress_gain,
+        324
+    );
+    crafter.level = 51;
+    assert_eq!(
+        preview_action(&recipe, &crafter, &state, CraftActionId::BasicSynthesis).progress_gain,
+        360
+    );
+}
+
+#[test]
 fn ordinary_colors_change_quality_and_preserve_heart_and_soul() {
     // Artisan Simulator.CalculateQuality: Excellent 4, Poor 0.5; tool bonus
     // applies only to Good. Base quality floor(5000*10/180+35) = 312.

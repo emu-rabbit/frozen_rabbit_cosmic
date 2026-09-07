@@ -29,6 +29,7 @@ export default {
     resultCount: '{count} missions', itemCount: '{count} crafted items', loadMore: 'Show more missions', chooseItem: 'Choose an item to craft', chooseEquipmentProfile: 'Choose an equipment profile', equipmentProfileLabel: 'Equipment profile', equipmentRelicEffect: 'Relic effect', equipmentSpecialist: 'Specialist actions', preparingSolver: 'Preparing the solver…', solverLoadError: 'The solver could not be loaded. Please try again.', retrySolver: 'Reload solver', startCrafting: 'Start crafting', favoriteSoon: 'Reserved for favorites',
     filters: { open: 'Filter missions', title: 'Filters', job: 'Crafting job', rank: 'Mission difficulty', planet: 'Star', type: 'Type', clear: 'Clear', apply: 'Apply' },
     jobs: { carpenter: 'Carpenter', blacksmith: 'Blacksmith', armorer: 'Armorer', goldsmith: 'Goldsmith', leatherworker: 'Leatherworker', weaver: 'Weaver', alchemist: 'Alchemist', culinarian: 'Culinarian' },
+    requiredLevel: 'This recipe requires level {level}. Select an equipment profile at that level or above.',
     ranks: { d: 'D', c: 'C', b: 'B', a: 'A', ex: 'EX', 'ex-plus': 'EX+', master: 'Master' },
     planets: { 'sinus-ardorum': 'Sinus Ardorum', phaenna: 'Phaenna', oizys: 'Oizys', auxesia: 'Auxesia' },
     types: { timed: 'Timed', weather: 'Weather' },

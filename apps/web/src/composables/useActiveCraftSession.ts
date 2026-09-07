@@ -145,7 +145,13 @@ export function startCraftSession(selection: CraftSessionSelection, preserveMiss
     equipmentProfile,
     crafter,
     scenario,
-    initialState: createInitialCraftState(scenario.recipe, crafter),
+    initialState: {
+      ...createInitialCraftState(scenario.recipe, crafter),
+      trainedPerfectionAvailable: crafter.level >= 100,
+      carefulObservationUsesLeft: crafter.specialist && crafter.level >= 55 ? 3 : 0,
+      heartAndSoulAvailable: crafter.specialist === true && crafter.level >= 86,
+      quickInnovationAvailable: crafter.specialist === true && crafter.level >= 96,
+    },
     startedAt: Date.now(),
   }
   events.value = startEvents()

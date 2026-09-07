@@ -3,6 +3,44 @@ use crate::types::{ActionCategory, ActionDefinition, CraftActionId, MaterialCond
 const GOOD: &[MaterialCondition] = &[MaterialCondition::Good, MaterialCondition::Excellent];
 const NONE: &[MaterialCondition] = &[];
 
+/// Current CraftAction / Action levels from the pinned 7.55 game sheets.
+pub const fn action_min_level(id: CraftActionId) -> u32 {
+    use CraftActionId::*;
+    match id {
+        BasicSynthesis => 1,
+        BasicTouch => 5,
+        MastersMend => 7,
+        RapidSynthesis | HastyTouch => 9,
+        Observe | TricksOfTheTrade => 13,
+        WasteNot | Veneration => 15,
+        StandardTouch => 18,
+        GreatStrides => 21,
+        Innovation => 26,
+        FinalAppraisal => 42,
+        WasteNot2 => 47,
+        ByregotsBlessing => 50,
+        PreciseTouch => 53,
+        MuscleMemory => 54,
+        CarefulObservation => 55,
+        CarefulSynthesis => 62,
+        Manipulation => 65,
+        PrudentTouch => 66,
+        AdvancedTouch => 68,
+        Reflect => 69,
+        PreparatoryTouch => 71,
+        Groundwork => 72,
+        DelicateSynthesis => 76,
+        IntensiveSynthesis => 78,
+        HeartAndSoul => 86,
+        PrudentSynthesis => 88,
+        TrainedFinesse => 90,
+        RefinedTouch => 92,
+        DaringTouch | QuickInnovation => 96,
+        ImmaculateMend => 98,
+        TrainedPerfection => 100,
+    }
+}
+
 const fn action(
     id: CraftActionId,
     category: ActionCategory,
