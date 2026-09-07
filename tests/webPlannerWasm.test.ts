@@ -107,7 +107,7 @@ describe('time-budgeted Web planner boundary', () => {
     }
     const state = createInitialCraftState(scenario!.recipe, crafter)
     const episode = createPlannerEpisode(scenario!, crafter, state)
-    expect(episode.split('\t')).toHaveLength(141)
+    expect(episode.split('\t')).toHaveLength(181)
 
     const exports = await loadWasm()
     const row = recommend(exports, serializePlannerRequest({ mode: 'reset' }, episode))

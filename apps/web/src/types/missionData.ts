@@ -3,7 +3,7 @@ import type { CraftActionId } from '@frozen-rabbit-expert/domain'
 export type DataLocale = 'tw' | 'cn' | 'en' | 'ja'
 export type LocalizedNames = Partial<Record<DataLocale, string>>
 export type CraftJob = 'carpenter' | 'blacksmith' | 'armorer' | 'goldsmith' | 'leatherworker' | 'weaver' | 'alchemist' | 'culinarian'
-export type MissionRank = 'a' | 'ex' | 'ex-plus' | 'master'
+export type MissionRank = 'd' | 'c' | 'b' | 'a' | 'ex' | 'ex-plus' | 'master'
 export type MissionPlanet = 'sinus-ardorum' | 'phaenna' | 'oizys' | 'auxesia'
 export type MissionType = 'timed' | 'weather'
 
@@ -12,7 +12,7 @@ export const CRAFT_JOBS: CraftJob[] = [
   'carpenter', 'blacksmith', 'armorer', 'goldsmith',
   'leatherworker', 'weaver', 'alchemist', 'culinarian',
 ]
-export const MISSION_RANKS: MissionRank[] = ['a', 'ex', 'ex-plus', 'master']
+export const MISSION_RANKS: MissionRank[] = ['d', 'c', 'b', 'a', 'ex', 'ex-plus', 'master']
 export const MISSION_PLANETS: MissionPlanet[] = ['sinus-ardorum', 'phaenna', 'oizys', 'auxesia']
 export const MISSION_TYPES: MissionType[] = ['timed', 'weather']
 

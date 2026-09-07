@@ -1,7 +1,7 @@
 {
   "generator": "frozen-rabbit-expert-mission-data",
-  "version": "29cf1db586d10ed9dd4f7c53c3c987eb06b7c4fd71ebdeeb273aa7943e5e661a",
-  "formatVersion": 3,
+  "version": "0be44cbd33b00210bd8864852ea8829e8db449f7bdac22b5403afea95b51b678",
+  "formatVersion": 4,
   "sources": {
     "teamcraft": {
       "repository": "ffxiv-teamcraft/ffxiv-teamcraft",
@@ -41,10 +41,10 @@
     }
   },
   "bundle": {
-    "file": "missions.592ad86add3c8e76739523f0b05486b586759ae3b2702fe9fd01254111b51dbd.bin",
-    "sha256": "592ad86add3c8e76739523f0b05486b586759ae3b2702fe9fd01254111b51dbd",
-    "bytes": 29622,
-    "jsonBytes": 241986,
+    "file": "missions.ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34.bin",
+    "sha256": "ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34",
+    "bytes": 29948,
+    "jsonBytes": 248250,
     "encoding": "gzip",
     "records": 280
   },

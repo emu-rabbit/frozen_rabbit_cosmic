@@ -1,17 +1,14 @@
 import { computed, readonly, ref, shallowRef, type DeepReadonly } from 'vue'
 import {
   ACTIONS,
-  applyObservedOutcome,
   createInitialCraftState,
-  legalActions,
-  previewAction,
   type CraftActionId,
   type CrafterProfile,
   type MaterialCondition,
 } from '@frozen-rabbit-expert/domain'
 import {
-  COSMIC_EXPERT_CATALOG_VERSION,
-  cosmicExpertScenarioDataByRecipeId,
+  COSMIC_CATALOG_VERSION,
+  cosmicScenarioDataByRecipeId,
   type CosmicExpertScenarioDataEntry,
 } from '@frozen-rabbit-expert/data'
 import {
@@ -27,6 +24,7 @@ import type { EquipmentProfile } from './useEquipmentProfiles'
 import type { CosmicMission, MissionItem } from '@/types/missionData'
 import { WEB_PLANNER_POLICY, plannerRuntime, type PlannerReply } from '@/runtime/planner'
 import { createPlannerEpisode } from '@/runtime/planner/episode'
+import { applyObservedOutcome, legalActions, previewAction, WEB_MECHANICS_VERSION } from '@/runtime/planner/mechanics'
 import { craftTimeBudget, EXPECTED_ACTION_MILLISECONDS, MISSION_RESERVE_MILLISECONDS, type MissionClock } from '@/services/missionClock'
 
 export interface CraftSessionSelection {
@@ -57,7 +55,7 @@ export function actionNeedsObservedCondition(
   const definition = ACTIONS[action]
   if (definition.rerollsCondition === true) return true
   if (definition.noStep === true) return false
-  return currentCondition !== 'goodOmen' && currentCondition !== 'robust'
+  return !['goodOmen', 'robust', 'excellent', 'poor'].includes(currentCondition ?? '')
 }
 const events = ref<SessionEvent[]>([])
 const recommendation = shallowRef<PlannerReply | null>(null)
@@ -69,7 +67,7 @@ let requestRevision = 0
 const replay = computed(() => {
   const session = activeSession.value
   if (!session) return null
-  return replaySession(session.scenario.recipe, session.crafter, session.initialState, events.value)
+  return replaySession(session.scenario.recipe, session.crafter, session.initialState, events.value, applyObservedOutcome)
 })
 const state = computed(() => replay.value?.state ?? null)
 const actionCount = computed(() => events.value.filter(event => event.type === 'craftActionResolved').length)
@@ -121,7 +119,7 @@ async function requestRecommendation(advance: Parameters<typeof plannerRuntime.r
 }
 
 export function startCraftSession(selection: CraftSessionSelection, preserveMissionClock = false) {
-  const scenario = cosmicExpertScenarioDataByRecipeId(selection.item.recipeId)
+  const scenario = cosmicScenarioDataByRecipeId(selection.item.recipeId, selection.crafter.level)
   if (!scenario) throw new Error(`Recipe ${selection.item.recipeId} is missing from the Cosmic catalog`)
   if (!preserveMissionClock || missionClock.value?.missionId !== selection.mission.id) {
     missionClock.value = {
@@ -171,7 +169,10 @@ export function useActiveCraftSession() {
       {
         ...MODEL_VERSIONS,
         plannerPolicy: WEB_PLANNER_POLICY,
-        recipeCatalog: COSMIC_EXPERT_CATALOG_VERSION,
+        recipeCatalog: COSMIC_CATALOG_VERSION,
+        mechanics: WEB_MECHANICS_VERSION,
+        conditionProfiles: 'manual-cosmic-all-conditions-v1',
+        sessionCodec: 'cosmic-session-v1',
       },
     )
     if (missionClock.value) {

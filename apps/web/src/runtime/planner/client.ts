@@ -1,4 +1,5 @@
 import { readonly, shallowRef } from 'vue'
+import { initializeMechanics } from './mechanics'
 import type { PlannerAdvance, PlannerReply } from './protocol'
 import type {
   PlannerWorkerRequest,
@@ -33,11 +34,11 @@ export class PlannerRuntime {
     if (this.initialization) return this.initialization
     this.mutableStatus.value = 'loading'
     this.mutableError.value = null
-    this.initialization = this.send(
+    this.initialization = Promise.all([initializeMechanics(), this.send(
       { type: 'initialize' },
       PLANNER_INITIALIZATION_DEADLINE_MS,
       'Planner initialization',
-    )
+    )])
       .then(() => {
         this.mutableStatus.value = 'ready'
       })

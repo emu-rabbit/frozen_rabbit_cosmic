@@ -27,6 +27,7 @@ export function replaySession(
   crafter: CrafterProfile,
   initialState: CraftState,
   events: SessionEvent[],
+  transition: typeof applyObservedOutcome = applyObservedOutcome,
 ): ReplayResult {
   let state: CraftState = {
     ...initialState,
@@ -53,7 +54,7 @@ export function replaySession(
 
     if (event.type === 'craftActionResolved') {
       if (pendingAction === null) throw new Error('Resolved event has no matching action')
-      state = applyObservedOutcome(recipe, crafter, state, pendingAction, event).nextState
+      state = transition(recipe, crafter, state, pendingAction, event).nextState
       assertCraftState(recipe, crafter, state)
       pendingAction = null
       continue

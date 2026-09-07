@@ -6,11 +6,11 @@ import { createPackages, verifyPackages, writePackages } from './package.mjs'
 import { downloadSnapshot, readSnapshot } from './source.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
-const CATALOG_PATH = path.join(ROOT, 'packages/data/src/generated/cosmicExpertRecipes.generated.ts')
+const CATALOG_PATH = path.join(ROOT, 'packages/data/src/generated/cosmicRecipes.generated.ts')
 
 function parseCatalog(text) {
-  const sourceMatch = text.match(/COSMIC_EXPERT_GENERATED_SOURCE = (\{[\s\S]*?\}) as const/)
-  const recipesMatch = text.match(/GENERATED_COSMIC_EXPERT_RECIPES = (\[[\s\S]*\]) as const/)
+  const sourceMatch = text.match(/COSMIC_GENERATED_SOURCE = (\{[\s\S]*?\}) as const/)
+  const recipesMatch = text.match(/GENERATED_COSMIC_RECIPES: readonly CosmicRecipeRow\[\] = (\[[\s\S]*?\]) as const/)
   if (!sourceMatch || !recipesMatch) throw new Error('unrecognized generated Cosmic catalog module')
   return { source: JSON.parse(sourceMatch[1]), recipes: JSON.parse(recipesMatch[1]) }
 }

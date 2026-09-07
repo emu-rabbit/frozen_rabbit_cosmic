@@ -29,7 +29,7 @@ export default {
     resultCount: '共 {count} 個任務', itemCount: '包含 {count} 個製作物品', loadMore: '顯示更多任務', chooseItem: '選擇要製作的物品', chooseEquipmentProfile: '選擇裝備設定檔', equipmentProfileLabel: '裝備設定檔', equipmentRelicEffect: '遺物效果', equipmentSpecialist: '專家技能', preparingSolver: '正在準備求解器…', solverLoadError: '求解器載入失敗，請再試一次。', retrySolver: '重新載入求解器', startCrafting: '開始製作', favoriteSoon: '最愛功能預留位置',
     filters: { open: '篩選任務', title: '篩選', job: '製作職業', rank: '任務難度', planet: '星球', type: '種類', clear: '清除', apply: '套用' },
     jobs: { carpenter: '木工師', blacksmith: '鍛鐵匠', armorer: '鑄甲匠', goldsmith: '雕金匠', leatherworker: '製革匠', weaver: '裁衣匠', alchemist: '鍊金術士', culinarian: '烹調師' },
-    ranks: { a: '一般', ex: '高難', 'ex-plus': '高難+', master: '超難' },
+    ranks: { d: 'D', c: 'C', b: 'B', a: 'A', ex: '高難', 'ex-plus': '高難+', master: '超難' },
     planets: { 'sinus-ardorum': '渴望灣', phaenna: '法恩娜', oizys: '俄匊斯', auxesia: '奧克塞西亞' },
     types: { timed: '限時', weather: '天氣' },
   },

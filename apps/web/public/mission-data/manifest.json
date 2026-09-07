@@ -1,6 +1,6 @@
 {
   "generator": "frozen-rabbit-expert-mission-data",
-  "version": "0be44cbd33b00210bd8864852ea8829e8db449f7bdac22b5403afea95b51b678",
+  "version": "f0806d3bbdb7bfa515d530f76f9af53aa8b9730fd6c7693db844eda876148128",
   "formatVersion": 4,
   "sources": {
     "teamcraft": {
@@ -36,17 +36,17 @@
       "assetBaseUrl": "https://v2.xivapi.com/api/asset"
     },
     "catalog": {
-      "identity": "3c0ac44a05e9bf297be471d1d4355032224c9513dd229c6f515385e6a90b464b",
+      "identity": "d93a62020c9afaff2cdc287557be89fcbf850e4cd437e31b5028da4fb2dd7e71",
       "xivapiVersion": "284bb7f44b9c0976"
     }
   },
   "bundle": {
-    "file": "missions.ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34.bin",
-    "sha256": "ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34",
-    "bytes": 29948,
-    "jsonBytes": 248250,
+    "file": "missions.75e5beb31ae9e90985661511abe02e4f4923c43bebd46404a8fb8b69dd89f7ba.bin",
+    "sha256": "75e5beb31ae9e90985661511abe02e4f4923c43bebd46404a8fb8b69dd89f7ba",
+    "bytes": 84723,
+    "jsonBytes": 817699,
     "encoding": "gzip",
-    "records": 280
+    "records": 1240
   },
   "notice": {
     "file": "NOTICE.0105f2ce176cc70ec89fe21427078364f47ab792467d668083061c2815a6f5c9.txt",
@@ -54,19 +54,19 @@
     "bytes": 2058
   },
   "diagnostics": {
-    "missionCount": 280,
-    "sequentialMissionLinks": 48,
-    "itemCount": 317,
-    "teamcraftItems": 317,
+    "missionCount": 1240,
+    "sequentialMissionLinks": 136,
+    "itemCount": 978,
+    "teamcraftItems": 978,
     "canonicalFallbackItems": 0,
     "craftingFoods": 50,
     "craftingMedicines": 12,
     "craftingActionIcons": 280,
     "missionLocaleNames": {
-      "en": 280,
-      "ja": 280,
-      "tw": 88,
-      "cn": 280
+      "en": 1240,
+      "ja": 1240,
+      "tw": 400,
+      "cn": 1240
     }
   }
 }

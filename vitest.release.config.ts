@@ -19,6 +19,7 @@ export default defineConfig({
       'tests/missionClock.test.ts',
       'tests/plannerClient.test.ts',
       'tests/webPlannerWasm.test.ts',
+      'tests/cosmicMechanicsWasm.test.ts',
     ],
     coverage: {
       provider: 'v8',

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+vi.mock('../apps/web/src/runtime/planner/mechanics', () => ({ initializeMechanics: vi.fn().mockResolvedValue(undefined) }))
 import { PlannerRuntime } from '../apps/web/src/runtime/planner/client'
 import type {
   PlannerWorkerRequest,

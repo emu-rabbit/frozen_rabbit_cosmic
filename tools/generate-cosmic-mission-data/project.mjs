@@ -45,10 +45,10 @@ export const CRAFT_ACTION_NAMES = {
 }
 
 const PLANET_RANGES = [
-  { id: 'sinus-ardorum', firstRecipeId: 36194, lastRecipeId: 36668 },
-  { id: 'phaenna', firstRecipeId: 36979, lastRecipeId: 37405 },
-  { id: 'oizys', firstRecipeId: 37519, lastRecipeId: 37783 },
-  { id: 'auxesia', firstRecipeId: 37981, lastRecipeId: 38221 },
+  { id: 'sinus-ardorum', firstRecipeId: 36165, lastRecipeId: 36722 },
+  { id: 'phaenna', firstRecipeId: 36950, lastRecipeId: 37495 },
+  { id: 'oizys', firstRecipeId: 37496, lastRecipeId: 37799 },
+  { id: 'auxesia', firstRecipeId: 37958, lastRecipeId: 38237 },
 ]
 
 function parseCsvLine(line, lineNumber, sourceName = 'CSV') {
@@ -269,10 +269,13 @@ function localizedMissionNames(sources) {
   }
 }
 
-function rank(name) {
+function rank(name, levelGroup) {
   if (name.startsWith('Master:')) return 'master'
   if (name.startsWith('EX+:')) return 'ex-plus'
   if (name.startsWith('EX:')) return 'ex'
+  if (levelGroup === 1) return 'd'
+  if (levelGroup === 2) return 'c'
+  if (levelGroup === 3) return 'b'
   return 'a'
 }
 
@@ -372,7 +375,7 @@ export function projectMissionData({ recipes, source, sources }) {
         job: recipe.job,
         jobId: JOB_ID[recipe.job],
         jobIcon: `${XIVAPI_JOB_ICON_BASE}${recipe.job}.png`,
-        rank: rank(expectedName),
+        rank: rank(expectedName, recipe.levelGroup),
         planet,
         types: [
           ...(missionRow.timed ? ['timed'] : []),

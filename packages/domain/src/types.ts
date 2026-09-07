@@ -1,4 +1,4 @@
-export const MATERIAL_CONDITIONS = [
+const LEGACY_MATERIAL_CONDITIONS = [
   'normal',
   'good',
   'goodOmen',
@@ -10,7 +10,10 @@ export const MATERIAL_CONDITIONS = [
   'robust',
 ] as const
 
-export type MaterialCondition = (typeof MATERIAL_CONDITIONS)[number]
+/** Legacy nine-condition enumeration stays fixed for historical TS evaluators. */
+export const ALL_MATERIAL_CONDITIONS = [...LEGACY_MATERIAL_CONDITIONS, 'excellent', 'poor'] as const
+export type MaterialCondition = (typeof ALL_MATERIAL_CONDITIONS)[number]
+export const MATERIAL_CONDITIONS: readonly MaterialCondition[] = LEGACY_MATERIAL_CONDITIONS
 
 export type CraftActionId =
   | 'basicSynthesis'

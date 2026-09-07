@@ -3,10 +3,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { DeepReadonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { applyObservedOutcome, previewAction } from '@/runtime/planner/mechanics'
 import {
-  MATERIAL_CONDITIONS,
-  applyObservedOutcome,
-  previewAction,
+  ACTIONS,
+  ALL_MATERIAL_CONDITIONS as MATERIAL_CONDITIONS,
   type CraftActionId,
   type MaterialCondition,
 } from '@frozen-rabbit-expert/domain'
@@ -106,9 +106,12 @@ function forcedNextCondition(action: CraftActionId, success: boolean) {
     success,
     nextCondition: current.condition,
   }).nextState
-  if (nextState.terminal !== 'none' || nextState.step === current.step) return null
+  if (nextState.terminal !== 'none' || (nextState.step === current.step && !ACTIONS[action].rerollsCondition)) return null
   if (current.condition === 'goodOmen') return 'good' satisfies MaterialCondition
   if (current.condition === 'robust') return 'sturdy' satisfies MaterialCondition
+  if (current.condition === 'excellent') return 'poor' satisfies MaterialCondition
+  if (current.condition === 'poor') return 'normal' satisfies MaterialCondition
+  if (current.condition === 'good' && active.scenario.recipe.availableConditions.includes('excellent')) return 'normal' satisfies MaterialCondition
   return null
 }
 
@@ -618,6 +621,8 @@ html.dark .craft-meter > i { background: #22332f; }
 .condition-badge--centered, .condition-option--centered { --condition-color: #dbdb4d; --condition-edge: #a6a62c; }
 .condition-badge--sturdy, .condition-option--sturdy,
 .condition-badge--robust, .condition-option--robust { --condition-color: #3dceff; --condition-edge: #2097bf; }
+.condition-badge--excellent, .condition-option--excellent { --condition-color: #f5cfef; --condition-edge: #b46ec0; }
+.condition-badge--poor, .condition-option--poor { --condition-color: #a5a5b4; --condition-edge: #666477; }
 .condition-badge--pliant, .condition-option--pliant { --condition-color: #04d504; --condition-edge: #079507; }
 .condition-badge--malleable, .condition-option--malleable { --condition-color: #5179ff; --condition-edge: #3452bd; }
 .condition-badge--primed, .condition-option--primed { --condition-color: #b11dff; --condition-edge: #7911ad; }

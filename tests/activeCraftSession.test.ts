@@ -1,17 +1,20 @@
 import { nextTick, shallowRef } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { initializeMechanics } from '../apps/web/src/runtime/planner/mechanics'
 import {
   ACTION_IDS,
   ACTIONS,
   type CrafterProfile,
 } from '@frozen-rabbit-expert/domain'
-import { COSMIC_EXPERT_CATALOG_VERSION } from '@frozen-rabbit-expert/data'
+import { COSMIC_CATALOG_VERSION } from '@frozen-rabbit-expert/data'
 import { WEB_PLANNER_POLICY, type PlannerReply } from '../apps/web/src/runtime/planner/protocol'
 import type { EquipmentProfile } from '../apps/web/src/composables/useEquipmentProfiles'
 import type { CosmicMission, MissionItem } from '../apps/web/src/types/missionData'
 import { nextItemInMission, nextSequentialMission } from '../apps/web/src/services/missionProgression'
 
 const recommend = vi.hoisted(() => vi.fn())
+beforeAll(async () => { await initializeMechanics(readFileSync('apps/web/src/runtime/wasm/frozen_rabbit_craft_kernel_web.wasm')) })
 
 vi.mock('../apps/web/src/runtime/planner', async () => {
   const protocol = await import('../apps/web/src/runtime/planner/protocol')
@@ -203,11 +206,11 @@ describe('active craft session export', () => {
     const exported = useActiveCraftSession().exportSession()
 
     expect(exported?.manifest).toMatchObject({
-      schema: 'expert-session-v0.12.0',
+      schema: 'cosmic-session-v1',
       scenarioId: 'cosmic-expert-37006',
       modelVersions: {
         plannerPolicy: WEB_PLANNER_POLICY,
-        recipeCatalog: COSMIC_EXPERT_CATALOG_VERSION,
+        recipeCatalog: COSMIC_CATALOG_VERSION,
       },
     })
     expect(exported?.events.map(event => event.type)).toEqual([

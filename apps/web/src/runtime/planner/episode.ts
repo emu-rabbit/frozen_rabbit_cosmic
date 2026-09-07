@@ -1,5 +1,5 @@
 import {
-  MATERIAL_CONDITIONS,
+  ALL_MATERIAL_CONDITIONS as MATERIAL_CONDITIONS,
   minimumQualityForHqChancePercent,
   type CraftState,
   type CrafterProfile,
@@ -8,7 +8,7 @@ import {
 import type { CosmicExpertScenarioDataEntry } from '@frozen-rabbit-expert/data'
 import { WEB_PLANNER_POLICY } from './protocol'
 
-const PROTOCOL = 'native-generic-episode-batch-v7'
+const PROTOCOL = 'native-generic-episode-batch-v8'
 const ACTION_LIMIT = 80
 
 function booleanCell(value: boolean | undefined) {
@@ -23,7 +23,7 @@ function conditionMask(conditions: readonly MaterialCondition[]) {
   }, 0)
 }
 
-function encodeState(state: Readonly<CraftState>): readonly string[] {
+export function encodeState(state: Readonly<CraftState>): readonly string[] {
   return [
     state.step,
     state.progress,
@@ -155,8 +155,8 @@ export function createPlannerEpisode(
     ...transitionWeights,
   ].map(String)
 
-  if (cells.length !== 141) {
-    throw new Error(`Web planner episode must have 141 cells, got ${cells.length}`)
+  if (cells.length !== 181) {
+    throw new Error(`Web planner episode must have 181 cells, got ${cells.length}`)
   }
   return cells.join('\t')
 }
