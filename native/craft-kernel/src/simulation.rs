@@ -23,11 +23,14 @@ pub fn sample_condition(
     random: &mut EpisodeRandomStream,
     previous_condition: MaterialCondition,
 ) -> MaterialCondition {
-    if previous_condition == MaterialCondition::GoodOmen {
-        return MaterialCondition::Good;
+    if let Some(next) = previous_condition.forced_next() {
+        return next;
     }
-    if previous_condition == MaterialCondition::Robust {
-        return MaterialCondition::Sturdy;
+    if previous_condition == MaterialCondition::Good
+        && (weights[MaterialCondition::Excellent.index()] > 0.0
+            || weights[MaterialCondition::Poor.index()] > 0.0)
+    {
+        return MaterialCondition::Normal;
     }
 
     let total = weights
@@ -69,18 +72,13 @@ pub fn draw_simulated_action_outcome(
     };
     let (next_condition, condition_draws) = if is_no_step && !rerolls_condition {
         (state.condition, cursor_before.condition_draws)
-    } else if matches!(
-        state.condition,
-        MaterialCondition::GoodOmen | MaterialCondition::Robust
-    ) {
-        (
-            if state.condition == MaterialCondition::GoodOmen {
-                MaterialCondition::Good
-            } else {
-                MaterialCondition::Sturdy
-            },
-            cursor_before.condition_draws,
-        )
+    } else if let Some(next) = state.condition.forced_next().or_else(|| {
+        (state.condition == MaterialCondition::Good
+            && (condition_weights[MaterialCondition::Excellent.index()] > 0.0
+                || condition_weights[MaterialCondition::Poor.index()] > 0.0))
+            .then_some(MaterialCondition::Normal)
+    }) {
+        (next, cursor_before.condition_draws)
     } else {
         (
             sample_condition(condition_weights, random, state.condition),

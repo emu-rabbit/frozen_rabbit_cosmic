@@ -37,6 +37,75 @@ fn successful(next_condition: MaterialCondition) -> ObservedActionOutcome {
 }
 
 #[test]
+fn ordinary_colors_change_quality_and_preserve_heart_and_soul() {
+    // Artisan Simulator.CalculateQuality: Excellent 4, Poor 0.5; tool bonus
+    // applies only to Good. Base quality floor(5000*10/180+35) = 312.
+    let recipe = recipe();
+    let mut crafter = crafter();
+    crafter.specialist = true;
+    crafter.cosmic_tool_good_bonus = true;
+    let mut state = CraftState::initial(&recipe, &crafter);
+    state.condition = MaterialCondition::Excellent;
+    state.heart_and_soul_active = true;
+    assert_eq!(
+        preview_action(&recipe, &crafter, &state, CraftActionId::BasicTouch).quality_gain,
+        1248
+    );
+    assert!(preview_action(&recipe, &crafter, &state, CraftActionId::PreciseTouch).legal);
+    let after = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::TricksOfTheTrade,
+        successful(MaterialCondition::Normal),
+    )
+    .unwrap()
+    .next_state;
+    assert!(after.heart_and_soul_active);
+    assert_eq!(after.condition, MaterialCondition::Poor);
+    state.condition = MaterialCondition::Poor;
+    assert_eq!(
+        preview_action(&recipe, &crafter, &state, CraftActionId::BasicTouch).quality_gain,
+        156
+    );
+    let after = apply_observed_outcome(
+        &recipe,
+        &crafter,
+        &state,
+        CraftActionId::Observe,
+        successful(MaterialCondition::Excellent),
+    )
+    .unwrap()
+    .next_state;
+    assert_eq!(after.condition, MaterialCondition::Normal);
+}
+
+#[test]
+fn excellent_no_step_preserves_color_but_observation_rerolls_to_poor() {
+    let recipe = recipe();
+    let mut crafter = crafter();
+    crafter.specialist = true;
+    let mut state = CraftState::initial(&recipe, &crafter);
+    state.condition = MaterialCondition::Excellent;
+    for (action, expected) in [
+        (CraftActionId::FinalAppraisal, MaterialCondition::Excellent),
+        (CraftActionId::CarefulObservation, MaterialCondition::Poor),
+    ] {
+        let after = apply_observed_outcome(
+            &recipe,
+            &crafter,
+            &state,
+            action,
+            successful(MaterialCondition::Good),
+        )
+        .unwrap()
+        .next_state;
+        assert_eq!(after.condition, expected);
+        assert_eq!(after.step, state.step);
+    }
+}
+
+#[test]
 fn preview_matches_representative_ts_cost_success_and_gain_rules() {
     let recipe = recipe();
     let crafter = crafter();

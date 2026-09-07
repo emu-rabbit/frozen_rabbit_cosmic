@@ -15,7 +15,10 @@ fn heart_and_soul_bypasses_condition(
 ) -> bool {
     crafter.specialist
         && state.heart_and_soul_active
-        && state.condition != MaterialCondition::Good
+        && !matches!(
+            state.condition,
+            MaterialCondition::Good | MaterialCondition::Excellent
+        )
         && matches!(
             action,
             CraftActionId::PreciseTouch
@@ -185,14 +188,12 @@ fn quality_gain(
     let inner_quiet_multiplier = f64::from(100 + state.inner_quiet * 10) / 100.0;
     let efficiency =
         f64::from((f64::from(potency) * buff_multiplier * inner_quiet_multiplier) as f32);
-    let condition_multiplier = if state.condition == MaterialCondition::Good {
-        if crafter.cosmic_tool_good_bonus {
-            1.75
-        } else {
-            1.5
-        }
-    } else {
-        1.0
+    let condition_multiplier = match state.condition {
+        MaterialCondition::Good if crafter.cosmic_tool_good_bonus => 1.75,
+        MaterialCondition::Good => 1.5,
+        MaterialCondition::Excellent => 4.0,
+        MaterialCondition::Poor => 0.5,
+        _ => 1.0,
     };
     let calculated_gain = (base_quality * condition_multiplier * efficiency / 100.0).floor() as i32;
     apply_empirical_quality_correction(recipe, crafter, state, action, calculated_gain)
@@ -485,16 +486,15 @@ fn apply_legal_observed_outcome(
         durability = recipe.durability_max.min(durability + 5);
     }
 
-    let condition = if !is_no_step
-        && matches!(
-            state.condition,
-            MaterialCondition::GoodOmen | MaterialCondition::Robust
-        ) {
-        if state.condition == MaterialCondition::GoodOmen {
-            MaterialCondition::Good
-        } else {
-            MaterialCondition::Sturdy
-        }
+    let condition = if (!is_no_step
+        || (action.rerolls_condition
+            && matches!(
+                state.condition,
+                MaterialCondition::Excellent | MaterialCondition::Poor
+            )))
+        && state.condition.forced_next().is_some()
+    {
+        state.condition.forced_next().unwrap()
     } else if action.rerolls_condition {
         observed.next_condition
     } else if is_no_step {

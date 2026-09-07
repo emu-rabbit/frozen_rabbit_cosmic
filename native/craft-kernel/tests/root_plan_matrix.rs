@@ -2,14 +2,15 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 use frozen_rabbit_craft_kernel::research::{
-    CraftActionId, FIXED_CONTINUATION_PLAN_VERSION, MATERIAL_CONDITION_COUNT,
-    ROOT_PLAN_MATRIX_MAX_BATCH_OPERATIONS, ROOT_PLAN_MATRIX_MAX_BATCH_OUTPUT_BYTES,
-    ROOT_PLAN_MATRIX_MAX_BENCHMARK_OPERATIONS, ROOT_PLAN_MATRIX_PROTOCOL_VERSION,
-    SCENARIO_MODEL_IDENTITY_VERSION, benchmark_root_plan_matrices, execute_root_plan_matrix,
-    fixed_continuation_plan_hash, format_root_plan_matrix_outcome, parse_root_plan_matrix_request,
+    CraftActionId, FIXED_CONTINUATION_PLAN_VERSION, ROOT_PLAN_MATRIX_MAX_BATCH_OPERATIONS,
+    ROOT_PLAN_MATRIX_MAX_BATCH_OUTPUT_BYTES, ROOT_PLAN_MATRIX_MAX_BENCHMARK_OPERATIONS,
+    ROOT_PLAN_MATRIX_PROTOCOL_VERSION, SCENARIO_MODEL_IDENTITY_VERSION,
+    benchmark_root_plan_matrices, execute_root_plan_matrix, fixed_continuation_plan_hash,
+    format_root_plan_matrix_outcome, parse_root_plan_matrix_request,
     validate_root_plan_matrix_batch, validate_root_plan_matrix_benchmark,
 };
 
+const MATERIAL_CONDITION_COUNT: usize = 9; // frozen v2 rollout wire
 const WEIGHT_START: usize = 53;
 const CONTINUATION_INDEX: usize =
     WEIGHT_START + MATERIAL_CONDITION_COUNT * MATERIAL_CONDITION_COUNT;

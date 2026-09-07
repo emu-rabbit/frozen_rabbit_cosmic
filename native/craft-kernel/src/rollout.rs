@@ -416,11 +416,14 @@ fn parse_actions(value: &str) -> Result<Vec<CraftActionId>, String> {
     Ok(actions)
 }
 
-fn parse_transition_weights(cells: &mut Cells<'_>) -> Result<ConditionTransitionWeights, String> {
+fn parse_transition_weights(
+    cells: &mut Cells<'_>,
+    count: usize,
+) -> Result<ConditionTransitionWeights, String> {
     let mut weights = [[0.0; MATERIAL_CONDITION_COUNT]; MATERIAL_CONDITION_COUNT];
-    for previous in MaterialCondition::ALL {
+    for previous in &MaterialCondition::ALL[..count] {
         let mut total = 0.0;
-        for next in MaterialCondition::ALL {
+        for next in &MaterialCondition::ALL[..count] {
             let name = format!(
                 "conditionTransitionWeight.{}.{}",
                 previous.as_str(),
@@ -439,6 +442,9 @@ fn parse_transition_weights(cells: &mut Cells<'_>) -> Result<ConditionTransition
                 previous.as_str()
             ));
         }
+    }
+    for row in &mut weights[count..] {
+        row[0] = 1.0;
     }
     Ok(weights)
 }
@@ -501,7 +507,7 @@ pub fn parse_rollout_request(line: &str) -> Result<RolloutRequest, RolloutParseE
     let case_id = cells.next("caseId").unwrap_or("-").to_owned();
     let command = cells.next("command").unwrap_or("unknown").to_owned();
     let parse = || -> Result<RolloutRequest, String> {
-        if version != ROLLOUT_BATCH_PROTOCOL_VERSION {
+        if version != ROLLOUT_BATCH_PROTOCOL_VERSION && version != "native-rollout-batch-v3" {
             return Err(format!(
                 "unsupported protocol version: expected {ROLLOUT_BATCH_PROTOCOL_VERSION}, got {version}"
             ));
@@ -527,7 +533,14 @@ pub fn parse_rollout_request(line: &str) -> Result<RolloutRequest, RolloutParseE
                 "maxSteps must be between 1 and {ROLLOUT_MAX_STEPS}"
             ));
         }
-        let condition_transition_weights = parse_transition_weights(&mut cells)?;
+        let condition_transition_weights = parse_transition_weights(
+            &mut cells,
+            if version == "native-rollout-batch-v3" {
+                MATERIAL_CONDITION_COUNT
+            } else {
+                9
+            },
+        )?;
         let actions = parse_actions(cells.next("actions")?)?;
         cells.finish()?;
 

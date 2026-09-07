@@ -1,7 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 
-pub const MATERIAL_CONDITION_COUNT: usize = 9;
+pub const MATERIAL_CONDITION_COUNT: usize = 11;
+pub const CRAFT_MECHANICS_VERSION: &str = "cosmic-craft-mechanics-v0.6.0-ordinary-conditions";
 
 macro_rules! string_enum {
     (
@@ -56,6 +57,8 @@ string_enum! {
         Malleable => "malleable",
         Primed => "primed",
         Robust => "robust",
+        Excellent => "excellent",
+        Poor => "poor",
     }
 }
 
@@ -71,6 +74,20 @@ impl MaterialCondition {
             Self::Malleable => 6,
             Self::Primed => 7,
             Self::Robust => 8,
+            Self::Excellent => 9,
+            Self::Poor => 10,
+        }
+    }
+
+    /// Forced transitions do not consume a random draw. Good is forced back
+    /// to Normal only for ordinary condition sets, handled by their weights.
+    pub const fn forced_next(self) -> Option<Self> {
+        match self {
+            Self::GoodOmen => Some(Self::Good),
+            Self::Robust => Some(Self::Sturdy),
+            Self::Excellent => Some(Self::Poor),
+            Self::Poor => Some(Self::Normal),
+            _ => None,
         }
     }
 }

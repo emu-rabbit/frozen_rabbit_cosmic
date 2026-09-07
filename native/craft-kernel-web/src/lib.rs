@@ -9,8 +9,9 @@
 use std::cell::RefCell;
 
 use frozen_rabbit_craft_kernel::research::{
-    WEB_PLANNER_ABI_VERSION, WEB_PLANNER_MAX_INPUT_BYTES, WEB_PLANNER_MAX_OUTPUT_BYTES,
-    WebPlannerSession, format_web_planner_reply,
+    CRAFT_MECHANICS_VERSION, WEB_PLANNER_ABI_VERSION, WEB_PLANNER_MAX_INPUT_BYTES,
+    WEB_PLANNER_MAX_OUTPUT_BYTES, WebPlannerSession, format_batch_response,
+    format_web_planner_reply, parse_batch_request, process_batch_request,
 };
 
 thread_local! {
@@ -77,6 +78,35 @@ pub extern "C" fn frozen_rabbit_web_recommend() -> i32 {
         Ok(reply) => store_output(format_web_planner_reply(&reply)),
         Err(message) => {
             let _ = store_output(format_error(&message));
+            1
+        }
+    }
+}
+
+/// Synchronous, bounded single-action mechanics for UI preview and replay.
+/// This never executes a policy search or touches the worker's planner memory.
+#[allow(unsafe_code)]
+#[unsafe(no_mangle)]
+pub extern "C" fn frozen_rabbit_web_mechanics() -> i32 {
+    let result = WEB_INPUT.with(|buffer| {
+        String::from_utf8(buffer.borrow().clone())
+            .map_err(|_| "Mechanics request must be UTF-8".to_owned())
+            .and_then(|request| {
+                if request.trim() == "identity" {
+                    return Ok(CRAFT_MECHANICS_VERSION.to_owned());
+                }
+                let command = request.split('\t').nth(2).unwrap_or("");
+                if !matches!(command, "preview" | "apply") {
+                    return Err("Mechanics supports only preview and apply".to_owned());
+                }
+                let parsed = parse_batch_request(&request).map_err(|error| error.message)?;
+                Ok(format_batch_response(&process_batch_request(parsed)))
+            })
+    });
+    match result {
+        Ok(output) => store_output(output),
+        Err(error) => {
+            store_output(format_error(&error));
             1
         }
     }

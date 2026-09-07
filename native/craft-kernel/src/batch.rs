@@ -287,7 +287,7 @@ pub fn parse_batch_request(line: &str) -> Result<BatchRequest, BatchParseError> 
                     success_draws: cells.parse("successDrawOffset")?,
                 };
                 let mut condition_weights = [0.0; MATERIAL_CONDITION_COUNT];
-                for condition in MaterialCondition::ALL {
+                for condition in &MaterialCondition::ALL[..9] {
                     let weight = parse_finite(
                         &mut cells,
                         &format!("conditionWeight.{}", condition.as_str()),

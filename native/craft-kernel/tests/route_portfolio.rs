@@ -250,6 +250,7 @@ fn every_condition_has_legal_opportunities_across_quality_contracts() {
                     );
                 }
                 let required: &[CraftActionId] = match condition {
+                    MaterialCondition::Excellent | MaterialCondition::Poor => &[],
                     MaterialCondition::Normal => &[],
                     MaterialCondition::Good => &[
                         CraftActionId::PreciseTouch,

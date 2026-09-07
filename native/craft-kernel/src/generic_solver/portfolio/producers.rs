@@ -863,7 +863,9 @@ fn condition_opportunities(
         ],
         // Normal uses ordinary quality/progress/resource and funded-route
         // proposals. It receives no fabricated condition bonus.
-        MaterialCondition::Normal => return,
+        MaterialCondition::Normal | MaterialCondition::Excellent | MaterialCondition::Poor => {
+            return;
+        }
     };
     work.producer_calls += 1;
     for &action in actions {

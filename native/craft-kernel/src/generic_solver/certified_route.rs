@@ -41,11 +41,7 @@ fn verifies(
                 continue;
             }
             let forced = (preview.action.no_step && !preview.action.rerolls_condition)
-                || (!preview.action.no_step
-                    && matches!(
-                        state.condition,
-                        MaterialCondition::GoodOmen | MaterialCondition::Robust
-                    ));
+                || state.condition.forced_next().is_some();
             if forced {
                 next.insert(after);
             } else {

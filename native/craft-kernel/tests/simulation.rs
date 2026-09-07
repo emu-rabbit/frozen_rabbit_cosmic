@@ -33,6 +33,32 @@ fn crafter(specialist: bool) -> CrafterProfile {
 const BALANCED: ConditionWeights = [1.0; MATERIAL_CONDITION_COUNT];
 
 #[test]
+fn ordinary_forced_colors_do_not_draw_randomness() {
+    let recipe = recipe();
+    let crafter = crafter(false);
+    for (condition, expected) in [
+        (MaterialCondition::Excellent, MaterialCondition::Poor),
+        (MaterialCondition::Poor, MaterialCondition::Normal),
+        (MaterialCondition::Good, MaterialCondition::Normal),
+    ] {
+        let mut state = CraftState::initial(&recipe, &crafter);
+        state.condition = condition;
+        let preview = preview_action(&recipe, &crafter, &state, CraftActionId::Observe);
+        let mut weights = [0.0; MATERIAL_CONDITION_COUNT];
+        weights[0] = 90.0;
+        weights[MaterialCondition::Excellent.index()] = 1.0;
+        let before = RandomDrawCursor {
+            condition_draws: 3,
+            success_draws: 4,
+        };
+        let mut rng = EpisodeRandomStream::new(1);
+        let outcome = draw_simulated_action_outcome(&preview, &state, &weights, &mut rng, before);
+        assert_eq!(outcome.observed.next_condition, expected);
+        assert_eq!(outcome.cursor_after.condition_draws, 3);
+    }
+}
+
+#[test]
 fn advancing_actions_consume_success_and_condition_streams() {
     let recipe = recipe();
     let crafter = crafter(false);

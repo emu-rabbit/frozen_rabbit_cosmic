@@ -1,6 +1,6 @@
 use crate::types::{ActionCategory, ActionDefinition, CraftActionId, MaterialCondition};
 
-const GOOD: &[MaterialCondition] = &[MaterialCondition::Good];
+const GOOD: &[MaterialCondition] = &[MaterialCondition::Good, MaterialCondition::Excellent];
 const NONE: &[MaterialCondition] = &[];
 
 const fn action(

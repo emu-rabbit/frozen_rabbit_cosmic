@@ -102,7 +102,9 @@ pub fn parse_generic_episode_case(
         if cells.len() < 17 {
             return Err("generic episode row is missing required fields".to_owned());
         }
-        if cells[0] != GENERIC_EPISODE_PROTOCOL_VERSION {
+        if cells[0] != GENERIC_EPISODE_PROTOCOL_VERSION
+            && cells[0] != "native-generic-episode-batch-v8"
+        {
             return Err(format!(
                 "unsupported protocol version: expected {GENERIC_EPISODE_PROTOCOL_VERSION}, got {}",
                 cells[0],
@@ -212,7 +214,13 @@ pub fn parse_generic_episode_case(
         let random_condition_mask = cells[14]
             .parse::<u16>()
             .map_err(|error| format!("invalid randomConditionMask: {error}"))?;
-        let supported_condition_mask = (1_u16 << crate::MATERIAL_CONDITION_COUNT) - 1;
+        let supported_condition_mask = (1_u16
+            << if cells[0] == "native-generic-episode-batch-v8" {
+                crate::MATERIAL_CONDITION_COUNT
+            } else {
+                9
+            })
+            - 1;
         if random_condition_mask == 0
             || random_condition_mask & !supported_condition_mask != 0
             || random_condition_mask & 1 == 0
@@ -223,7 +231,12 @@ pub fn parse_generic_episode_case(
         }
         let trace_mode = cells[15].parse::<GenericTraceMode>()?;
 
-        let mut rollout_cells = vec![crate::ROLLOUT_BATCH_PROTOCOL_VERSION, cells[1], "rollout"];
+        let rollout_version = if cells[0] == "native-generic-episode-batch-v8" {
+            "native-rollout-batch-v3"
+        } else {
+            crate::ROLLOUT_BATCH_PROTOCOL_VERSION
+        };
+        let mut rollout_cells = vec![rollout_version, cells[1], "rollout"];
         rollout_cells.extend_from_slice(&cells[16..]);
         rollout_cells.push("basicSynthesis");
         let rollout_line = rollout_cells.join("\t");

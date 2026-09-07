@@ -2,11 +2,13 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 use frozen_rabbit_craft_kernel::research::{
-    EpisodeRandomStream, MATERIAL_CONDITION_COUNT, ROLLOUT_BATCH_PROTOCOL_VERSION, RolloutResponse,
-    RolloutStopReason, benchmark_rollout_requests, execute_rollout, format_rollout_response,
-    parse_rollout_request, process_rollout_request,
+    EpisodeRandomStream, ROLLOUT_BATCH_PROTOCOL_VERSION, RolloutResponse, RolloutStopReason,
+    benchmark_rollout_requests, execute_rollout, format_rollout_response, parse_rollout_request,
+    process_rollout_request,
 };
 
+// Frozen v2 wire matrix retains nine conditions.
+const MATERIAL_CONDITION_COUNT: usize = 9;
 const WEIGHT_START: usize = 47;
 const ACTIONS_INDEX: usize = WEIGHT_START + MATERIAL_CONDITION_COUNT * MATERIAL_CONDITION_COUNT;
 const REQUEST_CELL_COUNT: usize = ACTIONS_INDEX + 1;
