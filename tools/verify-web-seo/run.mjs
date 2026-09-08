@@ -4,7 +4,7 @@ import path from 'node:path'
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const webRoot = path.join(root, 'apps', 'web')
-const canonicalUrl = 'https://emu-rabbit.github.io/frozen_rabbit_cosmic/'
+const canonicalUrl = 'https://cosmic.frozenrabbit.com/'
 const publicRoot = path.join(webRoot, 'public')
 
 function requireText(content, expected, label) {
