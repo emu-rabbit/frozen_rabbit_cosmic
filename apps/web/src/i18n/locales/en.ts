@@ -1,6 +1,11 @@
 import { solverEn } from '../crafting'
 
 export default {
+  analytics: {
+    message: 'This site uses Google Analytics to improve the tool.',
+    accept: 'Accept',
+    reject: 'Reject',
+  },
   app: {
     title: "Frozen Rabbit's Cosmic",
     subtitle: 'Cosmic Exploration expert crafting assistant',

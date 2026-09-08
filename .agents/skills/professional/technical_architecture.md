@@ -19,7 +19,13 @@ evaluation orchestration ──> tools
 
 舊 TypeScript solver 已凍結，只能作歷史參考與遷移 evidence。新的 mechanics／solver／planner memory／episode 改善與評測都以 Rust source 為 owner。
 
-## Runtime 輸入與輸出
+## 網站使用分析
+
+`apps/web/src/services/analytics.ts` 擁有 GA4 載入、Consent Mode 與瀏覽事件；`AnalyticsConsentBanner.vue` 提供四語同意提示。機制參照姊妹站 Tome：只在 production 且 `VITE_GA_MEASUREMENT_ID` 非空時啟用，正式 ID 由 `apps/web/.env.production` 管理；空值時不載入 script 或顯示提示。可在 `apps/web/.env.local` 或 build environment 覆寫設定（見 `apps/web/.env.example`），變更後需重新 build。
+
+啟用時先載入 Google tag，analytics／advertising consent 預設 denied；接受後才送出本程式的 page_view、analytics_ready、route_change 與語言／主題事件。接受存入本網站 localStorage，拒絕只維持本次頁面；廣告 consent 始終 denied。這不是同意前零網路請求的機制。初次語言選擇與贊助視窗開啟時暫緩提示。URL query 不納入手動瀏覽事件，不傳送製作 state。正式 GA property 的自動量測設定與收件結果仍需在填入 ID 後另行驗證。
+
+## 製作 Runtime 輸入與輸出
 
 ~~~text
 RecipeProfile + CraftObjective + CrafterProfile

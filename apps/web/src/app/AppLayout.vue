@@ -8,6 +8,8 @@ import SponsorModal from '@/components/modals/SponsorModal.vue'
 import { appLogoUrl } from '@/config/brandAssets'
 import { usePreferences } from '@/composables/usePreferences'
 import { plannerRuntime } from '@/runtime/planner'
+import AnalyticsConsentBanner from '@/components/AnalyticsConsentBanner.vue'
+import { initializeAnalytics, setAnalyticsLanguage, setAnalyticsThemeMode, trackRouteChange } from '@/services/analytics'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -18,17 +20,22 @@ const isLanguageModalOpen = ref(!initialized.value)
 const mainScroll = ref<HTMLElement | null>(null)
 
 watch(() => route.fullPath, () => {
+  trackRouteChange()
   void nextTick(() => mainScroll.value?.scrollTo({ top: 0 }))
 })
 
 watch(language, (nextLanguage) => {
   locale.value = nextLanguage
   document.title = `${t('app.title')} | FFXIV ${t('app.subtitle')}`
+  setAnalyticsLanguage(nextLanguage)
 }, { immediate: true })
 
 watch(isDarkMode, (dark) => {
   document.documentElement.classList.toggle('dark', dark)
+  setAnalyticsThemeMode(dark)
 }, { immediate: true })
+
+initializeAnalytics()
 
 const handleLanguagePreview = (nextLanguage: string) => {
   language.value = nextLanguage as typeof language.value
@@ -87,6 +94,7 @@ onBeforeUnmount(() => {
     </main>
 
     <SponsorModal v-model:visible="isSponsorModalOpen" />
+    <AnalyticsConsentBanner :paused="isLanguageModalOpen || isSponsorModalOpen" />
     <LanguageSelectModal
       v-model:visible="isLanguageModalOpen"
       @preview-language="handleLanguagePreview"

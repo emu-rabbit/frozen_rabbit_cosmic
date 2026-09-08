@@ -1,6 +1,11 @@
 import { solverJa } from '../crafting'
 
 export default {
+  analytics: {
+    message: 'このサイトは改善のため Google Analytics を使用します。',
+    accept: '許可',
+    reject: '拒否',
+  },
   app: {
     title: '冷凍うさぎの宇宙',
     subtitle: 'コスモエクスプローラー高難度製作アシスタント',

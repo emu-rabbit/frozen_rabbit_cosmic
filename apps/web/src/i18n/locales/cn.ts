@@ -1,6 +1,11 @@
 import { solverCn } from '../crafting'
 
 export default {
+  analytics: {
+    message: '本站使用 Google Analytics 了解使用情况并改善工具。',
+    accept: '接受',
+    reject: '拒绝',
+  },
   app: {
     title: '冷冻兔肉的宇宙',
     subtitle: '宇宙探索高难度制作助手',
