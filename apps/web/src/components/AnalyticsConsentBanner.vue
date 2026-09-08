@@ -43,10 +43,11 @@ function choose(value: AnalyticsConsent) {
   box-shadow: 0 10px 15px -3px #0f172a1a, 0 4px 6px -4px #0f172a1a;
   backdrop-filter: blur(8px);
   font-size: .75rem;
+  line-height: 1rem;
 }
 p { flex: 1; min-width: 0; margin: 0; line-height: 1.375; }
 .analytics-actions { display: flex; flex-shrink: 0; align-items: center; gap: .25rem; }
-button { min-height: 44px; min-width: 44px; padding: .25rem .5rem; border-radius: .375rem; color: #64748b; font-weight: 600; transition: background-color .15s, color .15s; }
+button { padding: .25rem .5rem; border-radius: .375rem; color: #64748b; font-weight: 600; transition: background-color .15s, color .15s; }
 button:hover { background: #f1f5f9; color: #334155; }
 button:focus-visible { outline: 2px solid #3e8f7a; outline-offset: 2px; }
 .analytics-accept { padding-inline: .625rem; background: #52a890; color: white; font-weight: 700; }
