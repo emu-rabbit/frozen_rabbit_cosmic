@@ -683,16 +683,15 @@ html.dark .recommendation-use, html.dark .report-submit { background: #52a890; c
 .condition-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; }
 .condition-option { display: flex; min-width: 0; min-height: 4rem; flex: 0 0 var(--condition-option-width, min(16rem,100%)); align-items: center; justify-content: center; gap: .55rem; border: 1px solid #dce8e5; border-radius: .8rem; background: #fafcfb; padding: .55rem; color: #3f534d; font: inherit; text-align: center; cursor: pointer; }
 .condition-option > span { overflow: hidden; font-size: .9rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
-.condition-option:hover { border-color: var(--condition-edge); background: #f4f8f7; box-shadow: 0 0 0 1px var(--condition-edge); }
+.condition-option:hover, .condition-option[aria-pressed="true"] { border-color: var(--condition-edge); background: #f4f8f7; box-shadow: 0 0 0 1px var(--condition-edge); }
 .condition-option:focus-visible { outline: 3px solid color-mix(in srgb,var(--condition-color) 42%,transparent); outline-offset: 2px; }
 .condition-option:disabled { opacity: .58; cursor: wait; }
-.condition-option[aria-pressed="true"] { outline: 3px solid #39816d; outline-offset: 2px; }
 .report-submit { margin-top: 1.2rem; }
 html.dark .report-card header h2 { color: #d9f3e9; }
 html.dark .report-segmented button, html.dark .condition-option { border-color: #334155; background: #131f31; color: #e2e8f0; }
 html.dark .report-segmented button.active { border-color: #52a890; background: #173a31; color: #bde5d8; }
 html.dark .condition-report legend, html.dark .recommendation-success > span { color: #c7ddd6; }
-html.dark .condition-option:hover { border-color: var(--condition-color); background: #19283a; }
+html.dark .condition-option:hover, html.dark .condition-option[aria-pressed="true"] { border-color: var(--condition-color); background: #19283a; }
 
 .solver-tools { display: flex; flex-wrap: wrap; width: 100%; justify-content: space-between; gap: .6rem; margin-top: .75rem; }
 .solver-tools button { min-height: 2.75rem; border: 1px solid #d6e7e2; border-radius: .75rem; background: rgba(255,255,255,.6); padding: .55rem .85rem; color: #647b74; font-size: .75rem; font-weight: 750; cursor: pointer; }
