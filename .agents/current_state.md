@@ -1,8 +1,8 @@
 # 目前狀態
 
-`last_verified: 2026-09-06`
+`last_verified: 2026-09-11`（本次核對 Web package 版本與側欄版本來源；其餘沿用既有驗證。）
 
-目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Application／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
+目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 
 ## 目前方向
 
