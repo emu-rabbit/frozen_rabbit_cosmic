@@ -25,6 +25,13 @@ const craft = useActiveCraftSession()
 const missionData = useMissionData()
 const reportingAction = ref<CraftActionId | null>(null)
 const reportedSuccess = ref<boolean | null>(null)
+const reportedCondition = ref<MaterialCondition | null>(null)
+const recommendedCondition = ref<MaterialCondition | null>(null)
+
+watch([craft.recommendation, craft.state, reportingAction], () => {
+  reportedCondition.value = null
+  recommendedCondition.value = null
+}, { flush: 'sync' })
 const isItemDialogOpen = ref(false)
 const isActionDialogOpen = ref(false)
 const isRestartDialogOpen = ref(false)
@@ -119,13 +126,12 @@ const reportTerminal = computed(() => {
 })
 const reportWouldTerminate = computed(() => reportTerminal.value !== 'none')
 const needsNextCondition = computed(() => reportingAction.value !== null
-  && (!needsSuccess.value || reportedSuccess.value !== null)
   && craft.actionNeedsNextCondition(reportingAction.value)
   && !reportWouldTerminate.value)
 const reportForcedCondition = computed(() => {
   const action = reportingAction.value
-  if (!action || reportedSuccess.value === null || reportWouldTerminate.value) return null
-  return forcedNextCondition(action, reportedSuccess.value)
+  if (!action || reportWouldTerminate.value) return null
+  return forcedNextCondition(action, reportedSuccess.value ?? false)
 })
 const recommendationNeedsSuccess = computed(() => recommendationAction.value !== null
   && craft.actionNeedsSuccess(recommendationAction.value))
@@ -135,13 +141,12 @@ const recommendationTerminal = computed(() => recommendationAction.value !== nul
   : 'none')
 const recommendationWouldTerminate = computed(() => recommendationTerminal.value !== 'none')
 const recommendationNeedsCondition = computed(() => recommendationAction.value !== null
-  && recommendedSuccess.value !== null
   && craft.actionNeedsNextCondition(recommendationAction.value)
   && !recommendationWouldTerminate.value)
 const recommendationForcedCondition = computed(() => {
   const action = recommendationAction.value
-  if (!action || recommendedSuccess.value === null || recommendationWouldTerminate.value) return null
-  return forcedNextCondition(action, recommendedSuccess.value)
+  if (!action || recommendationWouldTerminate.value) return null
+  return forcedNextCondition(action, recommendedSuccess.value ?? false)
 })
 const selectableConditions = computed(() => {
   const available = recipe.value?.randomConditions ?? recipe.value?.availableConditions ?? MATERIAL_CONDITIONS
@@ -193,24 +198,42 @@ function chooseAlternative(action: CraftActionId) {
 }
 
 async function submitReport(nextCondition?: MaterialCondition) {
+  if (craft.inputLocked.value) return
+  if (nextCondition) reportedCondition.value = nextCondition
   const action = reportingAction.value
   const current = state.value
   if (!action || !current || needsSuccess.value && reportedSuccess.value === null) return
   const success = reportedSuccess.value ?? true
-  const resolvedCondition = nextCondition ?? current.condition
+  if ((needsNextCondition.value || reportForcedCondition.value) && !reportedCondition.value) return
+  const resolvedCondition = reportedCondition.value ?? current.condition
   reportingAction.value = null
   reportedSuccess.value = null
   await craft.resolveAction(action, success, resolvedCondition)
 }
 
 async function advanceRecommendation(nextCondition?: MaterialCondition) {
+  if (craft.inputLocked.value) return
+  if (nextCondition) recommendedCondition.value = nextCondition
   const action = recommendationAction.value
   const current = state.value
   if (!action || !current || recommendedSuccess.value === null) return
   const success = recommendedSuccess.value
-  const resolvedCondition = nextCondition ?? current.condition
+  if ((recommendationNeedsCondition.value || recommendationForcedCondition.value) && !recommendedCondition.value) return
+  const resolvedCondition = recommendedCondition.value ?? current.condition
   recommendedSuccess.value = null
   await craft.resolveAction(action, success, resolvedCondition)
+}
+
+function selectReportedSuccess(success: boolean) {
+  if (craft.inputLocked.value) return
+  reportedSuccess.value = success
+  void submitReport()
+}
+
+function selectRecommendedSuccess(success: boolean) {
+  if (craft.inputLocked.value) return
+  recommendedSuccess.value = success
+  void advanceRecommendation()
 }
 
 function replaceItem(recipeId: number) {
@@ -384,10 +407,10 @@ onBeforeUnmount(() => {
         <div v-if="needsSuccess" class="report-group">
           <span>{{ t('solver.actionSucceeded') }}</span>
           <div class="report-segmented">
-            <button type="button" :class="{ active: reportedSuccess === true }" :aria-pressed="reportedSuccess === true" @click="reportedSuccess = true">
+            <button type="button" :disabled="craft.inputLocked.value" :class="{ active: reportedSuccess === true }" :aria-pressed="reportedSuccess === true" @click="selectReportedSuccess(true)">
               <i class="pi pi-check" aria-hidden="true"></i>{{ t('solver.success') }}
             </button>
-            <button type="button" :class="{ active: reportedSuccess === false }" :aria-pressed="reportedSuccess === false" @click="reportedSuccess = false">
+            <button type="button" :disabled="craft.inputLocked.value" :class="{ active: reportedSuccess === false }" :aria-pressed="reportedSuccess === false" @click="selectReportedSuccess(false)">
               <i class="pi pi-times" aria-hidden="true"></i>{{ t('solver.failure') }}
             </button>
           </div>
@@ -402,6 +425,7 @@ onBeforeUnmount(() => {
               :class="`condition-option condition-option--${condition}`"
               :disabled="craft.inputLocked.value"
               @click="submitReport(condition)"
+              :aria-pressed="reportedCondition === condition"
             >
               <i aria-hidden="true"></i><span>{{ t(`solver.conditions.${condition}`) }}</span>
             </button>
@@ -415,6 +439,7 @@ onBeforeUnmount(() => {
               :class="`condition-option condition-option--${reportForcedCondition}`"
               :disabled="craft.inputLocked.value"
               @click="submitReport(reportForcedCondition)"
+              :aria-pressed="reportedCondition === reportForcedCondition"
             >
               <i aria-hidden="true"></i><span>{{ t(`solver.conditions.${reportForcedCondition}`) }}</span>
             </button>
@@ -464,10 +489,10 @@ onBeforeUnmount(() => {
         <div v-if="recommendationNeedsSuccess" class="recommendation-success">
           <span>{{ t('solver.actionSucceeded') }}</span>
           <div class="report-segmented">
-            <button type="button" :class="{ active: recommendedSuccess === true }" :aria-pressed="recommendedSuccess === true" @click="recommendedSuccess = true">
+            <button type="button" :disabled="craft.inputLocked.value" :class="{ active: recommendedSuccess === true }" :aria-pressed="recommendedSuccess === true" @click="selectRecommendedSuccess(true)">
               <i class="pi pi-check" aria-hidden="true"></i>{{ t('solver.success') }}
             </button>
-            <button type="button" :class="{ active: recommendedSuccess === false }" :aria-pressed="recommendedSuccess === false" @click="recommendedSuccess = false">
+            <button type="button" :disabled="craft.inputLocked.value" :class="{ active: recommendedSuccess === false }" :aria-pressed="recommendedSuccess === false" @click="selectRecommendedSuccess(false)">
               <i class="pi pi-times" aria-hidden="true"></i>{{ t('solver.failure') }}
             </button>
           </div>
@@ -482,6 +507,7 @@ onBeforeUnmount(() => {
               :class="`condition-option condition-option--${condition}`"
               :disabled="craft.inputLocked.value"
               @click="advanceRecommendation(condition)"
+              :aria-pressed="recommendedCondition === condition"
             >
               <i aria-hidden="true"></i><span>{{ t(`solver.conditions.${condition}`) }}</span>
             </button>
@@ -495,6 +521,7 @@ onBeforeUnmount(() => {
               :class="`condition-option condition-option--${recommendationForcedCondition}`"
               :disabled="craft.inputLocked.value"
               @click="advanceRecommendation(recommendationForcedCondition)"
+              :aria-pressed="recommendedCondition === recommendationForcedCondition"
             >
               <i aria-hidden="true"></i><span>{{ t(`solver.conditions.${recommendationForcedCondition}`) }}</span>
             </button>
@@ -628,7 +655,7 @@ html.dark .craft-meter > i { background: #22332f; }
 .recommendation-success + .recommendation-use { margin-top: 1rem; }
 .recommendation-use:hover, .report-submit:hover { background: #2d6a5a; }
 .recommendation-use:disabled, .report-submit:disabled { background: #b5c3bf; cursor: wait; }
-.recommendation-deviate { display: block; min-height: 2.75rem; margin: .35rem auto 0; border: 0; background: transparent; color: #64817a; font-size: .78rem; font-weight: 750; cursor: pointer; }
+.recommendation-deviate { display: block; min-height: 2.75rem; margin: 1rem auto 0; padding: 0; border: 0; background: transparent; color: #64817a; font-size: .78rem; font-weight: 750; cursor: pointer; }
 .recommendation-deviate:hover { color: #2e7d68; text-decoration: underline; text-underline-offset: 3px; }
 html.dark .recommendation-card, html.dark .report-card, html.dark .recommendation-error, html.dark .solver-terminal { border-color: #294039; background: #0f172a; box-shadow: 0 18px 48px rgba(2,6,23,.35); }
 html.dark .recommendation-action h2 { color: #d9f3e9; }
@@ -645,22 +672,21 @@ html.dark .recommendation-use, html.dark .report-submit { background: #52a890; c
 .report-card header > button:hover { background: #eef7f4; }
 .report-card header p { margin: 0; color: #78948c; font-size: .72rem; font-weight: 800; }
 .report-card header h2 { margin: .25rem 2.5rem 0 0; color: #234f44; font-size: 1.35rem; }
-.report-group, .recommendation-success { margin-top: 1.3rem; }
-.report-group > span, .report-group legend { display: block; margin-bottom: .6rem; color: #4c655e; font-size: .78rem; font-weight: 800; }
-.recommendation-success > span { display: block; margin-bottom: .6rem; color: #4c655e; font-size: .78rem; font-weight: 800; }
+.report-group, .recommendation-success { margin: 1.5rem 0 0; }
+.report-group > span, .recommendation-success > span, .condition-report legend { display: block; width: 100%; margin: 0 0 .75rem; padding: 0; color: #4c655e; font-size: .86rem; font-weight: 800; line-height: 1.5; text-align: center; }
 .report-segmented { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
 .report-segmented button { min-height: 3rem; border: 1px solid #dce8e5; border-radius: .75rem; background: #f9fbfa; color: #5d706b; font-weight: 800; cursor: pointer; }
 .report-segmented button i { margin-right: .35rem; }
 .report-segmented button.active { border-color: #52a890; background: #eaf7f2; color: #276e5b; }
-.condition-report { border: 0; padding: 0; }
-.recommendation-conditions { margin: .2rem 0 0; }
-.condition-report legend { display: block; width: 100%; margin-bottom: .75rem; color: #405f57; font-size: .86rem; font-weight: 850; text-align: center; }
+.condition-report { min-width: 0; border: 0; padding: 0; }
+.recommendation-conditions { margin: 1.5rem 0 0; }
 .condition-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; }
 .condition-option { display: flex; min-width: 0; min-height: 4rem; flex: 0 0 var(--condition-option-width, min(16rem,100%)); align-items: center; justify-content: center; gap: .55rem; border: 1px solid #dce8e5; border-radius: .8rem; background: #fafcfb; padding: .55rem; color: #3f534d; font: inherit; text-align: center; cursor: pointer; }
 .condition-option > span { overflow: hidden; font-size: .9rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
 .condition-option:hover { border-color: var(--condition-edge); background: #f4f8f7; box-shadow: 0 0 0 1px var(--condition-edge); }
 .condition-option:focus-visible { outline: 3px solid color-mix(in srgb,var(--condition-color) 42%,transparent); outline-offset: 2px; }
 .condition-option:disabled { opacity: .58; cursor: wait; }
+.condition-option[aria-pressed="true"] { outline: 3px solid #39816d; outline-offset: 2px; }
 .report-submit { margin-top: 1.2rem; }
 html.dark .report-card header h2 { color: #d9f3e9; }
 html.dark .report-segmented button, html.dark .condition-option { border-color: #334155; background: #131f31; color: #e2e8f0; }
