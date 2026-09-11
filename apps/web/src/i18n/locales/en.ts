@@ -24,6 +24,7 @@ export default {
     favorites: 'My Favorites',
     faq: 'FAQ',
     settings: 'Cosmic Settings',
+    home: "Visit Rabbit's Home (new)",
     sponsor: 'Help power the freezer',
     github: 'Open Source (GitHub)',
   },

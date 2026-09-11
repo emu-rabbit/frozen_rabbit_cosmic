@@ -105,22 +105,33 @@ const activeItemName = computed(() => {
       </RouterLink>
 
       <div class="sidebar-external-links">
+        <a
+          class="home-link"
+          :href="externalLinks.home"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="pi pi-home"></i>
+          <span>{{ t('nav.home') }}</span>
+        </a>
         <button class="sponsor-link" type="button" @click="emit('open-sponsor')">
           <i class="pi pi-heart-fill"></i>
           <span>{{ t('nav.sponsor') }}</span>
         </button>
+      </div>
+
+      <div class="sidebar-version">
         <a
-          class="github-link"
           :href="externalLinks.github"
           target="_blank"
           rel="noopener noreferrer"
+          :aria-label="`${t('nav.github')} v${version}`"
+          :title="t('nav.github')"
         >
           <i class="pi pi-github"></i>
-          <span>{{ t('nav.github') }}</span>
+          <span>v{{ version }}</span>
         </a>
       </div>
-
-      <div class="sidebar-version">v{{ version }}</div>
     </div>
   </div>
 </template>

@@ -24,6 +24,7 @@ export default {
     favorites: '我的收藏',
     faq: '常见问题',
     settings: '宇宙设置',
+    home: '前往兔肉小基地 (new)',
     sponsor: '赞助冷冻库电费',
     github: '开源代码 (GitHub)',
   },

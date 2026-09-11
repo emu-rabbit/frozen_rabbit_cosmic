@@ -24,6 +24,7 @@ export default {
     favorites: 'お気に入り',
     faq: 'よくある質問',
     settings: '宇宙設定',
+    home: 'うさぎ肉の拠点へ (new)',
     sponsor: '冷凍庫の電気代を支援',
     github: 'オープンソース (GitHub)',
   },

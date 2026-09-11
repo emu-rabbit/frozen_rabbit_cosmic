@@ -24,6 +24,7 @@ export default {
     favorites: '我的最愛',
     faq: '常見問題',
     settings: '宇宙設定',
+    home: '前往兔肉小基地 (new)',
     sponsor: '贊助冷凍庫電費',
     github: '開源原始碼 (GitHub)',
   },
