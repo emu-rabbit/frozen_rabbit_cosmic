@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { reactive, readonly } from 'vue'
+import { WEB_PLANNER_POLICY, type PlannerAdvance } from '../apps/web/src/runtime/planner/protocol'
 import { PlannerRuntime } from '../apps/web/src/runtime/planner/client'
 import type {
   PlannerWorkerRequest,
@@ -18,7 +20,7 @@ class FakeWorker {
   }
 
   postMessage(request: PlannerWorkerRequest) {
-    this.requests.push(request)
+    this.requests.push(structuredClone(request))
   }
 
   terminate() {
@@ -31,6 +33,29 @@ class FakeWorker {
 }
 
 describe('browser planner deadlines', () => {
+  it.each(['reset', 'continue', 'deviate'] as const)('sends replayed reactive budgets in %s requests', async mode => {
+    const runtime = new PlannerRuntime()
+    const initialization = runtime.initialize()
+    const worker = FakeWorker.instance
+    worker.respond({ id: worker.requests[0].id, ok: true, type: 'initialized' })
+    await initialization
+
+    const timeBudget = readonly(reactive({ remainingMilliseconds: 120000, expectedActionMilliseconds: 2500 }))
+    const advance: PlannerAdvance = mode === 'reset'
+      ? { mode, timeBudget }
+      : { mode, action: 'observe', timeBudget }
+    const result = runtime.recommend(advance, 'test-episode')
+    await vi.advanceTimersByTimeAsync(0)
+    const request = worker.requests.at(-1)!
+    expect(request).toMatchObject({ type: 'recommend', advance })
+    const reply = { action: 'observe', option: null, persona: null, policyVersion: WEB_PLANNER_POLICY, contextFingerprint: 'test' }
+    worker.respond({ id: request.id, ok: true, type: 'recommendation', reply })
+    await expect(result).resolves.toEqual(reply)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(worker.terminated).toBe(false)
+    runtime.dispose()
+  })
+
   beforeEach(() => {
     vi.useFakeTimers()
     vi.stubGlobal('Worker', FakeWorker)

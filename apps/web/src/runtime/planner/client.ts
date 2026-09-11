@@ -55,7 +55,12 @@ export class PlannerRuntime {
 
   async recommend(advance: PlannerAdvance, episode: string): Promise<PlannerReply> {
     await this.initialize()
-    const response = await this.send({ type: 'recommend', advance, episode })
+    // Replayed session budgets can be Vue proxies; send plain DTOs to the Worker.
+    const plainAdvance: PlannerAdvance = {
+      ...advance,
+      ...(advance.timeBudget ? { timeBudget: { ...advance.timeBudget } } : {}),
+    }
+    const response = await this.send({ type: 'recommend', advance: plainAdvance, episode })
     if (!response.ok || response.type !== 'recommendation') {
       throw new Error(response.ok ? 'Planner worker returned an unexpected response' : response.error)
     }
