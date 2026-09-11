@@ -86,6 +86,9 @@ export default {
     integrationQuestion: "Can I integrate this website's solver into my project?",
     integrationAnswer: "See the {guide} for integration instructions. Artisan's BSD license terms remain in effect, and your implementation must also include this project's MIT license.",
     integrationGuideLink: 'GitHub guide',
+    bugQuestion: 'I found a bug!',
+    bugAnswer: 'If you encounter a bug or have questions about using the website, please let Rabbit know through {issues}!',
+    bugIssuesLink: 'GitHub Issues',
     footer: 'Have more questions? Feel free to report on GitHub or email: {email}',
   },
   algorithm: {

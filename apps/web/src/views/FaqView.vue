@@ -88,6 +88,33 @@ const { t } = useI18n()
           </div>
         </div>
       </article>
+
+      <article class="faq-card">
+        <div class="faq-card-inner">
+          <div class="faq-question-row">
+            <div class="faq-badge faq-badge--question" aria-hidden="true">Q</div>
+            <div class="faq-copy">
+              <h2>{{ t('faq.bugQuestion') }}</h2>
+              <div class="faq-answer-row">
+                <div class="faq-badge faq-badge--answer" aria-hidden="true">A</div>
+                <i18n-t keypath="faq.bugAnswer" scope="global" tag="p">
+                  <template #issues>
+                    <a
+                      :href="externalLinks.githubIssues"
+                      class="faq-inline-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {{ t('faq.bugIssuesLink') }}
+                      <i class="pi pi-external-link" aria-hidden="true"></i>
+                    </a>
+                  </template>
+                </i18n-t>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
     </section>
 
     <footer class="faq-footer">

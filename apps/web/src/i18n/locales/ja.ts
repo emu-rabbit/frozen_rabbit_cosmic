@@ -86,6 +86,9 @@ export default {
     integrationQuestion: 'このサイトのソルバーを自分のプロジェクトに組み込めますか？',
     integrationAnswer: '組み込み方法は{guide}をご覧ください。Artisan由来のBSDライセンス条項は引き続き有効であり、本プロジェクトのMITライセンスも併せて実装に含めてください。',
     integrationGuideLink: 'GitHubガイド',
+    bugQuestion: 'バグを見つけました！',
+    bugAnswer: 'サイトでバグを見つけた場合や使い方について質問がある場合は、{issues}から兔肉にお知らせください！',
+    bugIssuesLink: 'GitHub Issues',
     footer: '他に質問がありますか？GitHubでの報告、またはメールでお問い合わせください：{email}',
   },
   algorithm: {

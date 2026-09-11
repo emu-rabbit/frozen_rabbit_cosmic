@@ -86,6 +86,9 @@ export default {
     integrationQuestion: '我可以将本网站的求解器接入我的项目吗？',
     integrationAnswer: '如需接入，请参考{guide}。请注意，来自 Artisan 的 BSD 许可条款仍然有效；实现时也请一并包含本项目的 MIT 许可。',
     integrationGuideLink: 'GitHub 指引',
+    bugQuestion: '我遇到虫虫了！',
+    bugAnswer: '如果在网站中遇到 Bug 或使用上的疑问，欢迎前往{issues}告诉兔肉哟！',
+    bugIssuesLink: 'GitHub Issues',
     footer: '还有其他疑问吗？欢迎通过 GitHub 反馈或来信联系：{email}',
   },
   algorithm: {

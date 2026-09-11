@@ -86,6 +86,9 @@ export default {
     integrationQuestion: '我可以串接本網站的求解器至我的專案中嗎？',
     integrationAnswer: '想要串接請參考{guide}。注意，來自 Artisan 的 BSD 授權條款仍然生效；實作時也請一併包含本專案的 MIT 授權。',
     integrationGuideLink: 'GitHub 指引',
+    bugQuestion: '我遇到蟲蟲了！',
+    bugAnswer: '倘若在網站中遇到 Bug 或是使用上的疑問，歡迎前往{issues}告訴兔肉唷！',
+    bugIssuesLink: 'GitHub Issues',
     footer: '還有其他疑問嗎？歡迎透過 GitHub 回報或來信聯繫：{email}',
   },
   algorithm: {
