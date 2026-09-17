@@ -142,7 +142,7 @@ export function startCraftSession(selection: CraftSessionSelection, preserveMiss
     food: selection.equipmentProfile.food ? { ...selection.equipmentProfile.food } : null,
     medicine: selection.equipmentProfile.medicine ? { ...selection.equipmentProfile.medicine } : null,
   }
-  activeSession.value = {
+  const nextSession: ActiveCraftSession = {
     ...selection,
     equipmentProfile,
     crafter,
@@ -150,7 +150,10 @@ export function startCraftSession(selection: CraftSessionSelection, preserveMiss
     initialState: createInitialCraftState(scenario.recipe, crafter),
     startedAt: Date.now(),
   }
+  // Synchronous state watchers must never replay the previous craft with the
+  // new recipe/equipment. Prepare the new session before clearing its history.
   events.value = startEvents()
+  activeSession.value = nextSession
   recommendation.value = null
   recommendationError.value = null
   inputLocked.value = false

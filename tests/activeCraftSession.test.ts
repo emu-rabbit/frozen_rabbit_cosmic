@@ -1,4 +1,4 @@
-import { nextTick, shallowRef } from 'vue'
+import { nextTick, shallowRef, watch } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import {
   ACTION_IDS,
@@ -80,6 +80,38 @@ const crafter: CrafterProfile = {
 }
 
 describe('active craft session input lock', () => {
+  it.each([
+    { recipeId: 36200, maxCp: 749 },
+    { recipeId: 36200, maxCp: 18 },
+    { recipeId: 37006, maxCp: 18 },
+  ])('resets a completed craft to $recipeId / $maxCp CP with synchronous state observers', async ({ recipeId, maxCp }) => {
+    recommend.mockReset().mockResolvedValue(reply('observe'))
+    const completedItem = { ...item, recipeId: 36200 }
+    const selection = { mission: { ...mission, items: [completedItem] }, item: completedItem, equipmentProfile, crafter }
+    startCraftSession(selection)
+    const craft = useActiveCraftSession()
+    await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+    for (const action of ['muscleMemory', 'veneration', 'rapidSynthesis', 'rapidSynthesis', 'rapidSynthesis'] as const) {
+      await craft.resolveAction(action, true, 'normal')
+    }
+    expect(craft.state.value?.terminal).toBe('completed')
+    // CraftSolverView has a synchronous watcher reading this computed state.
+    const stop = watch(craft.state, () => {}, { flush: 'sync' })
+    try {
+      expect(() => startCraftSession({
+        ...selection,
+        mission: { ...mission, items: [{ ...item, recipeId }] },
+        item: { ...item, recipeId },
+        equipmentProfile: { ...equipmentProfile, maxCp },
+        crafter: { ...crafter, maxCp },
+      })).not.toThrow()
+      expect(craft.state.value).toMatchObject({ terminal: 'none', step: 1, progress: 0, quality: 0, cp: maxCp })
+      expect(craft.actionCount.value).toBe(0)
+      expect(craft.missionClock.value?.completedRecipeIds).toEqual([])
+      await vi.waitFor(() => expect(craft.recommendationLoading.value).toBe(false))
+    } finally { stop() }
+  })
+
   it('starts timing at the first reported color, preserves it across item changes and undo, and exports request budgets', async () => {
     let now = 100_000
     const dateNow = vi.spyOn(Date, 'now').mockImplementation(() => now)
