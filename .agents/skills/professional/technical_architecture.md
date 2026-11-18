@@ -112,6 +112,6 @@ Web 已移除 frozen solver runtime dependency。目前主策略在 timeout／Wo
 - Vite／Vue Web build、Rust release build、WASM release build、native↔WASM session parity 與 evaluator 是不同驗證層。
 - GitHub Pages 或其他 hosting 只部署使用者明確採用的 Web core。
 - [Staging workflow](../../../.github/workflows/deploy-staging.yml) 由 `staging` push 觸發。Pages artifact 的首頁以最近成功部署的 `main` commit 重建，測試版建在 `/staging/`，使用獨立任務快取及停用 GA。
-- `github-pages-staging` 只允許 `staging` 分支。現行正式 workflow 發布的是正式 artifact，會替換 Pages 內容。正式發布後若仍需保留 staging，可重跑 staging workflow。
+- `github-pages-staging` 只允許 `staging` 分支。正式 workflow 會替換 Pages 內容，發布後以 staging workflow 恢復預覽。若兩分支使用相同 commit，Pages 可能回報重跑成功但仍沿用正式 artifact。此時以新的 staging commit 觸發部署，並以 `/staging/` 的實際回應驗證。
 - 本機 commit、build 或 Rust evaluation 不代表公開網站已更新。
 - `README.md` 為使用者保護的 GitHub 門面，不作技術 owner。
