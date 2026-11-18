@@ -1,0 +1,95 @@
+name: Deploy Cosmic staging
+
+on:
+  push:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-and-deploy-refs/heads/main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run release tests
+        run: npm test
+
+      - name: Build staging
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /staging/
+          VITE_GA_MEASUREMENT_ID: ''
+
+      - name: Resolve last successful production build
+        id: production
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha=$(gh run list --repo "$GITHUB_REPOSITORY" --branch main --workflow deploy-pages.yml --status success --limit 1 --json headSha --jq '.[0].headSha')
+          [[ "$sha" =~ ^[a-f0-9]{40}$ ]]
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the deployed production revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.production.outputs.sha }}
+          path: .tmp/production
+
+      - name: Build production root
+        working-directory: .tmp/production
+        run: |
+          npm ci
+          npm run build
+        env:
+          VITE_BASE_PATH: /
+
+      - name: Combine production and staging
+        run: |
+          set -euo pipefail
+          production=.tmp/production/apps/web/dist
+          curl --fail --silent --show-error https://cosmic.frozenrabbit.com/mission-data/manifest.json -o .tmp/live-manifest.json
+          cmp .tmp/live-manifest.json "$production/mission-data/manifest.json"
+          mkdir -p "$production/staging"
+          cp -a apps/web/dist/. "$production/staging/"
+          sed -i 's/content="index, follow"/content="noindex, nofollow"/' "$production/staging/index.html"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .tmp/production/apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages-staging
+      url: https://cosmic.frozenrabbit.com/staging/
+    steps:
+      - uses: actions/deploy-pages@v4
