@@ -102,7 +102,7 @@ const onDocumentKeyDown = (event: KeyboardEvent) => {
 onMounted(() => {
   document.addEventListener('pointerdown', onDocumentPointerDown)
   document.addEventListener('keydown', onDocumentKeyDown)
-  void missionData.load()
+  void missionData.load().catch(() => undefined)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocumentPointerDown)

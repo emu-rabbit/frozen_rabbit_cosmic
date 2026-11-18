@@ -2,11 +2,12 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
-import { createPackages, verifyPackages, writePackages } from './package.mjs'
+import { createPackages, requireUpdateSummary, verifyPackages, writePackages } from './package.mjs'
 import { downloadSnapshot, readSnapshot } from './source.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const CATALOG_PATH = path.join(ROOT, 'packages/data/src/generated/cosmicExpertRecipes.generated.ts')
+const UPDATE_SUMMARIES_PATH = path.join(ROOT, 'data/mission-data-updates.json')
 
 function parseCatalog(text) {
   const sourceMatch = text.match(/COSMIC_EXPERT_GENERATED_SOURCE = (\{[\s\S]*?\}) as const/)
@@ -42,8 +43,12 @@ export async function main(args = process.argv.slice(2)) {
     return
   }
   const output = values.output ? path.resolve(values.output) : path.join(ROOT, 'apps/web/public/mission-data')
+  const summaries = JSON.parse(await readFile(UPDATE_SUMMARIES_PATH, 'utf8'))
   if (values.verify) {
     const manifest = await verifyPackages(output)
+    if (JSON.stringify(manifest.updateSummary) !== JSON.stringify(requireUpdateSummary(manifest, summaries))) {
+      throw new Error('manifest update summary differs from data/mission-data-updates.json; rebuild packages')
+    }
     summary(manifest)
     console.log('Package verification passed.')
     return
@@ -57,7 +62,7 @@ export async function main(args = process.argv.slice(2)) {
         missionRevision: catalog.source.wksMissionUnitRevision,
         token: process.env.GITHUB_TOKEN,
       })
-  const packages = createPackages(snapshot, catalog)
+  const packages = createPackages(snapshot, catalog, summaries)
   await writePackages(output, packages)
   summary(packages.manifest)
   console.log(`Written and verified: ${output}`)

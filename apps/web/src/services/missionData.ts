@@ -1,5 +1,6 @@
 import { readonly, ref, shallowRef } from 'vue'
 import { ACTION_IDS } from '@frozen-rabbit-expert/domain'
+import { isMissionDataUpdateSummary, serializeMissionDataManifestIdentity } from '@frozen-rabbit-expert/data'
 import { clearMissionDataCache, readMissionDataCache, saveMissionDataCache } from './missionDataCache'
 import {
   MISSION_DATA_FORMAT,
@@ -19,6 +20,7 @@ const actionIcons = shallowRef<MissionBundle['actionIcons'] | null>(null)
 const loading = ref(false)
 const error = ref(false)
 const cacheAvailable = ref(true)
+const pendingUpdate = shallowRef<MissionDataManifest | null>(null)
 let initialized: Promise<void> | undefined
 
 async function hash(bytes: ArrayBuffer): Promise<string> {
@@ -53,8 +55,11 @@ async function validateManifest(value: MissionDataManifest): Promise<MissionData
     || descriptor.encoding !== 'gzip' || !Number.isSafeInteger(descriptor.bytes) || descriptor.bytes <= 0
     || !Number.isSafeInteger(descriptor.jsonBytes) || descriptor.jsonBytes <= 0 || descriptor.jsonBytes > 4 * 1024 * 1024
     || !Number.isSafeInteger(descriptor.records) || descriptor.records <= 0) throw new Error('invalid mission bundle descriptor')
-  const identity = { formatVersion: value.formatVersion, sources: value.sources, bundle: value.bundle, notice: value.notice }
-  if (await hash(new TextEncoder().encode(JSON.stringify(identity)).buffer) !== value.version) throw new Error('mission manifest checksum mismatch')
+  if (value.updateSummary !== undefined && !isMissionDataUpdateSummary(value.updateSummary)) {
+    throw new Error('invalid mission-data update summary')
+  }
+  const identity = serializeMissionDataManifestIdentity(value)
+  if (await hash(new TextEncoder().encode(identity).buffer) !== value.version) throw new Error('mission manifest checksum mismatch')
   return value
 }
 
@@ -150,6 +155,7 @@ async function initialize(): Promise<void> {
           const bytes = await download(manifest)
           await decode(manifest, bytes)
           cacheAvailable.value = await saveMissionDataCache('pending', { manifest, bytes }, active.data.manifest.version)
+          pendingUpdate.value = cacheAvailable.value ? manifest : null
         } catch (cause) { console.warn('[MissionData] Background update failed', cause) }
       })
       return
@@ -182,6 +188,8 @@ export function useMissionData() {
     loading: readonly(loading),
     error: readonly(error),
     cacheAvailable: readonly(cacheAvailable),
+    pendingUpdate: readonly(pendingUpdate),
+    dismissUpdate: () => { pendingUpdate.value = null },
     load,
     retry,
   }

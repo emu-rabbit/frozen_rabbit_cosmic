@@ -1,6 +1,7 @@
 import type { CraftActionId } from '@frozen-rabbit-expert/domain'
+import type { DataLocale, MissionDataManifest } from '@frozen-rabbit-expert/data'
 
-export type DataLocale = 'tw' | 'cn' | 'en' | 'ja'
+export type { AssetDescriptor, BundleDescriptor, DataLocale, MissionDataManifest } from '@frozen-rabbit-expert/data'
 export type LocalizedNames = Partial<Record<DataLocale, string>>
 export type CraftJob = 'carpenter' | 'blacksmith' | 'armorer' | 'goldsmith' | 'leatherworker' | 'weaver' | 'alchemist' | 'culinarian'
 export type MissionRank = 'a' | 'ex' | 'ex-plus' | 'master'
@@ -15,39 +16,6 @@ export const CRAFT_JOBS: CraftJob[] = [
 export const MISSION_RANKS: MissionRank[] = ['a', 'ex', 'ex-plus', 'master']
 export const MISSION_PLANETS: MissionPlanet[] = ['sinus-ardorum', 'phaenna', 'oizys', 'auxesia']
 export const MISSION_TYPES: MissionType[] = ['timed', 'weather']
-
-export interface AssetDescriptor {
-  file: string
-  sha256: string
-  bytes: number
-}
-
-export interface BundleDescriptor extends AssetDescriptor {
-  jsonBytes: number
-  encoding: 'gzip'
-  records: number
-}
-
-export interface MissionDataManifest {
-  generator: string
-  formatVersion: number
-  version: string
-  sources: {
-    teamcraft: { repository: string; commit: string }
-    missions: { repository: string; commit: string }
-    missionLocales: Record<Exclude<DataLocale, 'en'>, { repository: string; commit: string }>
-    jobIcons: { provider: 'xivapi'; baseUrl: string }
-    actionIcons: {
-      provider: 'xivapi'
-      repository: 'xivapi/ffxiv-datamining'
-      commit: string
-      assetBaseUrl: 'https://v2.xivapi.com/api/asset'
-    }
-    catalog: { identity: string; xivapiVersion: string }
-  }
-  bundle: BundleDescriptor
-  notice: AssetDescriptor
-}
 
 export interface MissionItem {
   recipeId: number

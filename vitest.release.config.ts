@@ -17,6 +17,7 @@ export default defineConfig({
       'tests/golden-traces/**/*.test.ts',
       'tests/activeCraftSession.test.ts',
       'tests/missionClock.test.ts',
+      'tests/missionDataUpdate.test.ts',
       'tests/plannerClient.test.ts',
       'tests/webPlannerWasm.test.ts',
     ],

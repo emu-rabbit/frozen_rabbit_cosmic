@@ -2,13 +2,23 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { gunzipSync, gzipSync } from 'node:zlib'
+import { isMissionDataUpdateSummary, serializeMissionDataManifestIdentity } from '../../packages/data/src/missionDataManifest.ts'
 import { CRAFT_ACTION_NAMES, FORMAT_VERSION, JOB_ID, projectMissionData } from './project.mjs'
 import { HASH_PATTERN, sha256 } from './source.mjs'
 
 export const GENERATOR = 'frozen-rabbit-expert-mission-data'
 const GENERATED_FILE = /^(missions|NOTICE)\.[a-f0-9]{64}\.(bin|txt)$/
 
-export function createPackages(snapshot, catalog) {
+export function requireUpdateSummary({ updateSummary: _summary, ...identity }, summaries) {
+  const dataVersion = sha256(serializeMissionDataManifestIdentity(identity))
+  const summary = summaries[dataVersion]
+  if (!isMissionDataUpdateSummary(summary)) {
+    throw new Error(`Add a valid four-language update summary for ${dataVersion} to data/mission-data-updates.json.`)
+  }
+  return summary
+}
+
+export function createPackages(snapshot, catalog, summaries) {
   const assets = new Map()
   const projected = projectMissionData({ ...catalog, sources: snapshot.sources })
   const json = Buffer.from(JSON.stringify(projected.bundle))
@@ -54,8 +64,10 @@ export function createPackages(snapshot, catalog) {
     bundle,
     notice: { file: noticeFile, sha256: noticeHash, bytes: notice.length },
   }
+  const withSummary = { ...identity, updateSummary: requireUpdateSummary(identity, summaries) }
+  const version = sha256(serializeMissionDataManifestIdentity(withSummary))
   return {
-    manifest: { generator: GENERATOR, version: sha256(Buffer.from(JSON.stringify(identity))), ...identity, diagnostics: projected.diagnostics },
+    manifest: { generator: GENERATOR, version, ...withSummary, diagnostics: projected.diagnostics },
     assets,
   }
 }
@@ -67,8 +79,10 @@ export async function verifyPackages(directory, suppliedManifest) {
   if (manifest.generator !== GENERATOR || !supportedFormat || !HASH_PATTERN.test(manifest.version)) {
     throw new Error('unrecognized mission-data manifest')
   }
-  const identity = { formatVersion: manifest.formatVersion, sources: manifest.sources, bundle: manifest.bundle, notice: manifest.notice }
-  if (sha256(Buffer.from(JSON.stringify(identity))) !== manifest.version) throw new Error('manifest checksum mismatch')
+  if (manifest.updateSummary !== undefined && !isMissionDataUpdateSummary(manifest.updateSummary)) {
+    throw new Error('invalid mission-data update summary')
+  }
+  if (sha256(serializeMissionDataManifestIdentity(manifest)) !== manifest.version) throw new Error('manifest checksum mismatch')
   for (const descriptor of [manifest.bundle, manifest.notice]) {
     if (!descriptor || !HASH_PATTERN.test(descriptor.sha256)) throw new Error('invalid asset descriptor')
     const bytes = await readFile(path.join(directory, descriptor.file))
@@ -135,7 +149,8 @@ export async function writePackages(outputDirectory, packages) {
     }
   }
   await verifyPackages(directory, packages.manifest)
-  if (current && current.version !== packages.manifest.version) {
+  if (current && current.version !== packages.manifest.version && (!previous
+    || current.bundle.file !== packages.manifest.bundle.file || current.notice.file !== packages.manifest.notice.file)) {
     previous = current
     await atomicWrite(path.join(directory, 'previous-manifest.json'), `${JSON.stringify(current, null, 2)}\n`)
   }

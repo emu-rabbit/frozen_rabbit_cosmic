@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import LanguageSelectModal from '@/components/modals/LanguageSelectModal.vue'
 import SponsorModal from '@/components/modals/SponsorModal.vue'
+import MissionDataUpdateDialog from '@/components/modals/MissionDataUpdateDialog.vue'
 import { appLogoUrl } from '@/config/brandAssets'
 import { usePreferences } from '@/composables/usePreferences'
 import { plannerRuntime } from '@/runtime/planner'
+import { useMissionData } from '@/services/missionData'
 import AnalyticsConsentBanner from '@/components/AnalyticsConsentBanner.vue'
 import { initializeAnalytics, setAnalyticsLanguage, setAnalyticsThemeMode, trackRouteChange } from '@/services/analytics'
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const { language, initialized, isDarkMode } = usePreferences()
+const { load: loadMissionData, pendingUpdate } = useMissionData()
 const isMobileMenuOpen = ref(false)
 const isSponsorModalOpen = ref(false)
 const isLanguageModalOpen = ref(!initialized.value)
@@ -50,6 +53,8 @@ const handleLanguageSelect = (nextLanguage: string) => {
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
+
+onMounted(() => void loadMissionData().catch(() => undefined))
 
 onBeforeUnmount(() => {
   plannerRuntime.dispose()
@@ -94,7 +99,8 @@ onBeforeUnmount(() => {
     </main>
 
     <SponsorModal v-model:visible="isSponsorModalOpen" />
-    <AnalyticsConsentBanner :paused="isLanguageModalOpen || isSponsorModalOpen" />
+    <AnalyticsConsentBanner :paused="isLanguageModalOpen || isSponsorModalOpen || pendingUpdate !== null" />
+    <MissionDataUpdateDialog :paused="isLanguageModalOpen || isSponsorModalOpen" />
     <LanguageSelectModal
       v-model:visible="isLanguageModalOpen"
       @preview-language="handleLanguagePreview"

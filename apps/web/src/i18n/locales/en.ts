@@ -28,6 +28,13 @@ export default {
     sponsor: 'Help power the freezer',
     github: 'Open Source (GitHub)',
   },
+  missionDataUpdate: {
+    title: 'Game Data Update Available',
+    ready: 'New game data has been downloaded and is ready to use. You can choose when to apply it.',
+    apply: 'Apply Now and Reload',
+    later: 'Apply Next Time',
+    craftWarning: 'Reloading will clear the current craft’s progress.',
+  },
   missions: {
     eyebrow: 'Cosmic Exploration', title: 'Start from a Mission', description: 'Search for a mission or item name to start solving.',
     searchLabel: 'Search missions or items', searchPlaceholder: 'Search missions or items…', loading: 'Loading mission data…',

@@ -7,10 +7,10 @@ export const TEAMCRAFT_REPOSITORY = 'ffxiv-teamcraft/ffxiv-teamcraft'
 export const TEAMCRAFT_DATA_PATH = 'libs/data/src/lib/json'
 export const DATAMINING_REPOSITORY = 'xivapi/ffxiv-datamining'
 export const DATAMINING_TC_REPOSITORY = 'thewakingsands/ffxiv-datamining-tc'
-export const DATAMINING_TC_COMMIT = 'e203c7e46dd80fd2a967e5741b30e3c9fad0c767'
+export const DATAMINING_TC_COMMIT = '8adc04cbe4eb469017025a80d9a439451805523d'
 export const DATAMINING_CN_REPOSITORY = 'thewakingsands/ffxiv-datamining-cn'
 export const DATAMINING_CN_COMMIT = '991071b8fb6c56c00417ad60d72a4b1556e2ccff'
-export const SOURCE_FILES = ['item-search.index', 'foods.json', 'medicines.json', 'LICENSE']
+export const SOURCE_FILES = ['item-search.index', 'tw/tw-items.json', 'foods.json', 'medicines.json', 'LICENSE']
 const GAME_SOURCE_FILES = [
   'WKSMissionUnit.csv',
   'WKSMissionLotterySpecialCond.csv',
@@ -36,6 +36,12 @@ function decodeTeamcraft(file, bytes) {
     ? inflateSync(bytes, { maxOutputLength: 128 * 1024 * 1024 })
     : bytes
   const value = JSON.parse(json.toString('utf8'))
+  if (file === 'tw/tw-items.json') {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length === 0) {
+      throw new Error(`${file}: expected a nonempty object keyed by item ID`)
+    }
+    return value
+  }
   if (!Array.isArray(value) || value.length === 0) throw new Error(`${file}: expected a nonempty array`)
   return value
 }
@@ -60,7 +66,7 @@ async function resolveCommit(repository, ref, token) {
 }
 
 async function verifiedFile(directory, file, descriptor) {
-  if (!descriptor || !HASH_PATTERN.test(descriptor.sha256)) return null
+  if (!descriptor || !HASH_PATTERN.test(descriptor.sha256)) throw new Error(`missing snapshot checksum: ${file}`)
   const bytes = await readFile(path.join(directory, file))
   if (bytes.length !== descriptor.bytes || sha256(bytes) !== descriptor.sha256) {
     throw new Error(`snapshot checksum mismatch: ${file}`)
@@ -112,7 +118,9 @@ export async function downloadSnapshot({
 }) {
   if (!SHA_PATTERN.test(missionRevision)) throw new Error('catalog mission revision must be a full commit SHA')
   const commit = await resolveCommit(TEAMCRAFT_REPOSITORY, ref, token)
-  const directory = path.resolve(cacheRoot, commit)
+  const missionRevisions = [missionRevision, DATAMINING_TC_COMMIT, DATAMINING_CN_COMMIT]
+  const missionRevisionHash = sha256(missionRevisions.join(':')).slice(0, 16)
+  const directory = path.resolve(cacheRoot, `${commit}-${missionRevisionHash}`)
   await mkdir(directory, { recursive: true })
   let metadata
   try { metadata = JSON.parse(await readFile(path.join(directory, 'source.json'), 'utf8')) }

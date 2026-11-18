@@ -28,6 +28,13 @@ export default {
     sponsor: '冷凍庫の電気代を支援',
     github: 'オープンソース (GitHub)',
   },
+  missionDataUpdate: {
+    title: 'ゲームデータの更新があります',
+    ready: '新しいゲームデータのダウンロードが完了し、利用できるようになりました。適用するタイミングを選べます。',
+    apply: '今すぐ適用して再読み込み',
+    later: '次回適用',
+    craftWarning: '再読み込みすると現在の製作進行状況が失われます。',
+  },
   missions: {
     eyebrow: 'コスモエクスプローラー', title: 'ミッションから始める', description: 'ミッション名またはアイテム名を検索して、計算を始めます。',
     searchLabel: 'ミッションまたはアイテムを検索', searchPlaceholder: 'ミッションまたはアイテムを検索…', loading: 'ミッションデータを読み込んでいます…',

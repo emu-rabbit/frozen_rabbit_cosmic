@@ -28,6 +28,13 @@ export default {
     sponsor: '赞助冷冻库电费',
     github: '开源代码 (GitHub)',
   },
+  missionDataUpdate: {
+    title: '检测到新游戏数据更新',
+    ready: '新游戏数据已下载完毕可供使用，你可以选择应用的时间。',
+    apply: '现在应用并刷新',
+    later: '下次应用',
+    craftWarning: '刷新会清除当前的制作进度。',
+  },
   missions: {
     eyebrow: '宇宙探索任务', title: '从任务开始', description: '搜索任务或物品名称，开始求解',
     searchLabel: '搜索任务或物品', searchPlaceholder: '搜索任务或物品…', loading: '正在加载任务数据…',

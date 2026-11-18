@@ -91,6 +91,9 @@ Web 已移除 frozen solver runtime dependency。目前主策略在 timeout／Wo
 
 - Local storage 只保存裝備、語言、明暗模式與首訪語言設定完成狀態。
 - 任務 catalog 另可使用 IndexedDB 資料快取；它不是玩家 craft session 的持久化。
+- 開頁時先使用可用快取並檢查資料版本，新版驗證並寫入待套用快取後才顯示確認。使用者可立即重新整理，或關閉提示並在下次開頁套用；新版資料在重新整理前不替換當前畫面的資料。
+- 確認視窗以目前語言顯示待套用版 manifest 的更新摘要，摘要納入版本校驗。舊 manifest 若無摘要，確認視窗只顯示通用提示。
+- 產包工具以未加入摘要的 manifest 版本雜湊查找 [四語更新摘要](../../../data/mission-data-updates.json)。新增資料版本時，依產包指令回報的雜湊補上玩家可見的變更，再重跑產包和 `npm run data:verify:missions`。
 - 進行中的配方、events、state 與 UI state 只存在記憶體；reload 後重新設定。
 - Debug export 由玩家主動下載，包含重播所需 identity，不等同自動持久化。
 - Storage failure 不影響 mechanics truth；UI 明示後仍可使用當次記憶體 session。

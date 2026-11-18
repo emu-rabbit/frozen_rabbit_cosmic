@@ -1,6 +1,6 @@
 # 目前狀態
 
-`last_verified: 2026-09-11`（本次核對 Web package 版本與側欄版本來源；其餘沿用既有驗證。）
+`last_verified: 2026-11-18`（本次核對台服 7.3 任務資料包與來源；其餘沿用既有驗證。）
 
 目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 
@@ -22,6 +22,7 @@
 | 紀錄下載 | 終局可下載 debug session；export 以目前 Web policy 覆蓋 protocol 的歷史預設 identity。 | `CraftSolverView.vue`、`useActiveCraftSession.ts`、`packages/protocol/src/events.ts` |
 | 儲存 | 裝備與偏好持久化；任務資料使用 IndexedDB 快取；進行中的 craft 只在記憶體，reload 不恢復。 | `apps/web/src/composables/`、`apps/web/src/services/missionData.ts`、`missionDataCache.ts` |
 | 資料 | Catalog／family／objective binding 由資料套件生成與維護；既有評測範圍為 432 配方／50 families。 | `packages/data/src/cosmicExpertCatalog.ts`、`tools/import-cosmic-expert-recipes/` |
+| 任務資料包 | 台服 7.3 資料補齊法恩娜任務與產物的繁中名稱。來源 revision 和資料版本見 manifest。 | [任務資料 manifest](../apps/web/public/mission-data/manifest.json)、`tools/generate-cosmic-mission-data/` |
 | 任務限時 | Mission bundle format 4 保存總限時；正值為秒數，0 為不限時，缺值不接受；與任務出現時段分開。 | `tools/generate-cosmic-mission-data/`、`apps/web/src/types/missionData.ts` |
 | 任務時間估計 | 第一顆實際回報球色起算；每品項一件，扣除 30 秒預留後平均分配未完成品項。每招估計 5.3 秒；undo、重做與同任務換品項不重設倒數。 | `apps/web/src/services/missionClock.ts`、`useActiveCraftSession.ts` |
 

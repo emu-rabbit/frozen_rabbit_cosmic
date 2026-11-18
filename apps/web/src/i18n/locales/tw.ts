@@ -28,6 +28,13 @@ export default {
     sponsor: '贊助冷凍庫電費',
     github: '開源原始碼 (GitHub)',
   },
+  missionDataUpdate: {
+    title: '檢測到新遊戲資料更新',
+    ready: '新遊戲資料已下載完畢可供使用，你可以選擇套用的時間點。',
+    apply: '現在套用並重新整理',
+    later: '下次套用',
+    craftWarning: '重新整理會清除目前的製作進度。',
+  },
   missions: {
     eyebrow: '宇宙探索任務', title: '從任務開始', description: '搜尋任務或物品名稱，開始求解',
     searchLabel: '搜尋任務或物品', searchPlaceholder: '搜尋任務或物品…', loading: '正在載入任務資料…',

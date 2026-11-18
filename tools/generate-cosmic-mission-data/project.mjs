@@ -282,11 +282,14 @@ function planetForRecipe(recipeId) {
   return match.id
 }
 
-function names(entry, fallback) {
+function names(entry, fallback, twName) {
   const result = {}
   for (const locale of ['tw', 'zh', 'en', 'ja']) {
-    if (typeof entry?.[locale] === 'string' && entry[locale].trim()) {
-      result[locale === 'zh' ? 'cn' : locale] = entry[locale].trim()
+    const localized = locale === 'tw' && typeof twName === 'string' && twName.trim()
+      ? twName
+      : entry?.[locale]
+    if (typeof localized === 'string' && localized.trim()) {
+      result[locale === 'zh' ? 'cn' : locale] = localized.trim()
     }
   }
   if (!result.en) result.en = fallback
@@ -306,7 +309,7 @@ const CRAFT_BONUSES = {
   CP: 'maxCp',
 }
 
-function projectConsumables(rows, kind, searchByItem) {
+function projectConsumables(rows, kind, searchByItem, twItemNames) {
   if (!Array.isArray(rows) || rows.length === 0) throw new Error(`${kind}: expected a nonempty source array`)
   return rows.flatMap((row) => {
     if (!Number.isSafeInteger(row.ID) || row.ID <= 0 || !Number.isSafeInteger(row.LevelItem) || row.LevelItem < 0
@@ -334,7 +337,7 @@ function projectConsumables(rows, kind, searchByItem) {
     return [{
       itemId: row.ID,
       itemLevel: row.LevelItem,
-      names: names(upstream, String(upstream.en ?? row.ID)),
+      names: names(upstream, String(upstream.en ?? row.ID), twItemNames[row.ID]?.tw),
       icon: iconUrl(upstream, Number(upstream.iconId)),
       bonuses,
     }]
@@ -343,6 +346,7 @@ function projectConsumables(rows, kind, searchByItem) {
 
 export function projectMissionData({ recipes, source, sources }) {
   if (!Array.isArray(recipes) || recipes.length !== source.recipeCount) throw new Error('invalid canonical catalog')
+  const twItemNames = sources['tw/tw-items.json']
   const searchByItem = new Map()
   for (const entry of sources['item-search.index']) {
     const id = Number(entry.data?.itemId ?? entry.id)
@@ -388,7 +392,7 @@ export function projectMissionData({ recipes, source, sources }) {
       group.items.push({
         recipeId: recipe.recipeId,
         itemId: recipe.itemId,
-        names: names(upstream, recipe.nameEn),
+        names: names(upstream, recipe.nameEn, twItemNames[recipe.itemId]?.tw),
         icon: iconUrl(upstream, recipe.itemIconId),
       })
       groups.set(missionId, group)
@@ -413,8 +417,8 @@ export function projectMissionData({ recipes, source, sources }) {
     sequentialMissionLinks += 1
   }
   const catalogItemIds = new Set(recipes.map(recipe => recipe.itemId))
-  const food = projectConsumables(sources['foods.json'], 'food', searchByItem)
-  const medicine = projectConsumables(sources['medicines.json'], 'medicine', searchByItem)
+  const food = projectConsumables(sources['foods.json'], 'food', searchByItem, twItemNames)
+  const medicine = projectConsumables(sources['medicines.json'], 'medicine', searchByItem, twItemNames)
   const actionIcons = projectCraftActionIcons(sources.actionCsv, sources.craftActionCsv)
   return {
     bundle: {
