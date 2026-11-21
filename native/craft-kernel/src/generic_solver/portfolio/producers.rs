@@ -462,7 +462,11 @@ pub(super) fn collect(input: Input<'_>, work: &mut PortfolioWork) -> Vec<Candida
             CandidateSource::Progress,
         );
     }
-    if input.state.condition == MaterialCondition::Good && !input.condition_work_scheduler {
+    if matches!(
+        input.state.condition,
+        MaterialCondition::Good | MaterialCondition::Excellent
+    ) && !input.condition_work_scheduler
+    {
         for action in [
             CraftActionId::PreciseTouch,
             CraftActionId::IntensiveSynthesis,
@@ -834,7 +838,7 @@ fn condition_opportunities(
         ],
         // Good's IQ-building, CP and progress choices are already independent
         // proposals above; expose the quality cashout alongside them.
-        MaterialCondition::Good => &[
+        MaterialCondition::Good | MaterialCondition::Excellent => &[
             CraftActionId::ByregotsBlessing,
             CraftActionId::PreparatoryTouch,
         ],
@@ -863,7 +867,7 @@ fn condition_opportunities(
         ],
         // Normal uses ordinary quality/progress/resource and funded-route
         // proposals. It receives no fabricated condition bonus.
-        MaterialCondition::Normal => return,
+        MaterialCondition::Normal | MaterialCondition::Poor => return,
     };
     work.producer_calls += 1;
     for &action in actions {
@@ -999,6 +1003,7 @@ mod tests {
     #[test]
     fn setup_consumer_uses_the_funded_effect() {
         let recipe = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 1,
             recipe_level: 746,
             progress_required: 10_000,
@@ -1177,6 +1182,7 @@ mod tests {
     #[test]
     fn condition_work_scheduler_exposes_each_mechanical_job_instead_of_a_fixed_list() {
         let recipe = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 0,
             recipe_level: 746,
             progress_required: 12_000,

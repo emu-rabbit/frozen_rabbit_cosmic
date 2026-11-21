@@ -1,7 +1,7 @@
 import type { PlannerTimeBudget } from '@frozen-rabbit-expert/protocol'
 export type { PlannerTimeBudget } from '@frozen-rabbit-expert/protocol'
 
-export const WEB_PLANNER_ABI = 'rust-web-planner-abi-v2'
+export const WEB_PLANNER_ABI = 'rust-web-planner-abi-v3'
 export const WEB_PLANNER_POLICY = 'generic-craft-external-reference-v2.4.0'
 export const WEB_PLANNER_MAX_INPUT_BYTES = 64 * 1024
 

@@ -55,6 +55,7 @@ fn state_cells(state: &CraftState) -> Vec<String> {
 
 fn fixture_with_state(max_cp: i32, mutate_state: impl FnOnce(&mut CraftState)) -> String {
     let recipe = RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 1,
         recipe_level: 690,
         progress_required: 100,

@@ -23,7 +23,9 @@ export function drawSimulatedActionOutcome(
   const successDraw = isNoStep ? 0 : random.nextSuccess()
   const nextCondition = isNoStep && !rerollsCondition
     ? state.condition
-    : sampleCondition(conditionProfile, random, state.condition)
+    : preview.normalConditionRules && state.condition === 'good'
+      ? 'normal'
+      : sampleCondition(conditionProfile, random, state.condition)
   return {
     success: successDraw < preview.successRate,
     nextCondition,

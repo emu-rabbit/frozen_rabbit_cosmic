@@ -203,6 +203,7 @@ fn parse_finite(cells: &mut Cells<'_>, name: &str) -> Result<f64, String> {
 
 fn parse_recipe(cells: &mut Cells<'_>) -> Result<RecipeProfile, String> {
     Ok(RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: cells.parse("canonicalRecipeId")?,
         recipe_level: cells.parse("recipeLevel")?,
         progress_required: cells.parse("progressRequired")?,
@@ -418,9 +419,19 @@ fn parse_actions(value: &str) -> Result<Vec<CraftActionId>, String> {
 
 fn parse_transition_weights(cells: &mut Cells<'_>) -> Result<ConditionTransitionWeights, String> {
     let mut weights = [[0.0; MATERIAL_CONDITION_COUNT]; MATERIAL_CONDITION_COUNT];
-    for previous in MaterialCondition::ALL {
+    // Historical v2/v7 rows carry the original 9×9 matrix. New rows use 11×11.
+    let count = if cells.values.len() - cells.index == 82 {
+        9
+    } else {
+        MATERIAL_CONDITION_COUNT
+    };
+    for row in &mut weights {
+        row[0] = 1.0;
+    }
+    for previous in &MaterialCondition::ALL[..count] {
+        weights[previous.index()] = [0.0; MATERIAL_CONDITION_COUNT];
         let mut total = 0.0;
-        for next in MaterialCondition::ALL {
+        for next in &MaterialCondition::ALL[..count] {
             let name = format!(
                 "conditionTransitionWeight.{}.{}",
                 previous.as_str(),

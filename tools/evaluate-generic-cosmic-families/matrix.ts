@@ -45,7 +45,7 @@ import {
 export const GENERIC_FAMILY_MATRIX_SCHEMA_VERSION = 'generic-cosmic-family-development-matrix-v4'
 export const GENERIC_FAMILY_PAIRED_COMPARISON_CONTRACT_VERSION
   = 'generic-cosmic-family-paired-comparison-v3'
-export const MAX_MATRIX_EPISODES = 10_000
+export const MAX_MATRIX_EPISODES = 20_000
 export const MAX_MATRIX_STEPS = 100
 export const MAX_MATRIX_SEEDS_PER_CELL = 512
 
@@ -103,7 +103,7 @@ const PRESET_DEFAULTS = Object.freeze({
   small: Object.freeze({
     worldIds: Object.freeze(['balanced-iid', 'normal-heavy-iid'] as const),
     seedCount: 1,
-    maxEpisodes: 1_000,
+    maxEpisodes: 2_000,
   }),
   full: Object.freeze({
     worldIds: Object.freeze([
@@ -113,7 +113,7 @@ const PRESET_DEFAULTS = Object.freeze({
       'all-normal',
     ] as const),
     seedCount: 4,
-    maxEpisodes: 10_000,
+    maxEpisodes: 20_000,
   }),
 })
 

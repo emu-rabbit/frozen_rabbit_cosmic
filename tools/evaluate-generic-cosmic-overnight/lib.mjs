@@ -931,7 +931,7 @@ export function validateEvaluatorReport(reportValue, expected, { baseline = fals
 export function validateNativeEvaluatorReport(reportValue, expected) {
   const report = objectRecord(reportValue, 'native evaluator report')
   const identity = objectRecord(expected.executionIdentity, 'native execution identity')
-  const hasSamples = identity.binaryHandshake?.[0] === 'native-generic-episode-batch-v7'
+  const hasSamples = ['native-generic-episode-batch-v7', 'native-generic-episode-batch-v8'].includes(identity.binaryHandshake?.[0])
   const historical = identity.baselineMode === 'historical-candidate'
   const threeArm = typeof identity.referenceSolver === 'string'
   const schema = threeArm ? 'native-generic-cosmic-three-arm-matrix-v1'

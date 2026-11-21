@@ -1,4 +1,4 @@
-export const FORMAT_VERSION = 4
+export const FORMAT_VERSION = 5
 const XIVAPI_JOB_ICON_BASE = 'https://xivapi.com/cj/1/'
 
 export const JOB_ID = {
@@ -45,10 +45,10 @@ export const CRAFT_ACTION_NAMES = {
 }
 
 const PLANET_RANGES = [
-  { id: 'sinus-ardorum', firstRecipeId: 36194, lastRecipeId: 36668 },
-  { id: 'phaenna', firstRecipeId: 36979, lastRecipeId: 37405 },
-  { id: 'oizys', firstRecipeId: 37519, lastRecipeId: 37783 },
-  { id: 'auxesia', firstRecipeId: 37981, lastRecipeId: 38221 },
+  { id: 'sinus-ardorum', firstRecipeId: 36165, lastRecipeId: 36684 },
+  { id: 'phaenna', firstRecipeId: 36685, lastRecipeId: 37405 },
+  { id: 'oizys', firstRecipeId: 37406, lastRecipeId: 37783 },
+  { id: 'auxesia', firstRecipeId: 37784, lastRecipeId: 38237 },
 ]
 
 function parseCsvLine(line, lineNumber, sourceName = 'CSV') {
@@ -187,7 +187,7 @@ export function parseMissionRows(csv, specialConditionCsv) {
   const specialConditions = parseSpecialConditions(specialConditionCsv)
   const lines = csv.replace(/^\uFEFF/, '').split(/\r?\n/).filter(Boolean)
   const header = parseCsvLine(lines.shift(), 1)
-  const required = ['#', 'Name', 'LockedBehind', 'WKSMissionRecipe', 'WKSMissionLotterySpecialCond', 'MissionTime']
+  const required = ['#', 'Name', 'LockedBehind', 'WKSMissionRecipe', 'WKSMissionLotterySpecialCond', 'MissionTime', 'LevelGroup']
   for (const name of required) if (!header.includes(name)) throw new Error(`WKSMissionUnit.csv: missing ${name}`)
   const byRecipeId = new Map()
   const byUnitId = new Map()
@@ -204,6 +204,10 @@ export function parseMissionRows(csv, specialConditionCsv) {
     }
     if (!Number.isSafeInteger(missionId) || missionId < 0) throw new Error('invalid mission recipe identity')
     if (missionId === 0) return
+    const levelGroup = Number(get('LevelGroup'))
+    if (!Number.isInteger(levelGroup) || levelGroup < 1 || levelGroup > 6) {
+      throw new Error(`mission ${missionId}: invalid LevelGroup`)
+    }
     const timeLimitSeconds = Number(get('MissionTime'))
     if (get('MissionTime').trim() === '' || !Number.isSafeInteger(timeLimitSeconds) || timeLimitSeconds < 0) {
       throw new Error(`mission ${missionId}: invalid MissionTime`)
@@ -218,6 +222,7 @@ export function parseMissionRows(csv, specialConditionCsv) {
       missionId,
       lockedBehindUnitId,
       timeLimitSeconds,
+      levelGroup,
       nameEn: get('Name').replace(/[\uE000-\uF8FF]/g, '').trim(),
       timed: specialCondition.startTimeHour !== 0 || specialCondition.endTimeHour !== 0,
       weather: specialCondition.weatherRequired !== 0,
@@ -363,6 +368,7 @@ export function projectMissionData({ recipes, source, sources }) {
       const missionId = recipe.missionIds[index]
       const missionRow = missionRows.byRecipeId.get(missionId)
       if (!missionRow) throw new Error(`mission ${missionId}: missing WKSMissionUnit row`)
+      if (missionRow.levelGroup < 4) throw new Error(`mission ${missionId}: outside Class A catalog`)
       const expectedName = recipe.missionNamesEn[index]
       if (missionRow.nameEn !== expectedName) throw new Error(`mission ${missionId}: canonical name mismatch`)
       const planet = planetForRecipe(recipe.recipeId)
@@ -373,6 +379,7 @@ export function projectMissionData({ recipes, source, sources }) {
           const name = values.get(missionId)
           return name ? [[locale, name]] : []
         })),
+        isExpert: recipe.isExpert,
         job: recipe.job,
         jobId: JOB_ID[recipe.job],
         jobIcon: `${XIVAPI_JOB_ICON_BASE}${recipe.job}.png`,
@@ -389,6 +396,7 @@ export function projectMissionData({ recipes, source, sources }) {
       }
       const upstream = searchByItem.get(recipe.itemId)
       if (upstream) teamcraftItemIds.add(recipe.itemId)
+      group.isExpert = group.isExpert && recipe.isExpert
       group.items.push({
         recipeId: recipe.recipeId,
         itemId: recipe.itemId,

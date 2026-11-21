@@ -77,6 +77,7 @@ fn retained_opening_recovery_replays_the_frozen_full_quality_gain() {
 
 fn recipe(required_quality: i32) -> RecipeProfile {
     RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 36_990,
         recipe_level: 746,
         progress_required: 10_000,

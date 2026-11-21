@@ -43,6 +43,7 @@ const item: MissionItem = {
   icon: '/test.png',
 }
 const mission: CosmicMission = {
+  isExpert: true,
   id: 1,
   timeLimitSeconds: 600,
   names: { tw: '測試任務' },
@@ -212,6 +213,11 @@ describe('craft action condition reporting', () => {
 
     expect(actionNeedsObservedCondition('observe', 'goodOmen')).toBe(false)
     expect(actionNeedsObservedCondition('observe', 'robust')).toBe(false)
+    expect(actionNeedsObservedCondition('observe', 'excellent', true)).toBe(false)
+    expect(actionNeedsObservedCondition('carefulObservation', 'excellent', true)).toBe(false)
+    expect(actionNeedsObservedCondition('observe', 'poor', true)).toBe(false)
+    expect(actionNeedsObservedCondition('observe', 'good', true)).toBe(false)
+    expect(actionNeedsObservedCondition('observe', 'good', false)).toBe(true)
   })
 
   it('restores condition reporting when the solver recommends the same action again', async () => {
@@ -235,7 +241,7 @@ describe('active craft session export', () => {
     const exported = useActiveCraftSession().exportSession()
 
     expect(exported?.manifest).toMatchObject({
-      schema: 'expert-session-v0.12.0',
+      schema: 'expert-session-v0.13.0',
       scenarioId: 'cosmic-expert-37006',
       modelVersions: {
         plannerPolicy: WEB_PLANNER_POLICY,

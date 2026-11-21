@@ -40,12 +40,7 @@ fn verifies(
                 }
                 continue;
             }
-            let forced = (preview.action.no_step && !preview.action.rerolls_condition)
-                || (!preview.action.no_step
-                    && matches!(
-                        state.condition,
-                        MaterialCondition::GoodOmen | MaterialCondition::Robust
-                    ));
+            let forced = preview.forced_next_condition(state.condition).is_some();
             if forced {
                 next.insert(after);
             } else {

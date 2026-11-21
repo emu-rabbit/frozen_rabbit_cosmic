@@ -188,6 +188,7 @@ fn parse_finite(cells: &mut Cells<'_>, name: &str) -> Result<f64, String> {
 
 fn parse_common(cells: &mut Cells<'_>, case_id: String) -> Result<BatchCase, String> {
     let recipe = RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: cells.parse("canonicalRecipeId")?,
         recipe_level: cells.parse("recipeLevel")?,
         progress_required: cells.parse("progressRequired")?,
@@ -287,7 +288,12 @@ pub fn parse_batch_request(line: &str) -> Result<BatchRequest, BatchParseError> 
                     success_draws: cells.parse("successDrawOffset")?,
                 };
                 let mut condition_weights = [0.0; MATERIAL_CONDITION_COUNT];
-                for condition in MaterialCondition::ALL {
+                let count = if cells.values.len() - cells.index == 9 {
+                    9
+                } else {
+                    MATERIAL_CONDITION_COUNT
+                };
+                for condition in &MaterialCondition::ALL[..count] {
                     let weight = parse_finite(
                         &mut cells,
                         &format!("conditionWeight.{}", condition.as_str()),

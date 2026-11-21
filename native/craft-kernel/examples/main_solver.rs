@@ -5,6 +5,7 @@ use frozen_rabbit_craft_kernel::main_solver::{
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let recipe = RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 1,
         recipe_level: 100,
         progress_required: 6_600,

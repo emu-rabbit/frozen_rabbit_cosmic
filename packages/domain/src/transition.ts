@@ -24,7 +24,7 @@ function heartAndSoulBypassesCondition(
 ): boolean {
   return crafter.specialist === true
     && state.heartAndSoulActive
-    && state.condition !== 'good'
+    && state.condition !== 'good' && state.condition !== 'excellent'
     && HEART_AND_SOUL_ACTIONS.has(action)
 }
 
@@ -95,7 +95,7 @@ function qualityGain(recipe: RecipeProfile, crafter: CrafterProfile, state: Craf
   const efficiency = Math.fround(potency * buffMultiplier * innerQuietMultiplier)
   const conditionMultiplier = state.condition === 'good'
     ? (crafter.cosmicToolGoodBonus ? 1.75 : 1.5)
-    : 1
+    : state.condition === 'excellent' ? 4 : state.condition === 'poor' ? 0.5 : 1
   const calculatedGain = Math.floor((baseQuality * conditionMultiplier * efficiency) / 100)
   return applyEmpiricalQualityCorrection({
     recipe,
@@ -139,6 +139,7 @@ export function previewAction(
 
   return {
     action,
+    normalConditionRules: recipe.isExpert === false,
     legal: reason === undefined,
     ...(reason === undefined ? {} : { reason }),
     cpCost,
@@ -293,7 +294,11 @@ export function applyObservedOutcome(
       quality,
       durability,
       cp,
-      condition: !isNoStep && (state.condition === 'goodOmen' || state.condition === 'robust')
+      condition: (!isNoStep || action.rerollsCondition === true) && state.condition === 'excellent'
+        ? 'poor'
+        : (!isNoStep || action.rerollsCondition === true) && (state.condition === 'poor' || recipe.isExpert === false && state.condition === 'good')
+        ? 'normal'
+        : !isNoStep && (state.condition === 'goodOmen' || state.condition === 'robust')
         ? state.condition === 'goodOmen'
           ? 'good'
           : 'sturdy'

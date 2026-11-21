@@ -90,12 +90,7 @@ impl Search<'_> {
         }
         // The transition owns forced colors and no-step behavior. Expanding
         // their duplicate states again would multiply work, not information.
-        let forced = (preview.action.no_step && !preview.action.rerolls_condition)
-            || (!preview.action.no_step
-                && matches!(
-                    state.condition,
-                    MaterialCondition::GoodOmen | MaterialCondition::Robust
-                ));
+        let forced = preview.forced_next_condition(state.condition).is_some();
         if forced {
             return self.find(&after, depth - 1).is_some();
         }

@@ -23,14 +23,14 @@ describe('generic Cosmic family matrix plan', () => {
     expect(options.preset).toBe('small')
     expect(options.equipmentIds).toHaveLength(10)
     expect(options.worldIds).toEqual(['balanced-iid', 'normal-heavy-iid'])
-    expect(plan.mechanicsFamilyCount).toBe(50)
-    expect(plan.evaluationScenarioCount).toBe(50)
-    expect(plan.cases).toHaveLength(50 * 10 * 2)
+    expect(plan.mechanicsFamilyCount).toBe(90)
+    expect(plan.evaluationScenarioCount).toBe(90)
+    expect(plan.cases).toHaveLength(90 * 10 * 2)
     expect(plan.arms.map((arm) => `${arm.id}:${arm.risk}`)).toEqual([
       'candidate:balanced',
     ])
-    expect(plan.budget.projectedEpisodes).toBe(1_000)
-    expect(plan.budget.projectedRecommendationCallUpperBound).toBe(80_000)
+    expect(plan.budget.projectedEpisodes).toBe(1_800)
+    expect(plan.budget.projectedRecommendationCallUpperBound).toBe(144_000)
     expect(plan.budget.projectedEpisodes).toBeLessThanOrEqual(plan.budget.configuredEpisodeCap)
     expect(new Set(plan.cases.map((evaluationCase) => evaluationCase.caseId)).size)
       .toBe(plan.cases.length)
@@ -44,14 +44,14 @@ describe('generic Cosmic family matrix plan', () => {
     expect(first.matrixId).toBe(second.matrixId)
     expect(first.cases.map((evaluationCase) => evaluationCase.pairedSeed))
       .toEqual(second.cases.map((evaluationCase) => evaluationCase.pairedSeed))
-    expect(first.cases).toHaveLength(50 * 10 * 4 * 4)
-    expect(first.budget.projectedEpisodes).toBe(8_000)
+    expect(first.cases).toHaveLength(90 * 10 * 4 * 4)
+    expect(first.budget.projectedEpisodes).toBe(14_400)
     expect(first.cases.some((evaluationCase) => evaluationCase.world.role === 'adversarial')).toBe(true)
   })
 
   it('fails before execution when projected work exceeds the configured budget', () => {
     const options = parseMatrixCliOptions(['--max-episodes=999'])
-    expect(() => buildMatrixPlan(options)).toThrow(/projects 1000 episodes/)
+    expect(() => buildMatrixPlan(options)).toThrow(/projects 1800 episodes/)
   })
 
   it('fails closed on unknown, space-separated, empty, and duplicate CLI arguments', () => {
@@ -159,7 +159,7 @@ describe('generic Cosmic family matrix plan', () => {
       '--preset=full',
       '--equipment=unbuffed,buffed,specialist',
       '--seed-count=16',
-      '--max-episodes=9600',
+      '--max-episodes=17280',
       '--base-seed=1234',
     ]))
     const focused = buildMatrixPlan(parseMatrixCliOptions([
@@ -241,7 +241,7 @@ describe('generic Cosmic family matrix plan', () => {
       )
     }
 
-    expect([...scenarioCountByFamily.values()]).toHaveLength(50)
+    expect([...scenarioCountByFamily.values()]).toHaveLength(90)
     expect([...scenarioCountByFamily.values()].every((count) => count === 1)).toBe(true)
     expect(plan.evaluationScenarios.every(
       (scenario) => scenario.recipeIds.length === scenario.family.recipeIds.length,

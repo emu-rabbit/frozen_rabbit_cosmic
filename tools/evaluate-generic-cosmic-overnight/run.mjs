@@ -139,7 +139,7 @@ function loadEvaluatorDescription(evaluatorBundle) {
 }
 
 function readNativeHandshake(binaryPath) {
-  for (const protocol of ['native-generic-episode-batch-v7', 'native-generic-episode-batch-v6']) {
+  for (const protocol of ['native-generic-episode-batch-v8', 'native-generic-episode-batch-v7', 'native-generic-episode-batch-v6']) {
     const result = spawnSync(binaryPath, [], {
       cwd: repositoryRoot,
       input: `${protocol}\t__handshake__\thandshake\n`,
@@ -161,7 +161,7 @@ function readNativeHandshake(binaryPath) {
     }
     return cells
   }
-  throw new Error('native handshake failed for supported protocols v7/v6')
+  throw new Error('native handshake failed for supported protocols v8/v7/v6')
 }
 
 function resolveNativeExecution(outputRoot) {

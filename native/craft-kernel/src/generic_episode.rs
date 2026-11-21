@@ -13,8 +13,8 @@ use crate::{
     recommend_portfolio_with_evaluation_budget,
 };
 
-pub const GENERIC_EPISODE_PROTOCOL_VERSION: &str = "native-generic-episode-batch-v7";
-pub const GENERIC_EPISODE_ABI_VERSION: &str = "native-generic-closed-loop-abi-v7";
+pub const GENERIC_EPISODE_PROTOCOL_VERSION: &str = "native-generic-episode-batch-v8";
+pub const GENERIC_EPISODE_ABI_VERSION: &str = "native-generic-closed-loop-abi-v8";
 pub const GENERIC_EPISODE_MAX_CASES: usize = 10_000;
 pub const GENERIC_EPISODE_MAX_PROJECTED_TRANSITIONS: u64 = 1_000_000;
 pub const GENERIC_EPISODE_MAX_OUTPUT_BYTES: usize = 256 * 1024 * 1024;
@@ -102,7 +102,9 @@ pub fn parse_generic_episode_case(
         if cells.len() < 17 {
             return Err("generic episode row is missing required fields".to_owned());
         }
-        if cells[0] != GENERIC_EPISODE_PROTOCOL_VERSION {
+        if cells[0] != GENERIC_EPISODE_PROTOCOL_VERSION
+            && cells[0] != "native-generic-episode-batch-v7"
+        {
             return Err(format!(
                 "unsupported protocol version: expected {GENERIC_EPISODE_PROTOCOL_VERSION}, got {}",
                 cells[0],
@@ -224,12 +226,29 @@ pub fn parse_generic_episode_case(
         let trace_mode = cells[15].parse::<GenericTraceMode>()?;
 
         let mut rollout_cells = vec![crate::ROLLOUT_BATCH_PROTOCOL_VERSION, cells[1], "rollout"];
-        rollout_cells.extend_from_slice(&cells[16..]);
+        let extended = cells[0] == GENERIC_EPISODE_PROTOCOL_VERSION;
+        if extended && cells.len() != 182 {
+            return Err(format!(
+                "v8 episode requires 182 cells, got {}",
+                cells.len()
+            ));
+        }
+        let normal_condition_rules = if extended {
+            match cells.get(16).copied() {
+                Some("0") => false,
+                Some("1") => true,
+                _ => return Err("normalConditionRules must be 0 or 1".to_owned()),
+            }
+        } else {
+            false
+        };
+        rollout_cells.extend_from_slice(&cells[if extended { 17 } else { 16 }..]);
         rollout_cells.push("basicSynthesis");
         let rollout_line = rollout_cells.join("\t");
-        let rollout = parse_rollout_request(&rollout_line)
+        let mut rollout = parse_rollout_request(&rollout_line)
             .map_err(|error| error.message)?
             .case;
+        rollout.recipe.normal_condition_rules = normal_condition_rules;
         if quality_maximum != rollout.recipe.quality_max {
             return Err("qualityMaximum must equal recipe qualityMax".to_owned());
         }

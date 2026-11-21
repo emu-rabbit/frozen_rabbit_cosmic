@@ -12,6 +12,7 @@ export default {
     logoAlt: '冷凍うさぎの宇宙のロゴ',
   },
   common: {
+    cancel: 'キャンセル',
     close: '閉じる',
     toggleMenu: 'メニューを開閉',
     closeMenu: 'メニューを閉じる',
@@ -36,7 +37,8 @@ export default {
     craftWarning: '再読み込みすると現在の製作進行状況が失われます。',
   },
   missions: {
-    eyebrow: 'コスモエクスプローラー', title: 'ミッションから始める', description: 'ミッション名またはアイテム名を検索して、計算を始めます。',
+    nonExpertWarning: 'このミッションは高難易度レシピではありません。他のサイトのマクロソルバーのほうが便利な場合があります。高難易度ソルバーを使用しますか？', confirmExpertSolver: '確認',
+    eyebrow: 'コスモエクスプローラー', title: 'ミッションから始める', description: 'Aランクのミッション名またはアイテム名を検索して、計算を始めます。',
     searchLabel: 'ミッションまたはアイテムを検索', searchPlaceholder: 'ミッションまたはアイテムを検索…', loading: 'ミッションデータを読み込んでいます…',
     loadError: 'ミッションデータを読み込めませんでした。', retry: 'もう一度試す', empty: '条件に一致するミッションがありません。',
     resultCount: '{count}件のミッション', itemCount: '製作アイテム{count}件', loadMore: 'さらに表示', chooseItem: '製作するアイテムを選択', chooseEquipmentProfile: '装備プロファイルを選択', equipmentProfileLabel: '装備プロファイル', equipmentRelicEffect: 'レリック効果', equipmentSpecialist: 'マイスターアクション', preparingSolver: 'ソルバーを準備しています…', solverLoadError: 'ソルバーを読み込めませんでした。もう一度お試しください。', retrySolver: 'ソルバーを再読み込み', startCrafting: '製作を始める', favoriteSoon: 'お気に入り機能の予約位置',

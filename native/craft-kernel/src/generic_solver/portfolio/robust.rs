@@ -53,12 +53,7 @@ pub(super) fn verifies_with_budget(
                 }
                 continue;
             }
-            let forced = (!preview.action.no_step
-                && matches!(
-                    state.condition,
-                    MaterialCondition::GoodOmen | MaterialCondition::Robust
-                ))
-                || (preview.action.no_step && !preview.action.rerolls_condition);
+            let forced = preview.forced_next_condition(state.condition).is_some();
             if forced {
                 next.insert(after);
             } else {

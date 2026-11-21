@@ -924,6 +924,7 @@ mod tests {
     #[test]
     fn continuation_cache_retains_full_keys_and_computes_when_full() {
         let recipe = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 0,
             recipe_level: 746,
             progress_required: 10_000,

@@ -11,7 +11,7 @@ const UPDATE_SUMMARIES_PATH = path.join(ROOT, 'data/mission-data-updates.json')
 
 function parseCatalog(text) {
   const sourceMatch = text.match(/COSMIC_EXPERT_GENERATED_SOURCE = (\{[\s\S]*?\}) as const/)
-  const recipesMatch = text.match(/GENERATED_COSMIC_EXPERT_RECIPES = (\[[\s\S]*\]) as const/)
+  const recipesMatch = text.match(/GENERATED_COSMIC_EXPERT_RECIPES(?:: readonly CosmicRecipeRecord\[\])? = (\[[\s\S]*\]) as const/)
   if (!sourceMatch || !recipesMatch) throw new Error('unrecognized generated Cosmic catalog module')
   return { source: JSON.parse(sourceMatch[1]), recipes: JSON.parse(recipesMatch[1]) }
 }

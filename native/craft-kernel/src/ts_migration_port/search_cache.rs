@@ -23,7 +23,7 @@ pub(super) enum Value {
 
 #[derive(Eq, Hash, PartialEq)]
 struct Key {
-    recipe: [u64; 9],
+    recipe: [u64; 10],
     crafter: [u64; 6],
     state: CraftState,
     query: Query,
@@ -52,6 +52,7 @@ impl Key {
         }
         Self {
             recipe: [
+                recipe.normal_condition_rules as u64,
                 recipe.recipe_level as u64,
                 recipe.progress_required as u64,
                 recipe.quality_max as u64,
@@ -160,6 +161,7 @@ mod tests {
     #[test]
     fn scope_keys_nested_queries_and_saturation_preserve_values() {
         let recipe = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 0,
             recipe_level: 746,
             progress_required: 10000,

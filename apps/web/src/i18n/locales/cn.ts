@@ -12,6 +12,7 @@ export default {
     logoAlt: '冷冻兔肉的宇宙标志',
   },
   common: {
+    cancel: '取消',
     close: '关闭',
     toggleMenu: '打开或关闭菜单',
     closeMenu: '关闭菜单',
@@ -36,7 +37,8 @@ export default {
     craftWarning: '刷新会清除当前的制作进度。',
   },
   missions: {
-    eyebrow: '宇宙探索任务', title: '从任务开始', description: '搜索任务或物品名称，开始求解',
+    nonExpertWarning: '本任务非高难度配方，其他网站的宏求解可能有更方便的解，确定使用高难度求解吗？', confirmExpertSolver: '确定',
+    eyebrow: '宇宙探索任务', title: '从任务开始', description: '搜索A级任务或物品名称，开始求解',
     searchLabel: '搜索任务或物品', searchPlaceholder: '搜索任务或物品…', loading: '正在加载任务数据…',
     loadError: '任务数据暂时无法加载。', retry: '再试一次', empty: '找不到符合条件的任务。',
     resultCount: '共 {count} 个任务', itemCount: '包含 {count} 个制作物品', loadMore: '显示更多任务', chooseItem: '选择要制作的物品', chooseEquipmentProfile: '选择装备设置档', equipmentProfileLabel: '装备设置档', equipmentRelicEffect: '遗物效果', equipmentSpecialist: '专家技能', preparingSolver: '正在准备求解器…', solverLoadError: '求解器加载失败，请重试。', retrySolver: '重新加载求解器', startCrafting: '开始制作', favoriteSoon: '收藏功能预留位置',

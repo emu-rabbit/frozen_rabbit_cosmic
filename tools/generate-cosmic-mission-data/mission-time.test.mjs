@@ -4,11 +4,11 @@ import { readFileSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
 import { parseMissionRows } from './project.mjs'
 
-const header = '#,Name,LockedBehind,WKSMissionRecipe,WKSMissionLotterySpecialCond,MissionTime'
+const header = '#,Name,LockedBehind,WKSMissionRecipe,WKSMissionLotterySpecialCond,LevelGroup,MissionTime'
 const conditions = '#,WeatherRequired,StartTimeHour,EndTimeHour\n0,0,0,0\n5,0,18,20'
 
 test('mission time follows the unit-to-recipe relation and is separate from availability', () => {
-  const result = parseMissionRows(`${header}\n268,EX+: Crew Suits I,0,269,5,600\n269,EX+: Crew Suits II,268,270,0,600`, conditions)
+  const result = parseMissionRows(`${header}\n268,EX+: Crew Suits I,0,269,5,6,600\n269,EX+: Crew Suits II,268,270,0,6,600`, conditions)
   assert.equal(result.byRecipeId.get(269).unitId, 268)
   assert.equal(result.byRecipeId.get(269).timeLimitSeconds, 600)
   assert.equal(result.byRecipeId.get(269).timed, true)
@@ -18,11 +18,11 @@ test('mission time follows the unit-to-recipe relation and is separate from avai
 
 test('missing, fractional and negative mission limits fail closed', () => {
   for (const value of ['', '-1', '1.5', 'unknown']) {
-    assert.throws(() => parseMissionRows(`${header}\n268,Test,0,269,0,${value}`, conditions), /invalid MissionTime/)
+    assert.throws(() => parseMissionRows(`${header}\n268,Test,0,269,0,6,${value}`, conditions), /invalid MissionTime/)
   }
   assert.throws(() => parseMissionRows(header.replace(',MissionTime', ''), conditions), /missing MissionTime/)
   // Zero is an explicit unlimited duration, not missing data.
-  assert.equal(parseMissionRows(`${header}\n1,Other,0,2,0,0`, conditions).byRecipeId.get(2).timeLimitSeconds, 0)
+  assert.equal(parseMissionRows(`${header}\n1,Other,0,2,0,1,0`, conditions).byRecipeId.get(2).timeLimitSeconds, 0)
 })
 
 test('shipped mission keeps both player recipes under the shared 600-second allowance', () => {
@@ -33,7 +33,7 @@ test('shipped mission keeps both player recipes under the shared 600-second allo
   assert.equal(mission.timeLimitSeconds, 600)
   assert.deepEqual(mission.items.map(item => item.recipeId), [36534, 36535])
   assert.equal(bundle.missions.find(m => m.id === 25).timeLimitSeconds, 0)
-  assert.equal(bundle.missions.filter(m => m.timeLimitSeconds > 0).length, 160)
-  assert.equal(bundle.missions.filter(m => m.timeLimitSeconds === 0).length, 120)
+  assert.equal(bundle.missions.filter(m => m.timeLimitSeconds > 0).length, 360)
+  assert.equal(bundle.missions.filter(m => m.timeLimitSeconds === 0).length, 256)
   assert.ok(bundle.missions.every(m => Number.isSafeInteger(m.timeLimitSeconds) && m.timeLimitSeconds >= 0))
 })

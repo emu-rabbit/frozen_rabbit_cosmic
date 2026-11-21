@@ -2314,6 +2314,7 @@ mod tests {
         let mut quality_prunes = 0;
         for seed in 0..256_i32 {
             let recipe = RecipeProfile {
+                normal_condition_rules: false,
                 canonical_recipe_id: 0,
                 recipe_level: 746,
                 progress_required: 4_000 + seed % 3 * 3_000,
@@ -2482,6 +2483,7 @@ mod tests {
     fn durability_bisection_matches_exhaustive_valid_suffixes() {
         use super::*;
         let mut recipe = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 0,
             recipe_level: 746,
             progress_required: 2_000,

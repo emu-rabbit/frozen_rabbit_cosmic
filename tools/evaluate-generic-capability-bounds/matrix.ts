@@ -198,13 +198,15 @@ function selectedFamiliesAndRecipes(
   recipeId: number | null,
 ): Array<{ family: Readonly<CosmicExpertMechanicsFamily>; recipeId: number }> {
   if (recipeId === null) {
-    return COSMIC_EXPERT_MECHANICS_FAMILIES.map((family) => ({
+    // Frozen TypeScript research remains scoped to its original Expert corpus.
+    return COSMIC_EXPERT_MECHANICS_FAMILIES.filter(family => cosmicExpertScenarioDataByRecipeId(family.representativeRecipeId)?.recipe.isExpert !== false).map((family) => ({
       family,
       recipeId: family.representativeRecipeId,
     }))
   }
   const scenario = cosmicExpertScenarioDataByRecipeId(recipeId)
   if (scenario === null) throw new Error(`unknown Cosmic expert recipe ${recipeId}`)
+  if (scenario.recipe.isExpert === false) throw new Error('non-expert support belongs to the Rust kernel; this historical TypeScript bound is Expert-only')
   const family = COSMIC_EXPERT_MECHANICS_FAMILIES.find(
     (candidate) => candidate.recipeIds.includes(recipeId),
   )

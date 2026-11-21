@@ -53,11 +53,15 @@ function currentTimeBudget() {
 export function actionNeedsObservedCondition(
   action: CraftActionId,
   currentCondition: MaterialCondition | undefined,
+  nonExpert = false,
 ) {
   const definition = ACTIONS[action]
-  if (definition.rerollsCondition === true) return true
+  if (definition.rerollsCondition === true) return !(['excellent', 'poor'].includes(currentCondition ?? '')
+    || currentCondition === 'good' && nonExpert)
   if (definition.noStep === true) return false
   return currentCondition !== 'goodOmen' && currentCondition !== 'robust'
+    && currentCondition !== 'excellent' && currentCondition !== 'poor'
+    && !(currentCondition === 'good' && nonExpert)
 }
 const events = ref<SessionEvent[]>([])
 const recommendation = shallowRef<PlannerReply | null>(null)
@@ -256,7 +260,7 @@ export function useActiveCraftSession() {
       // A terminal action has no next condition for the player to report.
       if (after?.terminal === 'none' && missionClock.value && missionClock.value.timeLimitSeconds > 0
         && missionClock.value.firstReportedConditionAt === null
-        && actionNeedsObservedCondition(action, before.condition)) {
+        && actionNeedsObservedCondition(action, before.condition, session.scenario.recipe.isExpert === false)) {
         missionClock.value = { ...missionClock.value, firstReportedConditionAt: now }
       }
       if (after?.terminal === 'completed' && missionClock.value) {
@@ -355,7 +359,7 @@ export function useActiveCraftSession() {
   }
 
   function actionNeedsNextCondition(action: CraftActionId) {
-    return actionNeedsObservedCondition(action, state.value?.condition)
+    return actionNeedsObservedCondition(action, state.value?.condition, activeSession.value?.scenario.recipe.isExpert === false)
   }
 
   return {

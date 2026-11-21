@@ -15,7 +15,10 @@ fn heart_and_soul_bypasses_condition(
 ) -> bool {
     crafter.specialist
         && state.heart_and_soul_active
-        && state.condition != MaterialCondition::Good
+        && !matches!(
+            state.condition,
+            MaterialCondition::Good | MaterialCondition::Excellent
+        )
         && matches!(
             action,
             CraftActionId::PreciseTouch
@@ -191,6 +194,10 @@ fn quality_gain(
         } else {
             1.5
         }
+    } else if state.condition == MaterialCondition::Excellent {
+        4.0
+    } else if state.condition == MaterialCondition::Poor {
+        0.5
     } else {
         1.0
     };
@@ -251,6 +258,7 @@ pub fn preview_action(
     };
 
     ActionPreview {
+        normal_condition_rules: recipe.normal_condition_rules,
         action,
         legal: reason.is_none(),
         reason,
@@ -485,23 +493,9 @@ fn apply_legal_observed_outcome(
         durability = recipe.durability_max.min(durability + 5);
     }
 
-    let condition = if !is_no_step
-        && matches!(
-            state.condition,
-            MaterialCondition::GoodOmen | MaterialCondition::Robust
-        ) {
-        if state.condition == MaterialCondition::GoodOmen {
-            MaterialCondition::Good
-        } else {
-            MaterialCondition::Sturdy
-        }
-    } else if action.rerolls_condition {
-        observed.next_condition
-    } else if is_no_step {
-        state.condition
-    } else {
-        observed.next_condition
-    };
+    let condition = preview
+        .forced_next_condition(state.condition)
+        .unwrap_or(observed.next_condition);
 
     Ok(TransitionResult {
         next_state: CraftState {

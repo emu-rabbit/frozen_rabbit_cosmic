@@ -12,6 +12,7 @@ export default {
     logoAlt: "Frozen Rabbit's Cosmic logo",
   },
   common: {
+    cancel: 'Cancel',
     close: 'Close',
     toggleMenu: 'Toggle menu',
     closeMenu: 'Close menu',
@@ -36,7 +37,8 @@ export default {
     craftWarning: 'Reloading will clear the current craft’s progress.',
   },
   missions: {
-    eyebrow: 'Cosmic Exploration', title: 'Start from a Mission', description: 'Search for a mission or item name to start solving.',
+    nonExpertWarning: 'This mission uses non-expert recipes. A macro solver on another website may offer a more convenient solution. Use the expert solver anyway?', confirmExpertSolver: 'Confirm',
+    eyebrow: 'Cosmic Exploration', title: 'Start from a Mission', description: 'Search for a Class A mission or item name to start solving.',
     searchLabel: 'Search missions or items', searchPlaceholder: 'Search missions or items…', loading: 'Loading mission data…',
     loadError: 'Mission data is temporarily unavailable.', retry: 'Try again', empty: 'No missions match your search.',
     resultCount: '{count} missions', itemCount: '{count} crafted items', loadMore: 'Show more missions', chooseItem: 'Choose an item to craft', chooseEquipmentProfile: 'Choose an equipment profile', equipmentProfileLabel: 'Equipment profile', equipmentRelicEffect: 'Relic effect', equipmentSpecialist: 'Specialist actions', preparingSolver: 'Preparing the solver…', solverLoadError: 'The solver could not be loaded. Please try again.', retrySolver: 'Reload solver', startCrafting: 'Start crafting', favoriteSoon: 'Reserved for favorites',

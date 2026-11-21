@@ -37,7 +37,7 @@ import {
 import { parseRecommendationDurations, recommendationLatency, validateRecommendationTiming } from './timing'
 import { reuseHistoricalCandidate } from './historical'
 
-const PROTOCOL = 'native-generic-episode-batch-v7'
+const PROTOCOL = 'native-generic-episode-batch-v8'
 const LEGACY_PROTOCOL = 'native-generic-episode-batch-v6'
 const MIGRATION_BASELINE = 'generic-craft-condition-set-portfolio-v0.22.0'
 const DEFAULT_BASELINE = 'generic-craft-route-portfolio-v1.1.0'
@@ -197,6 +197,7 @@ function encodeCase(
     ...qualityMilestones,
     randomConditionMask(recipe.randomConditions ?? recipe.availableConditions),
     trace ? 'full' : 'none',
+    booleanCell(recipe.isExpert === false),
     recipe.canonicalRecipeId,
     recipe.recipeLevel,
     recipe.progressRequired,
@@ -220,8 +221,8 @@ function encodeCase(
     evaluationCase.maxSteps,
     ...transitionWeightCells(evaluationCase),
   ].map(String)
-  if (cells.length !== 141) {
-    throw new Error(`${evaluationCase.caseId} generic input must have 141 cells, got ${cells.length}`)
+  if (cells.length !== 182) {
+    throw new Error(`${evaluationCase.caseId} generic input must have 182 cells, got ${cells.length}`)
   }
   return cells.join('\t')
 }
@@ -682,7 +683,7 @@ function comparison(
 }
 
 function handshake(binaryPath: string): readonly string[] {
-  for (const protocol of [PROTOCOL, LEGACY_PROTOCOL]) {
+  for (const protocol of [PROTOCOL]) {
     const result = spawnSync(binaryPath, [], {
       input: `${protocol}\t__handshake__\thandshake\n`,
       encoding: 'utf8', windowsHide: true, timeout: 10_000,
@@ -694,7 +695,7 @@ function handshake(binaryPath: string): readonly string[] {
       || cells[3] !== 'ok') throw new Error('native handshake is malformed')
     return cells
   }
-  throw new Error('native handshake failed for supported protocols v7/v6')
+  throw new Error('native handshake failed for supported protocol v8 (required by the current condition catalog)')
 }
 
 function sha256(value: string): string {

@@ -20,5 +20,37 @@
       "焦がれの入江のミッション14件の繁体字中国語名を更新しました。",
       "製作用の食事「アリペブレ」に繁体字中国語名を追加しました。"
     ]
+  },
+  "f2f595441ecff491a75022409b703bd71fae86cd204a04183bbfb3e56bf9caa4": {
+    "tw": [
+      "新增任務名稱標示高難／高難+、但配方非 Expert 的 192 種製作物品。"
+    ],
+    "cn": [
+      "新增任务名称标示高难／高难+、但配方非 Expert 的 192 种制作物品。"
+    ],
+    "en": [
+      "Added 192 non-expert recipes belonging to EX / EX+ Cosmic Exploration missions."
+    ],
+    "ja": [
+      "EX／EX+のコスモエクスプローラーミッションに含まれる非高難易度レシピ192種を追加しました。"
+    ]
+  },
+  "0d5581b07ef769a065995d7871f08581332492ee1985c72b4098b1c4f71a61d5": {
+    "tw": [
+      "補齊未標示高難的 A 級宇宙探索任務，新增 176 個任務與 192 張配方。",
+      "收錄範圍限 A 級，保留原有篩選分類。"
+    ],
+    "cn": [
+      "补齐未标示高难的 A 级宇宙探索任务，新增 176 个任务和 192 张配方。",
+      "收录范围仅限 A 级，保留原有筛选分类。"
+    ],
+    "en": [
+      "Added 176 Class A Cosmic Exploration missions and 192 recipes without an EX label.",
+      "The catalog includes Class A missions only, with the existing filter categories."
+    ],
+    "ja": [
+      "EX表記のないAランクのコスモエクスプローラーミッション176件とレシピ192種を追加しました。",
+      "収録範囲はAランクのみとし、既存の絞り込み分類を維持しました。"
+    ]
   }
 }

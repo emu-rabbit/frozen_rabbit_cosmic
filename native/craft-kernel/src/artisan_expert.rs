@@ -123,6 +123,65 @@ fn emergency(action: CraftActionId) -> Option<Choice> {
 }
 
 fn solve_next(input: Input<'_>, already_emergency: bool) -> Option<Choice> {
+    // Ordinary Cosmic recipes share the resource/progress policy, but their
+    // Excellent/Poor opportunities must be handled before expert-only setup.
+    if input.recipe.normal_condition_rules && input.state.quality < input.recipe.quality_max {
+        if input.state.condition == MaterialCondition::Excellent {
+            if input.state.quick_innovation_available
+                && input.state.buffs.innovation == 0
+                && legal(input, CraftActionId::QuickInnovation)
+            {
+                return pick(CraftActionId::QuickInnovation);
+            }
+            let byregot = preview_action(
+                input.recipe,
+                input.crafter,
+                input.state,
+                CraftActionId::ByregotsBlessing,
+            );
+            if byregot.legal
+                && input.state.quality + byregot.quality_gain >= input.recipe.quality_max
+                && input.state.durability > byregot.durability_cost
+            {
+                return pick(CraftActionId::ByregotsBlessing);
+            }
+            for action in [
+                CraftActionId::PreciseTouch,
+                CraftActionId::PreparatoryTouch,
+                CraftActionId::BasicTouch,
+            ] {
+                let preview = preview_action(input.recipe, input.crafter, input.state, action);
+                if preview.legal && input.state.durability > preview.durability_cost {
+                    return pick(action);
+                }
+            }
+        }
+        if input.state.condition == MaterialCondition::Poor {
+            if input.state.careful_observation_uses_left > 0
+                && legal(input, CraftActionId::CarefulObservation)
+            {
+                return pick(CraftActionId::CarefulObservation);
+            }
+            for action in [
+                CraftActionId::CarefulSynthesis,
+                CraftActionId::BasicSynthesis,
+            ] {
+                let preview = preview_action(input.recipe, input.crafter, input.state, action);
+                if preview.legal
+                    && input.state.progress + preview.progress_gain < input.recipe.progress_required
+                    && input.state.durability > preview.durability_cost
+                {
+                    return pick(action);
+                }
+            }
+            if input.state.buffs.innovation == 0 && legal(input, CraftActionId::Innovation) {
+                return pick(CraftActionId::Innovation);
+            }
+            if legal(input, CraftActionId::Observe) {
+                return pick(CraftActionId::Observe);
+            }
+        }
+    }
     let remaining_progress = input.recipe.progress_required - input.state.progress;
     let estimated_basic = base_progress(input) * 120 / 100;
     let estimated_careful = base_progress(input) * 180 / 100;

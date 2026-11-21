@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
 
-pub const MATERIAL_CONDITION_COUNT: usize = 9;
+pub const MATERIAL_CONDITION_COUNT: usize = 11;
 
 macro_rules! string_enum {
     (
@@ -56,6 +56,8 @@ string_enum! {
         Malleable => "malleable",
         Primed => "primed",
         Robust => "robust",
+        Excellent => "excellent",
+        Poor => "poor",
     }
 }
 
@@ -71,6 +73,8 @@ impl MaterialCondition {
             Self::Malleable => 6,
             Self::Primed => 7,
             Self::Robust => 8,
+            Self::Excellent => 9,
+            Self::Poor => 10,
         }
     }
 }
@@ -127,6 +131,8 @@ pub enum ActionCategory {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RecipeProfile {
+    /// !Recipe.IsExpert: Good is consumed into Normal, independently of the available color set.
+    pub normal_condition_rules: bool,
     pub canonical_recipe_id: u32,
     pub recipe_level: u32,
     pub progress_required: i32,
@@ -263,6 +269,7 @@ string_enum! {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ActionPreview {
+    pub normal_condition_rules: bool,
     pub action: ActionDefinition,
     pub legal: bool,
     pub reason: Option<IllegalActionReason>,
@@ -271,6 +278,24 @@ pub struct ActionPreview {
     pub success_rate: f64,
     pub progress_gain: i32,
     pub quality_gain: i32,
+}
+
+impl ActionPreview {
+    pub fn forced_next_condition(&self, current: MaterialCondition) -> Option<MaterialCondition> {
+        if self.action.no_step && !self.action.rerolls_condition {
+            return Some(current);
+        }
+        match current {
+            MaterialCondition::Excellent => Some(MaterialCondition::Poor),
+            MaterialCondition::Poor => Some(MaterialCondition::Normal),
+            MaterialCondition::Good if self.normal_condition_rules => {
+                Some(MaterialCondition::Normal)
+            }
+            MaterialCondition::GoodOmen if !self.action.no_step => Some(MaterialCondition::Good),
+            MaterialCondition::Robust if !self.action.no_step => Some(MaterialCondition::Sturdy),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

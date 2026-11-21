@@ -8,6 +8,8 @@ export const MATERIAL_CONDITIONS = [
   'malleable',
   'primed',
   'robust',
+  'excellent',
+  'poor',
 ] as const
 
 export type MaterialCondition = (typeof MATERIAL_CONDITIONS)[number]
@@ -74,6 +76,8 @@ export type CraftingJob =
   | 'unknown'
 
 export interface RecipeProfile {
+  /** Missing only in historical Expert fixtures. */
+  isExpert?: boolean
   profileId: string
   canonicalRecipeId: number
   canonicalItemId: number
@@ -179,6 +183,7 @@ export interface CraftActionDefinition {
 }
 
 export interface ActionPreview {
+  normalConditionRules?: boolean
   action: CraftActionDefinition
   legal: boolean
   reason?: string

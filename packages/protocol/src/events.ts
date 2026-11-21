@@ -14,9 +14,9 @@ export const MODEL_VERSIONS: ModelVersions = {
   plannerPolicy: 'generic-craft-route-objective-condition-v0.6.0-migration-oracle',
   // Keep protocol independent from the data package/catalog payload. The Web
   // registry test compares this value against COSMIC_EXPERT_CATALOG_VERSION.
-  recipeCatalog: 'cosmic-expert-catalog-284bb7f44b9c0976-3c0ac44a05e9bf29-v2',
-  conditionProfiles: 'manual-cosmic-expert-condition-selection-v1',
-  sessionCodec: 'expert-session-v0.12.0',
+  recipeCatalog: 'cosmic-expert-catalog-284bb7f44b9c0976-5a3af8f7015f5ebc-v2',
+  conditionProfiles: 'manual-cosmic-condition-selection-v2',
+  sessionCodec: 'expert-session-v0.13.0',
 }
 
 export type SessionRiskPreference = 'balanced'

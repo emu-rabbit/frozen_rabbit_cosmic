@@ -7,6 +7,7 @@ export interface RecipeCrafterMechanicsSignature {
   mechanicsModelVersion: typeof CRAFT_MECHANICS_VERSION
   baseProgress: number
   baseQuality: number
+  nonExpert: boolean
   maxCp: number
   cosmicToolGoodBonus: boolean
   specialist: boolean
@@ -26,6 +27,7 @@ export function calculateRecipeCrafterMechanicsSignature(
     mechanicsModelVersion: CRAFT_MECHANICS_VERSION,
     baseProgress: Math.floor(calculateBaseProgress(recipe, crafter)),
     baseQuality: Math.floor(calculateBaseQuality(recipe, crafter)),
+    nonExpert: recipe.isExpert === false,
     maxCp: crafter.maxCp,
     cosmicToolGoodBonus: crafter.cosmicToolGoodBonus,
     specialist: crafter.specialist === true,
@@ -42,6 +44,7 @@ export function recipeCrafterMechanicsSignatureKey(
     `mechanics=${signature.mechanicsModelVersion}`,
     `progress=${signature.baseProgress}`,
     `quality=${signature.baseQuality}`,
+    `nonExpert=${Number(signature.nonExpert)}`,
     `cp=${signature.maxCp}`,
     `cosmicTool=${Number(signature.cosmicToolGoodBonus)}`,
     `specialist=${Number(signature.specialist)}`,

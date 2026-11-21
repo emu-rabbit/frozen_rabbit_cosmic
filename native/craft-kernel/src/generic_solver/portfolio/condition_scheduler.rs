@@ -10,6 +10,8 @@ const DECLARED_CONDITIONS: [MaterialCondition; MATERIAL_CONDITION_COUNT] = [
     MaterialCondition::Malleable,
     MaterialCondition::Primed,
     MaterialCondition::Robust,
+    MaterialCondition::Excellent,
+    MaterialCondition::Poor,
 ];
 
 pub(super) fn classify(preview: ActionPreview) -> Option<ConditionWork> {

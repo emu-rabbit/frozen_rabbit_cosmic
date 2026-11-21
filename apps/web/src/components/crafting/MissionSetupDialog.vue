@@ -24,6 +24,7 @@ const detailCloseButton = ref<HTMLButtonElement | null>(null)
 const dialog = ref<HTMLElement | null>(null)
 const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
 const plannerStartPending = ref(false)
+const nonExpertConfirmed = ref(props.mission.isExpert !== false)
 let closed = false
 const localizedName = (names: LocalizedNames) => {
   const language = locale.value as DataLocale
@@ -40,7 +41,8 @@ const plannerIsPreparing = computed(() => (
   || plannerStartPending.value
 ))
 const plannerCanStart = computed(() => (
-  selectedRecipeId.value !== null
+  nonExpertConfirmed.value
+  && selectedRecipeId.value !== null
   && selectedEquipmentProfile.value !== null
   && plannerRuntime.status.value === 'ready'
   && !plannerStartPending.value
@@ -67,9 +69,16 @@ const openMission = async (mission: DeepReadonly<CosmicMission>) => {
     equipmentProfiles.orderedProfiles.value,
     mission.job,
   )?.id ?? null
-  preparePlanner()
+  nonExpertConfirmed.value = mission.isExpert !== false
+  if (nonExpertConfirmed.value) preparePlanner()
   await nextTick()
   detailCloseButton.value?.focus()
+}
+const confirmNonExpert = async () => {
+  nonExpertConfirmed.value = true
+  preparePlanner()
+  await nextTick()
+  dialog.value?.querySelector<HTMLInputElement>('input[type="radio"]:checked')?.focus()
 }
 const closeMission = () => {
   closed = true
@@ -81,7 +90,7 @@ const profileName = (profile: NonNullable<typeof selectedEquipmentProfile.value>
 }
 const itemInputId = (item: DeepReadonly<MissionItem>) => `mission-item-${item.recipeId}`
 const startCrafting = async () => {
-  if (plannerStartPending.value) return
+  if (plannerStartPending.value || !nonExpertConfirmed.value) return
   plannerStartPending.value = true
   try {
     await plannerRuntime.initialize()
@@ -150,6 +159,14 @@ onBeforeUnmount(() => {
             <h2 :id="`mission-${selectedMission.id}-title`">{{ localizedName(selectedMission.names) }}</h2>
           </div>
         </div>
+        <div v-if="!nonExpertConfirmed" class="mission-detail-section" role="alert" data-testid="nonexpert-warning">
+          <p>{{ t('missions.nonExpertWarning') }}</p>
+          <div class="mission-confirm-actions">
+            <button type="button" class="mission-detail-cancel" @click="closeMission">{{ t('common.cancel') }}</button>
+            <button type="button" class="mission-detail-start" @click="confirmNonExpert">{{ t('missions.confirmExpertSolver') }}</button>
+          </div>
+        </div>
+        <template v-else>
         <p v-if="reset" class="mission-equipment-summary">{{ t('solver.resetMissionDescription') }}</p>
         <fieldset class="mission-detail-section">
           <legend>{{ t('missions.chooseItem') }}</legend>
@@ -185,7 +202,14 @@ onBeforeUnmount(() => {
           <i v-if="plannerIsPreparing" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
           {{ t(plannerIsPreparing ? 'missions.preparingSolver' : reset ? 'solver.resetMission' : 'missions.startCrafting') }}
         </button>
+        </template>
       </section>
     </div>
   </Teleport>
 </template>
+
+<style scoped>
+.mission-confirm-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+.mission-confirm-actions button { box-sizing: border-box; width: 100%; min-height: 44px; margin: 0; padding: 0.75rem; border: 1px solid transparent; border-radius: 0.75rem; font-size: 1rem; line-height: 1.5; }
+.mission-confirm-actions .mission-detail-cancel { border-color: currentColor; background: transparent; color: inherit; cursor: pointer; }
+</style>

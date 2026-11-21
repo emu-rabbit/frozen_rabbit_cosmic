@@ -4324,7 +4324,9 @@ fn declared_next_conditions(
         .iter()
         .copied()
         .filter(move |condition| {
-            random_condition_mask.is_none_or(|mask| mask & (1_u16 << condition.index()) != 0)
+            random_condition_mask.map_or(condition.index() < 9, |mask| {
+                mask & (1_u16 << condition.index()) != 0
+            })
         })
 }
 
@@ -5606,6 +5608,7 @@ mod tests {
 
     pub(super) fn hard_quality_recipe() -> RecipeProfile {
         RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 1,
             recipe_level: 746,
             progress_required: 8_500,
@@ -5621,6 +5624,7 @@ mod tests {
 
     fn short_progress_collectable_recipe() -> RecipeProfile {
         RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 36_195,
             recipe_level: 100,
             progress_required: 400,

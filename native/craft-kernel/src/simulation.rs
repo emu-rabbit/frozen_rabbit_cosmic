@@ -29,6 +29,12 @@ pub fn sample_condition(
     if previous_condition == MaterialCondition::Robust {
         return MaterialCondition::Sturdy;
     }
+    if previous_condition == MaterialCondition::Excellent {
+        return MaterialCondition::Poor;
+    }
+    if previous_condition == MaterialCondition::Poor {
+        return MaterialCondition::Normal;
+    }
 
     let total = weights
         .iter()
@@ -69,6 +75,8 @@ pub fn draw_simulated_action_outcome(
     };
     let (next_condition, condition_draws) = if is_no_step && !rerolls_condition {
         (state.condition, cursor_before.condition_draws)
+    } else if let Some(next) = preview.forced_next_condition(state.condition) {
+        (next, cursor_before.condition_draws)
     } else if matches!(
         state.condition,
         MaterialCondition::GoodOmen | MaterialCondition::Robust

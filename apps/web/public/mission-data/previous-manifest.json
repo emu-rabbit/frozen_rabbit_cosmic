@@ -1,11 +1,11 @@
 {
   "generator": "frozen-rabbit-expert-mission-data",
-  "version": "0be44cbd33b00210bd8864852ea8829e8db449f7bdac22b5403afea95b51b678",
-  "formatVersion": 4,
+  "version": "5d76517cd5949bff56019d491e6e260c6da57c9a6861ca6a9d31765970eeee49",
+  "formatVersion": 5,
   "sources": {
     "teamcraft": {
       "repository": "ffxiv-teamcraft/ffxiv-teamcraft",
-      "commit": "28cd7763e23781cd17650a7ae7a336688815360a"
+      "commit": "36c0e6045fed3162c1c51aba2250a2638193b29f"
     },
     "missions": {
       "repository": "xivapi/ffxiv-datamining",
@@ -18,7 +18,7 @@
       },
       "tw": {
         "repository": "thewakingsands/ffxiv-datamining-tc",
-        "commit": "e203c7e46dd80fd2a967e5741b30e3c9fad0c767"
+        "commit": "8adc04cbe4eb469017025a80d9a439451805523d"
       },
       "cn": {
         "repository": "thewakingsands/ffxiv-datamining-cn",
@@ -36,37 +36,51 @@
       "assetBaseUrl": "https://v2.xivapi.com/api/asset"
     },
     "catalog": {
-      "identity": "3c0ac44a05e9bf297be471d1d4355032224c9513dd229c6f515385e6a90b464b",
+      "identity": "b0678a86c8b3649b1cc54d4802efe2b1ceaa3c10ba30b3e253004de5b2c2f4a5",
       "xivapiVersion": "284bb7f44b9c0976"
     }
   },
   "bundle": {
-    "file": "missions.ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34.bin",
-    "sha256": "ac623d0024b79f694a1c86d6b1ddedfc7cecc2c1eb5ed9ea30173ee4b9254a34",
-    "bytes": 29948,
-    "jsonBytes": 248250,
+    "file": "missions.2db54150bad62f2c75b4901acc33c55862088d18f011eace084b47eb06c8f716.bin",
+    "sha256": "2db54150bad62f2c75b4901acc33c55862088d18f011eace084b47eb06c8f716",
+    "bytes": 45068,
+    "jsonBytes": 372243,
     "encoding": "gzip",
-    "records": 280
+    "records": 440
   },
   "notice": {
-    "file": "NOTICE.0105f2ce176cc70ec89fe21427078364f47ab792467d668083061c2815a6f5c9.txt",
-    "sha256": "0105f2ce176cc70ec89fe21427078364f47ab792467d668083061c2815a6f5c9",
+    "file": "NOTICE.9dd803bd4c89ca151e38533b81433f15da16c28d6473176540dbed361154693e.txt",
+    "sha256": "9dd803bd4c89ca151e38533b81433f15da16c28d6473176540dbed361154693e",
     "bytes": 2058
   },
+  "updateSummary": {
+    "tw": [
+      "新增任務名稱標示高難／高難+、但配方非 Expert 的 192 種製作物品。"
+    ],
+    "cn": [
+      "新增任务名称标示高难／高难+、但配方非 Expert 的 192 种制作物品。"
+    ],
+    "en": [
+      "Added 192 non-expert recipes belonging to EX / EX+ Cosmic Exploration missions."
+    ],
+    "ja": [
+      "EX／EX+のコスモエクスプローラーミッションに含まれる非高難易度レシピ192種を追加しました。"
+    ]
+  },
   "diagnostics": {
-    "missionCount": 280,
-    "sequentialMissionLinks": 48,
-    "itemCount": 317,
-    "teamcraftItems": 317,
+    "missionCount": 440,
+    "sequentialMissionLinks": 96,
+    "itemCount": 460,
+    "teamcraftItems": 460,
     "canonicalFallbackItems": 0,
     "craftingFoods": 50,
     "craftingMedicines": 12,
     "craftingActionIcons": 280,
     "missionLocaleNames": {
-      "en": 280,
-      "ja": 280,
-      "tw": 88,
-      "cn": 280
+      "en": 440,
+      "ja": 440,
+      "tw": 296,
+      "cn": 440
     }
   }
 }

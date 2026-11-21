@@ -8,7 +8,7 @@ import {
 import type { CosmicExpertScenarioDataEntry } from '@frozen-rabbit-expert/data'
 import { WEB_PLANNER_POLICY } from './protocol'
 
-const PROTOCOL = 'native-generic-episode-batch-v7'
+const PROTOCOL = 'native-generic-episode-batch-v8'
 const ACTION_LIMIT = 80
 
 function booleanCell(value: boolean | undefined) {
@@ -131,6 +131,7 @@ export function createPlannerEpisode(
     ...milestones,
     conditionMask([...reachable]),
     'none',
+    booleanCell(recipe.isExpert === false),
     recipe.canonicalRecipeId,
     recipe.recipeLevel,
     recipe.progressRequired,
@@ -155,8 +156,8 @@ export function createPlannerEpisode(
     ...transitionWeights,
   ].map(String)
 
-  if (cells.length !== 141) {
-    throw new Error(`Web planner episode must have 141 cells, got ${cells.length}`)
+  if (cells.length !== 182) {
+    throw new Error(`Web planner episode must have 182 cells, got ${cells.length}`)
   }
   return cells.join('\t')
 }

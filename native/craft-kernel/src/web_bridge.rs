@@ -12,7 +12,7 @@ use crate::generic_solver::{
     TIME_BUDGETED_RECOVERY_POLICY_VERSION, recommend_generic_action_with_time_budget,
 };
 
-pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v2";
+pub const WEB_PLANNER_ABI_VERSION: &str = "rust-web-planner-abi-v3";
 pub const WEB_PLANNER_MAX_INPUT_BYTES: usize = 64 * 1024;
 pub const WEB_PLANNER_MAX_OUTPUT_BYTES: usize = 16 * 1024;
 

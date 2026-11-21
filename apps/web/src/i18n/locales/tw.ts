@@ -12,6 +12,7 @@ export default {
     logoAlt: '冷凍兔肉的宇宙標誌',
   },
   common: {
+    cancel: '取消',
     close: '關閉',
     toggleMenu: '開啟或關閉選單',
     closeMenu: '關閉選單',
@@ -36,7 +37,8 @@ export default {
     craftWarning: '重新整理會清除目前的製作進度。',
   },
   missions: {
-    eyebrow: '宇宙探索任務', title: '從任務開始', description: '搜尋任務或物品名稱，開始求解',
+    nonExpertWarning: '本任務非高難度配方，其他網站的巨集求解可能有更方便的解，確定使用高難度求解嗎？', confirmExpertSolver: '確定',
+    eyebrow: '宇宙探索任務', title: '從任務開始', description: '搜尋A級任務或物品名稱，開始求解',
     searchLabel: '搜尋任務或物品', searchPlaceholder: '搜尋任務或物品…', loading: '正在載入任務資料…',
     loadError: '任務資料暫時無法載入。', retry: '再試一次', empty: '找不到符合條件的任務。',
     resultCount: '共 {count} 個任務', itemCount: '包含 {count} 個製作物品', loadMore: '顯示更多任務', chooseItem: '選擇要製作的物品', chooseEquipmentProfile: '選擇裝備設定檔', equipmentProfileLabel: '裝備設定檔', equipmentRelicEffect: '遺物效果', equipmentSpecialist: '專家技能', preparingSolver: '正在準備求解器…', solverLoadError: '求解器載入失敗，請再試一次。', retrySolver: '重新載入求解器', startCrafting: '開始製作', favoriteSoon: '最愛功能預留位置',

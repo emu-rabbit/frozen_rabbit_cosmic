@@ -1,7 +1,7 @@
 {
   "generator": "frozen-rabbit-expert-mission-data",
-  "version": "ca75f309084679e73d8a13028f89debcaff0d4e98f5fe78895e26a5450dfa87a",
-  "formatVersion": 4,
+  "version": "ee6c262a106077eea687dff933ea3d58a27be6da1b356396b7483df02cf6183d",
+  "formatVersion": 5,
   "sources": {
     "teamcraft": {
       "repository": "ffxiv-teamcraft/ffxiv-teamcraft",
@@ -36,17 +36,17 @@
       "assetBaseUrl": "https://v2.xivapi.com/api/asset"
     },
     "catalog": {
-      "identity": "3c0ac44a05e9bf297be471d1d4355032224c9513dd229c6f515385e6a90b464b",
+      "identity": "5a3af8f7015f5ebc4ba4594f38d6f46c873db07d293aa3d35221eea4ac3570f3",
       "xivapiVersion": "284bb7f44b9c0976"
     }
   },
   "bundle": {
-    "file": "missions.946f52a69bcf710acb477ef7908c76076b4bc3bfc88bf1a41cb0b9d36c0d4a41.bin",
-    "sha256": "946f52a69bcf710acb477ef7908c76076b4bc3bfc88bf1a41cb0b9d36c0d4a41",
-    "bytes": 31521,
-    "jsonBytes": 256478,
+    "file": "missions.0d65cba2173490fc6472df8e69be7171a773897d8d7791a4ca3c10109fa36e10.bin",
+    "sha256": "0d65cba2173490fc6472df8e69be7171a773897d8d7791a4ca3c10109fa36e10",
+    "bytes": 56576,
+    "jsonBytes": 477925,
     "encoding": "gzip",
-    "records": 280
+    "records": 616
   },
   "notice": {
     "file": "NOTICE.9dd803bd4c89ca151e38533b81433f15da16c28d6473176540dbed361154693e.txt",
@@ -55,40 +55,36 @@
   },
   "updateSummary": {
     "tw": [
-      "補齊法恩娜 80 個任務與 86 種製作產物的繁中名稱。",
-      "更新渴望灣 14 個任務的繁中譯名。",
-      "補上製作用食物「椒麻鰻魚」的繁中名稱。"
+      "補齊未標示高難的 A 級宇宙探索任務，新增 176 個任務與 192 張配方。",
+      "收錄範圍限 A 級，保留原有篩選分類。"
     ],
     "cn": [
-      "补齐法恩娜 80 个任务和 86 种制作产物的繁体中文名称。",
-      "更新憧憬湾 14 个任务的繁体中文译名。",
-      "补上制作食物「椒麻鳗鱼」的繁体中文名称。"
+      "补齐未标示高难的 A 级宇宙探索任务，新增 176 个任务和 192 张配方。",
+      "收录范围仅限 A 级，保留原有筛选分类。"
     ],
     "en": [
-      "Added Traditional Chinese names for 80 Phaenna missions and 86 crafted items.",
-      "Updated the Traditional Chinese names of 14 Sinus Ardorum missions.",
-      "Added the Traditional Chinese name for the crafting food All i Pebre."
+      "Added 176 Class A Cosmic Exploration missions and 192 recipes without an EX label.",
+      "The catalog includes Class A missions only, with the existing filter categories."
     ],
     "ja": [
-      "パエンナのミッション80件と製作アイテム86種に繁体字中国語名を追加しました。",
-      "焦がれの入江のミッション14件の繁体字中国語名を更新しました。",
-      "製作用の食事「アリペブレ」に繁体字中国語名を追加しました。"
+      "EX表記のないAランクのコスモエクスプローラーミッション176件とレシピ192種を追加しました。",
+      "収録範囲はAランクのみとし、既存の絞り込み分類を維持しました。"
     ]
   },
   "diagnostics": {
-    "missionCount": 280,
-    "sequentialMissionLinks": 48,
-    "itemCount": 317,
-    "teamcraftItems": 317,
+    "missionCount": 616,
+    "sequentialMissionLinks": 136,
+    "itemCount": 591,
+    "teamcraftItems": 591,
     "canonicalFallbackItems": 0,
     "craftingFoods": 50,
     "craftingMedicines": 12,
     "craftingActionIcons": 280,
     "missionLocaleNames": {
-      "en": 280,
-      "ja": 280,
-      "tw": 168,
-      "cn": 280
+      "en": 616,
+      "ja": 616,
+      "tw": 376,
+      "cn": 616
     }
   }
 }

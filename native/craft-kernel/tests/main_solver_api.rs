@@ -7,6 +7,7 @@ use frozen_rabbit_craft_kernel::main_solver::{
 
 fn recipe() -> RecipeProfile {
     RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 1,
         recipe_level: 100,
         progress_required: 6_600,
@@ -60,7 +61,7 @@ fn public_session_supports_the_recommend_observe_loop() {
         MAIN_SOLVER_POLICY_VERSION,
         "generic-craft-external-reference-v2.4.0"
     );
-    assert_eq!(MAIN_SOLVER_API_VERSION, "frozen-rabbit-main-solver-api-v2");
+    assert_eq!(MAIN_SOLVER_API_VERSION, "frozen-rabbit-main-solver-api-v3");
     let config = config(80);
     let mut session = MainSolverSession::new(config);
     let state = CraftState::initial(config.recipe(), config.crafter());

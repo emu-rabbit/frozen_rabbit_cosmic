@@ -29,7 +29,7 @@ pub use crate::types::{
 ///
 /// This changes only when an integrator-facing contract changes. Use
 /// [`MAIN_SOLVER_POLICY_VERSION`] to identify the decision policy itself.
-pub const MAIN_SOLVER_API_VERSION: &str = "frozen-rabbit-main-solver-api-v2";
+pub const MAIN_SOLVER_API_VERSION: &str = "frozen-rabbit-main-solver-api-v3";
 
 /// Identity of the decision policy used by [`MainSolverSession`].
 pub const MAIN_SOLVER_POLICY_VERSION: &str = GENERIC_EXTERNAL_REFERENCE_V24_POLICY_VERSION;
@@ -48,7 +48,11 @@ pub struct AvailableConditions(u16);
 
 impl AvailableConditions {
     /// All expert-crafting conditions currently understood by the kernel.
-    pub const ALL: Self = Self(SUPPORTED_CONDITION_MASK);
+    pub const ALL: Self = Self((1 << 9) - 1);
+
+    /// Ordinary four-condition recipes, including forced Poor. For non-expert
+    /// special-color recipes declare their actual set with from_conditions.
+    pub const STANDARD: Self = Self(1 | 2 | (1 << 9) | (1 << 10));
 
     /// A deterministic world containing only `Normal`.
     pub const NORMAL_ONLY: Self = Self(1);
@@ -443,7 +447,7 @@ impl MainSolverSession {
             self.config.objective.as_generic(),
             RiskPreference::Balanced,
             &self.context,
-            Some(self.config.available_conditions.mask()),
+            Some(self.config.available_conditions.mask() & !(1 << MaterialCondition::Poor.index())),
             options.time_budget,
         );
         let Some(decision) = decision else {

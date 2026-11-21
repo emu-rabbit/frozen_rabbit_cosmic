@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { DeepReadonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import {
+  ACTIONS,
   MATERIAL_CONDITIONS,
   applyObservedOutcome,
   previewAction,
@@ -32,6 +33,7 @@ watch([craft.recommendation, craft.state, reportingAction], () => {
   reportedCondition.value = null
   recommendedCondition.value = null
 }, { flush: 'sync' })
+const pendingMission = shallowRef<DeepReadonly<CosmicMission> | null>(null)
 const isItemDialogOpen = ref(false)
 const isActionDialogOpen = ref(false)
 const isRestartDialogOpen = ref(false)
@@ -113,9 +115,11 @@ function forcedNextCondition(action: CraftActionId, success: boolean) {
     success,
     nextCondition: current.condition,
   }).nextState
-  if (nextState.terminal !== 'none' || nextState.step === current.step) return null
+  if (nextState.terminal !== 'none' || nextState.step === current.step && ACTIONS[action].rerollsCondition !== true) return null
   if (current.condition === 'goodOmen') return 'good' satisfies MaterialCondition
   if (current.condition === 'robust') return 'sturdy' satisfies MaterialCondition
+  if (current.condition === 'excellent') return 'poor' satisfies MaterialCondition
+  if (current.condition === 'poor' || current.condition === 'good' && recipe.value?.isExpert === false) return 'normal' satisfies MaterialCondition
   return null
 }
 
@@ -249,7 +253,8 @@ function replaceMission(mission: DeepReadonly<CosmicMission>) {
   closeDialogs()
   reportingAction.value = null
   recommendedSuccess.value = null
-  craft.replaceMission(mission)
+  if (mission.isExpert === false) pendingMission.value = mission
+  else craft.replaceMission(mission)
 }
 
 function restart() {
@@ -553,6 +558,7 @@ onBeforeUnmount(() => {
 
   <MissionSetupDialog v-if="isResetMissionDialogOpen && session" :mission="session.mission" reset @close="isResetMissionDialogOpen = false" @started="onMissionReset" />
 
+  <MissionSetupDialog v-if="pendingMission" :mission="pendingMission" @close="pendingMission = null" @started="pendingMission = null" />
   <Teleport to="body">
     <div v-if="isItemDialogOpen && session" class="solver-dialog-layer" @click.self="closeDialogs">
       <section class="solver-dialog" role="dialog" aria-modal="true" :aria-labelledby="'item-dialog-title'">
@@ -643,6 +649,8 @@ html.dark .craft-meter > i { background: #22332f; }
 .condition-badge--good, .condition-option--good { --condition-color: #ef4f9f; --condition-edge: #c83981; }
 .condition-badge--goodOmen, .condition-option--goodOmen { --condition-color: #ffb5a1; --condition-edge: #e18470; }
 .condition-badge--centered, .condition-option--centered { --condition-color: #dbdb4d; --condition-edge: #a6a62c; }
+.condition-badge--excellent, .condition-option--excellent { --condition-color: #fff4ad; --condition-edge: #a67c00; background-image: linear-gradient(135deg, #ffbac9, #fff4ad, #b7eeff); }
+.condition-badge--poor, .condition-option--poor { --condition-color: #a780ce; --condition-edge: #67438c; }
 .condition-badge--sturdy, .condition-option--sturdy,
 .condition-badge--robust, .condition-option--robust { --condition-color: #3dceff; --condition-edge: #2097bf; }
 .condition-badge--pliant, .condition-option--pliant { --condition-color: #04d504; --condition-edge: #079507; }

@@ -388,6 +388,7 @@ fn parse_finite(cells: &mut Cells<'_>, name: &str) -> Result<f64, String> {
 
 fn parse_recipe(cells: &mut Cells<'_>) -> Result<RecipeProfile, String> {
     Ok(RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: cells.parse("canonicalRecipeId")?,
         recipe_level: cells.parse("recipeLevel")?,
         progress_required: cells.parse("progressRequired")?,

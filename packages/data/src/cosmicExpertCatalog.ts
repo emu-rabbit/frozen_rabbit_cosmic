@@ -50,6 +50,8 @@ export interface CosmicExpertScenarioDataEntry extends CraftScenarioDataEntry {
 const CONDITION_FLAG_ENTRIES = [
   [1, 'normal'],
   [2, 'good'],
+  [4, 'excellent'],
+  [8, 'poor'],
   [16, 'centered'],
   [32, 'sturdy'],
   [64, 'pliant'],
@@ -135,10 +137,12 @@ function conditionSets(flags: number): {
   if (unknownFlags !== 0) {
     throw new Error(`unsupported Cosmic expert condition flags: ${flags} (unknown mask ${unknownFlags})`)
   }
-  const random = CONDITION_FLAG_ENTRIES
+  const declared = CONDITION_FLAG_ENTRIES
     .filter(([flag]) => (flags & flag) !== 0)
     .map(([, condition]) => condition)
-  const available = [...random]
+  const available = [...declared]
+  // Poor is reachable only through Excellent; it is never a random option.
+  const random = declared.filter(condition => condition !== 'poor')
 
   // Robust deterministically produces Sturdy on the next advancing step, so
   // Sturdy is reachable mechanics even when it is absent from the random pool.
@@ -168,7 +172,7 @@ function recipeSource(recipeId: number): SourceMetadata {
     verifiedAt: COSMIC_EXPERT_GENERATED_SOURCE.verifiedAt,
     confidence: 'verified',
     notes: [
-      '配方必須同時出現在 WKS mission recipe table，且目前 Recipe row 為 level 100 Expert；不是只靠 IsExpert 粗略收錄。',
+      '收錄實際 WKS mission 所屬的全部 A 級 100 級製作配方（LevelGroup 4／5／6），不依任務名稱或 IsExpert 排除；B／C／D 級和沒有任務引用的預留配方不收錄。',
       '英文任務名稱由固定 WKSMissionUnit revision 經 WKSMissionRecipe row identity 對應，不以成品名稱猜測任務。',
       '英文名稱與 mechanics 來自固定 game-data/schema snapshot；沒有可信繁體中文資料的項目暫用英文顯示，不自行翻譯。',
     ],
@@ -251,6 +255,7 @@ function createRecipe(
     displayName: curated?.displayName ?? raw.nameEn,
     displayNameEn: raw.nameEn,
     job: raw.job,
+    isExpert: raw.isExpert,
     recipeLevel: raw.recipeLevelTableId,
     progressRequired: raw.progressRequired,
     qualityMax: raw.qualityMax,
@@ -264,7 +269,7 @@ function createRecipe(
     availableConditions: conditions.available,
     randomConditions: conditions.random,
     qualityOutcome: raw.qualityOutcome,
-    conditionProfileId: 'manual-cosmic-expert-condition-selection-v1',
+    conditionProfileId: 'manual-cosmic-condition-selection-v2',
     source: recipeSource(raw.recipeId),
   })
 }

@@ -2,6 +2,7 @@ use frozen_rabbit_craft_kernel::research::*;
 
 fn fixture(required_quality: i32) -> (RecipeProfile, CrafterProfile, GenericObjective) {
     let recipe = RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 36_990,
         recipe_level: 746,
         progress_required: 10_000,
@@ -83,6 +84,7 @@ fn resource_portfolio_does_not_repeat_a_resource_only_noop() {
         assert_ne!(decision.action, CraftActionId::FinalAppraisal);
         assert_eq!(state, before);
         let renamed = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 987_654,
             ..recipe
         };
@@ -250,8 +252,8 @@ fn every_condition_has_legal_opportunities_across_quality_contracts() {
                     );
                 }
                 let required: &[CraftActionId] = match condition {
-                    MaterialCondition::Normal => &[],
-                    MaterialCondition::Good => &[
+                    MaterialCondition::Normal | MaterialCondition::Poor => &[],
+                    MaterialCondition::Good | MaterialCondition::Excellent => &[
                         CraftActionId::PreciseTouch,
                         CraftActionId::TricksOfTheTrade,
                         CraftActionId::ByregotsBlessing,
@@ -740,6 +742,7 @@ fn construction_compares_legal_openings_without_recipe_identity() {
         }
         assert!(result.decision.is_some());
         let renamed = RecipeProfile {
+            normal_condition_rules: false,
             canonical_recipe_id: 999_999,
             ..recipe
         };
@@ -819,6 +822,7 @@ fn forecasts_are_repeatable_isolated_and_recipe_identity_independent() {
         recommend(&recipe, &crafter, &state, objective, &context)
     );
     let renamed = RecipeProfile {
+        normal_condition_rules: false,
         canonical_recipe_id: 123_456,
         ..recipe
     };

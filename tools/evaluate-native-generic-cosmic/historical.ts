@@ -34,7 +34,7 @@ export function historicalSource(shardValue: unknown) {
     || report.schemaVersion === 'native-generic-cosmic-three-arm-matrix-v1'
   if (shard.status !== 'completed' || shard.reportFingerprint !== digest
     || !freshSchema
-    || report.binary?.handshake?.[0] !== 'native-generic-episode-batch-v7') {
+    || !['native-generic-episode-batch-v7', 'native-generic-episode-batch-v8'].includes(report.binary?.handshake?.[0])) {
     throw new Error('historical baseline is not an intact completed fresh native shard')
   }
   for (const value of [shard.configFingerprint, shard.evaluatorBundleSha256, report.binary?.sha256]) {

@@ -24,6 +24,7 @@ const SNAPSHOT_CONTRACT_BY_XIVAPI_VERSION = Object.freeze({
     schema: 'exdschema@2:rev:83e965d091116f895d5b17573cc5d12909a5f407',
     patch: '7.55',
     cosmicExpertRecipeCount: 432,
+    nonExpertRecipeCount: 384,
   }),
 })
 
@@ -205,7 +206,7 @@ function normalizeMissionName(value) {
   return value.replace(/[\uE000-\uF8FF]/g, '').trim()
 }
 
-function missionNamesByRecipeRowId(csv) {
+export function missionNamesByRecipeRowId(csv) {
   const rows = parseCsv(csv, 'WKSMissionUnit.csv')
   const header = rows.shift() ?? []
   assertExactHeader(header, WKS_MISSION_UNIT_HEADERS, 'WKSMissionUnit.csv')
@@ -228,6 +229,12 @@ function missionNamesByRecipeRowId(csv) {
       throw new Error(`invalid WKSMissionRecipe reference in mission unit ${unitId}`)
     }
     if (missionRecipeId === 0) continue
+    const levelGroup = Number(columns[header.indexOf('LevelGroup')])
+    if (!Number.isInteger(levelGroup) || levelGroup < 1 || levelGroup > 6) {
+      throw new Error(`WKS mission unit ${unitId} has invalid LevelGroup`)
+    }
+    // LevelGroup 1/2/3 are D/C/B; 4/5/6 are the A mission variants.
+    if (levelGroup < 4) continue
     const nameEn = normalizeMissionName(columns[nameIndex])
     if (nameEn.length === 0) {
       throw new Error(`WKS mission unit ${unitId} references recipe row ${missionRecipeId} without a display name`)
@@ -247,6 +254,7 @@ async function fetchExpertLevel100Recipes() {
 
   do {
     const url = new URL(XIVAPI_SEARCH)
+    url.searchParams.set('version', '284bb7f44b9c0976')
     url.searchParams.set('sheets', 'Recipe')
     url.searchParams.set('query', '+IsExpert=true +RecipeLevelTable.ClassJobLevel=100')
     url.searchParams.set('fields', RECIPE_FIELDS)
@@ -303,12 +311,12 @@ function familyIdentity(record) {
     record.conditionsFlag,
     record.qualityOutcome,
   ].join(':')
-  return `cosmic-expert-mechanics-${createHash('sha256').update(identity).digest('hex').slice(0, 12)}`
+  return `cosmic-expert-mechanics-${createHash('sha256').update(record.isExpert ? identity : `${identity}:non-expert`).digest('hex').slice(0, 12)}`
 }
 
 function normalizeRecipe(row, missionIds, missionIdentities) {
   const fields = row.fields
-  if (fields?.IsExpert !== true) throw new Error(`Recipe ${row.row_id} is not expert`)
+  if (typeof fields?.IsExpert !== 'boolean') throw new Error(`Recipe ${row.row_id} lacks IsExpert`)
   const itemLink = fields.ItemResult
   const item = nestedFields(itemLink, `Recipe ${row.row_id} ItemResult`)
   const levelLink = fields.RecipeLevelTable
@@ -349,6 +357,7 @@ function normalizeRecipe(row, missionIds, missionIdentities) {
 
   const record = {
     recipeId: requiredPositiveNumber(row.row_id, 'Recipe row_id'),
+    isExpert: fields.IsExpert,
     itemId: requiredPositiveNumber(itemLink.row_id, 'ItemResult row_id'),
     itemIconId: requiredPositiveNumber(item.Icon?.id, 'ItemResult.Icon.id'),
     nameEn: String(item.Name ?? '').trim(),
@@ -423,11 +432,15 @@ function renderGeneratedModule({
     recipeCount: recipes.length,
     mechanicsFamilyCount: new Set(recipes.map((recipe) => recipe.mechanicsFamilyId)).size,
   }
-  return `/* eslint-disable */\n/**\n * GENERATED FILE. Run \`npm run data:import:cosmic-expert\` to refresh.\n * Do not hand-edit recipe rows.\n */\n\nexport const COSMIC_EXPERT_GENERATED_SOURCE = ${JSON.stringify(source, null, 2)} as const\n\nexport const GENERATED_COSMIC_EXPERT_RECIPES = ${JSON.stringify(recipes, null, 2)} as const\n`
+  return `/* eslint-disable */\n/**\n * GENERATED FILE. Run \`npm run data:import:cosmic-expert\` to refresh.\n * Do not hand-edit recipe rows.\n */\n\nimport type { CosmicRecipeRecord } from '../cosmicRecipeRecord'\n\nexport const COSMIC_EXPERT_GENERATED_SOURCE = ${JSON.stringify(source, null, 2)} as const\n\nexport const GENERATED_COSMIC_EXPERT_RECIPES: readonly CosmicRecipeRecord[] = ${JSON.stringify(recipes, null, 2)} as const\n`
 }
 
 async function main() {
-  const [missionRecipeRevision, missionUnitRevision] = await Promise.all([
+  const pinned = JSON.parse((await readFile(OUTPUT_PATH, 'utf8')).match(/COSMIC_EXPERT_GENERATED_SOURCE = (\{[\s\S]*?\}) as const/)[1])
+  const [missionRecipeRevision, missionUnitRevision] = process.argv.includes('--pinned') ? [
+    { sha: pinned.wksMissionRecipeRevision, committedAt: pinned.verifiedAt },
+    { sha: pinned.wksMissionUnitRevision, committedAt: pinned.verifiedAt },
+  ] : await Promise.all([
     latestPathRevision(WKS_MISSION_RECIPE_PATH),
     latestPathRevision(WKS_MISSION_UNIT_PATH),
   ])
@@ -440,6 +453,19 @@ async function main() {
   const memberships = missionMemberships(missionRecipeCsv)
   const missionIdentities = missionNamesByRecipeRowId(missionUnitCsv)
   const { rows, schema, version } = await fetchExpertLevel100Recipes()
+  const fetched = new Set(rows.map(row => row.row_id))
+  const extraIds = [...memberships].filter(([id, missionIds]) => !fetched.has(id)
+    && missionIds.some(missionId => missionIdentities.has(missionId)))
+    .map(([id]) => id)
+  for (let offset = 0; offset < extraIds.length; offset += 100) {
+    const url = new URL('https://v2.xivapi.com/api/sheet/Recipe')
+    url.searchParams.set('version', version)
+    url.searchParams.set('rows', extraIds.slice(offset, offset + 100).join(','))
+    url.searchParams.set('fields', RECIPE_FIELDS)
+    const page = await fetchJson(url)
+    if (page.schema !== schema || page.version !== version || !Array.isArray(page.rows)) throw new Error('additional recipe snapshot identity mismatch')
+    rows.push(...page.rows)
+  }
   const snapshotContract = SNAPSHOT_CONTRACT_BY_XIVAPI_VERSION[version]
   if (snapshotContract === undefined) {
     throw new Error(`unsupported XIVAPI game-data version: ${version}`)
@@ -448,19 +474,21 @@ async function main() {
     throw new Error(`unsupported XIVAPI schema ${schema} for game-data ${version}`)
   }
   const recipes = rows
-    .filter((row) => memberships.has(row.row_id))
-    .map((row) => normalizeRecipe(row, memberships.get(row.row_id), missionIdentities))
+    .filter((row) => memberships.get(row.row_id)?.some(missionId => missionIdentities.has(missionId))
+      && row.fields.RecipeLevelTable.fields.ClassJobLevel === 100)
+    .map((row) => normalizeRecipe(row, memberships.get(row.row_id).filter(missionId => missionIdentities.has(missionId)), missionIdentities))
     .sort((a, b) => a.recipeId - b.recipeId)
 
   const uniqueIds = new Set(recipes.map((recipe) => recipe.recipeId))
   if (uniqueIds.size !== recipes.length) throw new Error('duplicate recipe id in generated catalog')
-  if (recipes.length !== snapshotContract.cosmicExpertRecipeCount) {
+  if (recipes.filter(recipe => recipe.isExpert).length !== snapshotContract.cosmicExpertRecipeCount
+    || recipes.filter(recipe => !recipe.isExpert).length !== snapshotContract.nonExpertRecipeCount) {
     const excluded = rows
       .filter((row) => !memberships.has(row.row_id))
       .map((row) => `${row.row_id}:${String(row.fields?.ItemResult?.fields?.Name ?? 'unknown')}`)
       .join(', ')
     throw new Error(
-      `expected exactly ${snapshotContract.cosmicExpertRecipeCount} Cosmic expert recipes for ${version}, got ${recipes.length}; `
+      `expected ${snapshotContract.cosmicExpertRecipeCount} Expert and ${snapshotContract.nonExpertRecipeCount} non-Expert mission recipes for ${version}, got ${recipes.filter(recipe => recipe.isExpert).length}/${recipes.filter(recipe => !recipe.isExpert).length}; `
       + `level-100 expert recipes outside WKSMissionRecipe: ${excluded}`,
     )
   }
@@ -494,4 +522,4 @@ async function main() {
   )
 }
 
-await main()
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main()

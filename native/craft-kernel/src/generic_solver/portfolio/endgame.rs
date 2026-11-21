@@ -266,6 +266,7 @@ mod tests {
     fn suffixes_are_funded_and_respect_required_quality_and_action_budget() {
         for required_quality in [0, 22_500] {
             let recipe = RecipeProfile {
+                normal_condition_rules: false,
                 canonical_recipe_id: 0,
                 recipe_level: 746,
                 progress_required: 10_000,

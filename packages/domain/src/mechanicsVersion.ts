@@ -4,4 +4,4 @@
  * than maintaining independent version strings.
  */
 export const CRAFT_MECHANICS_VERSION =
-  'cosmic-craft-mechanics-v0.5.0-robust-condition'
+  'cosmic-craft-mechanics-v0.6.0-standard-conditions'

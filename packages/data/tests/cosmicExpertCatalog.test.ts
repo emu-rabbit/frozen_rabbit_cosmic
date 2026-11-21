@@ -12,11 +12,31 @@ import {
 import { GENERATED_COSMIC_EXPERT_RECIPES } from '../src/generated/cosmicExpertRecipes.generated'
 
 describe('generated Cosmic Exploration expert recipe catalog', () => {
-  it('contains every WKS-owned level-100 expert recipe in the pinned 7.55 snapshot', () => {
-    expect(COSMIC_EXPERT_GENERATED_SOURCE.recipeCount).toBe(432)
-    expect(COSMIC_EXPERT_SCENARIO_DATA).toHaveLength(432)
-    expect(new Set(COSMIC_EXPERT_SCENARIO_DATA.map((entry) => entry.scenarioId)).size).toBe(432)
-    expect(new Set(COSMIC_EXPERT_SCENARIO_DATA.map((entry) => entry.recipe.canonicalRecipeId)).size).toBe(432)
+  it('contains every Class A mission recipe regardless of expert status or mission label', () => {
+    expect(COSMIC_EXPERT_GENERATED_SOURCE.recipeCount).toBe(816)
+    expect(COSMIC_EXPERT_SCENARIO_DATA).toHaveLength(816)
+    expect(new Set(COSMIC_EXPERT_SCENARIO_DATA.map((entry) => entry.scenarioId)).size).toBe(816)
+    expect(new Set(COSMIC_EXPERT_SCENARIO_DATA.map((entry) => entry.recipe.canonicalRecipeId)).size).toBe(816)
+  })
+
+  it('keeps mission rank separate from the recipe flag and distinguishes random from forced colors', () => {
+    expect(GENERATED_COSMIC_EXPERT_RECIPES.filter(recipe => recipe.isExpert)).toHaveLength(432)
+    expect(GENERATED_COSMIC_EXPERT_RECIPES.filter(recipe => !recipe.isExpert)).toHaveLength(384)
+    const bottle = cosmicExpertScenarioDataByRecipeId(37041)!
+    expect(bottle.recipe.isExpert).toBe(false)
+    expect(bottle.missionNamesEn).toEqual(['EX: Artisanal Craftwork'])
+    expect(bottle.recipe.availableConditions).toEqual(['normal', 'good', 'excellent', 'poor'])
+    expect(bottle.recipe.randomConditions).toEqual(['normal', 'good', 'excellent'])
+    const special = GENERATED_COSMIC_EXPERT_RECIPES.find(recipe => !recipe.isExpert && recipe.conditionsFlag === 995)!
+    expect(cosmicExpertScenarioDataByRecipeId(special.recipeId)!.recipe.availableConditions).toContain('goodOmen')
+    expect(cosmicExpertScenarioDataByRecipeId(special.recipeId)!.recipe.availableConditions).not.toContain('excellent')
+  })
+
+  it('includes unlabelled Class A recipes and excludes D/C/B recipes', () => {
+    expect(cosmicExpertScenarioDataByRecipeId(36192)?.missionNamesEn).toEqual(['High-durability Fiberboard'])
+    for (const recipeId of [36165, 36171, 36178]) {
+      expect(cosmicExpertScenarioDataByRecipeId(recipeId)).toBeNull()
+    }
   })
 
   it('binds catalog identity to both WKS sources, XIVAPI schema/version, and canonical content', () => {
@@ -37,7 +57,7 @@ describe('generated Cosmic Exploration expert recipe catalog', () => {
     expect(catalogIdentitySha256).toBe(COSMIC_EXPERT_GENERATED_SOURCE.catalogIdentitySha256)
     expect(COSMIC_EXPERT_CATALOG_IDENTITY).toBe(catalogIdentitySha256.slice(0, 16))
     expect(COSMIC_EXPERT_CATALOG_VERSION)
-      .toBe('cosmic-expert-catalog-284bb7f44b9c0976-3c0ac44a05e9bf29-v2')
+      .toBe('cosmic-expert-catalog-284bb7f44b9c0976-5a3af8f7015f5ebc-v2')
     expect(COSMIC_EXPERT_GENERATED_SOURCE).toMatchObject({
       wksMissionRecipePath: 'csv/en/WKSMissionRecipe.csv',
       wksMissionUnitPath: 'csv/en/WKSMissionUnit.csv',
@@ -95,13 +115,13 @@ describe('generated Cosmic Exploration expert recipe catalog', () => {
       'leatherworker',
       'weaver',
     ])
-    expect(Object.values(counts).map((entries) => entries?.length)).toEqual(Array(8).fill(54))
+    expect(Object.values(counts).map((entries) => entries?.length)).toEqual(Array(8).fill(102))
   })
 
   it('groups name/job variants into mechanics families without hiding selectable recipes', () => {
-    expect(COSMIC_EXPERT_MECHANICS_FAMILIES).toHaveLength(50)
+    expect(COSMIC_EXPERT_MECHANICS_FAMILIES).toHaveLength(90)
     expect(COSMIC_EXPERT_MECHANICS_FAMILIES.some((family) => family.recipeIds.length >= 8)).toBe(true)
-    expect(COSMIC_EXPERT_MECHANICS_FAMILIES.flatMap((family) => family.recipeIds)).toHaveLength(432)
+    expect(COSMIC_EXPERT_MECHANICS_FAMILIES.flatMap((family) => family.recipeIds)).toHaveLength(816)
   })
 
   it('shares verified family-level objective templates without duplicating Craft policy evaluation', () => {

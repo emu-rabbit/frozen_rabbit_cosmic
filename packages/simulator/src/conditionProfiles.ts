@@ -201,6 +201,8 @@ export function sampleCondition(
 ): MaterialCondition {
   if (previousCondition === 'goodOmen') return 'good'
   if (previousCondition === 'robust') return 'sturdy'
+  if (previousCondition === 'excellent') return 'poor'
+  if (previousCondition === 'poor') return 'normal'
   const weights = previousCondition === undefined
     ? profile.weights
     : profile.transitionWeights?.[previousCondition] ?? profile.weights
