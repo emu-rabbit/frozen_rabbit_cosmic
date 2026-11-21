@@ -650,7 +650,7 @@ html.dark .craft-meter > i { background: #22332f; }
 .condition-badge--goodOmen, .condition-option--goodOmen { --condition-color: #ffb5a1; --condition-edge: #e18470; }
 .condition-badge--centered, .condition-option--centered { --condition-color: #dbdb4d; --condition-edge: #a6a62c; }
 .condition-badge--excellent, .condition-option--excellent { --condition-color: #fff4ad; --condition-edge: #a67c00; background-image: linear-gradient(135deg, #ffbac9, #fff4ad, #b7eeff); }
-.condition-badge--poor, .condition-option--poor { --condition-color: #a780ce; --condition-edge: #67438c; }
+.condition-badge--poor, .condition-option--poor { --condition-color: #171717; --condition-edge: #737373; }
 .condition-badge--sturdy, .condition-option--sturdy,
 .condition-badge--robust, .condition-option--robust { --condition-color: #3dceff; --condition-edge: #2097bf; }
 .condition-badge--pliant, .condition-option--pliant { --condition-color: #04d504; --condition-edge: #079507; }
