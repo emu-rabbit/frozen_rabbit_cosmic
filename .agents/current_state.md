@@ -1,8 +1,8 @@
 # 目前狀態
 
-`last_verified: 2026-11-21`（本次擴充全部 A 級製作任務，保留非 Expert 球色及 Rust／WASM 支援；歷史效能與遊戲實證沿用原有界線。）
+`last_verified: 2026-11-21`（本次核對 A 級任務正式發布、Rust／跨語言 parity 與線上資料；歷史效能與遊戲實證沿用原有界線。）
 
-目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。既有 Expert 範圍的行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v3。對外演算法介紹與串接指引已同步；本輪交付範圍為 staging 預覽，尚未發布正式。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
+目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。既有 Expert 範圍的行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v3。對外演算法介紹與串接指引已同步；A 級任務與非 Expert 支援已發布正式，發布及 parity 修補見 [正式發布紀錄](../reports/a-grade-production-release-20261121.md)。策略採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 
 ## 目前方向
 
