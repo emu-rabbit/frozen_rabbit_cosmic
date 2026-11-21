@@ -1,8 +1,8 @@
 # 目前狀態
 
-`last_verified: 2026-11-18`（本次核對台服 7.3 任務資料包與來源；其餘沿用既有驗證。）
+`last_verified: 2026-11-21`（本次擴充全部 A 級製作任務，保留非 Expert 球色及 Rust／WASM 支援；歷史效能與遊戲實證沿用原有界線。）
 
-目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v2。對外演算法介紹與串接指引已同步；本次未部署。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
+目前採用 v2.4，已接入 Web 與公開 Rust façade；使用者於 2026-09-06 明確指定升版。既有 Expert 範圍的行為等同已拆分的 `exp-time-budgeted-recovery`：以 v2.3 加短收尾為預設，只在有時間壓力時比較額外耐久回復。Web application 為 1.0.0（版本來源為 [Web package](../apps/web/package.json)），根 workspace／Cargo 仍為 0.1.0，API／WASM ABI 為 v3。對外演算法介紹與串接指引已同步；本輪交付範圍為 staging 預覽，尚未發布正式。採用與驗證見 [v2.4 採用紀錄](../reports/generic-cosmic-overnight/v240-adoption-20260906.md)。
 
 ## 目前方向
 
@@ -16,15 +16,17 @@
 | 歷史候選 | `exp-opening-recovery` 保留供重播，歷史 v2.3 直接共用實作；後續兩個失敗修補未併入。 | [採用紀錄](../reports/generic-cosmic-overnight/v230-adoption-20260906.md) |
 | 時間友善拆分 | `exp-short-certified-finish` 為獨立對照；v2.4 與 `exp-time-budgeted-recovery` 共用 optional 當件時間預算實作。舊 `exp-compact-recovery` 與 `exp-eager-recovery` 保留重播。 | [拆分報告](../reports/generic-cosmic-overnight/time-budgeted-recovery-implementation-20260906.md) |
 | 歷史對照 | v2.1 與既有描述性實驗 identity 保留供重播及消融比較。 | `native/craft-kernel/src/generic_solver.rs` |
-| Rust 整合 API | API v2；原 `recommend(state)` 保留，新增 `recommend_with_options(state, options)`，`time_budget: Option<CraftTimeBudget>` 預設 None；crate 仍為 `publish = false`。 | `native/craft-kernel/src/main_solver.rs`、[整合指引](../native/craft-kernel/README.md) |
+| Rust 整合 API | API v3；配方新增一般四球色規則旗標，原 `recommend(state)` 保留，新增 `recommend_with_options(state, options)`，`time_budget: Option<CraftTimeBudget>` 預設 None；crate 仍為 `publish = false`。 | `native/craft-kernel/src/main_solver.rs`、[整合指引](../native/craft-kernel/README.md) |
 | Web 計算 | Rust→WASM persistent Worker；初始化期限 30 秒、每步推薦 watchdog 3 秒；錯誤／逾時明示，目前沒有獨立快速求解器。 | `apps/web/src/runtime/planner/`、`native/craft-kernel-web` |
 | 使用流程 | 任務 catalog、搜尋／篩選、裝備設定檔、四語系、明暗模式、逐步回報、合法替代技能、undo、重置、後續任務導向已接入。 | `apps/web/src/views/`、`apps/web/src/composables/useActiveCraftSession.ts` |
 | 紀錄下載 | 終局可下載 debug session；export 以目前 Web policy 覆蓋 protocol 的歷史預設 identity。 | `CraftSolverView.vue`、`useActiveCraftSession.ts`、`packages/protocol/src/events.ts` |
 | 儲存 | 裝備與偏好持久化；任務資料使用 IndexedDB 快取；進行中的 craft 只在記憶體，reload 不恢復。 | `apps/web/src/composables/`、`apps/web/src/services/missionData.ts`、`missionDataCache.ts` |
-| 資料 | Catalog／family／objective binding 由資料套件生成與維護；既有評測範圍為 432 配方／50 families。 | `packages/data/src/cosmicExpertCatalog.ts`、`tools/import-cosmic-expert-recipes/` |
+| 資料 | Catalog／family／objective binding 由資料套件生成與維護；目前共 816 配方／90 families、616 個 A 級製作任務；B／C／D 級排除。既有 Expert 評測仍限原 432／50，新增任務不自動繼承歷史品質證據。 | `packages/data/src/cosmicExpertCatalog.ts`、`tools/import-cosmic-expert-recipes/` |
 | 任務資料包 | 台服 7.3 資料補齊法恩娜任務與產物的繁中名稱。來源 revision 和資料版本見 manifest。 | [任務資料 manifest](../apps/web/public/mission-data/manifest.json)、`tools/generate-cosmic-mission-data/` |
-| 任務限時 | Mission bundle format 4 保存總限時；正值為秒數，0 為不限時，缺值不接受；與任務出現時段分開。 | `tools/generate-cosmic-mission-data/`、`apps/web/src/types/missionData.ts` |
+| 任務限時 | Mission bundle format 5 保存總限時；正值為秒數，0 為不限時，缺值不接受；與任務出現時段分開。 | `tools/generate-cosmic-mission-data/`、`apps/web/src/types/missionData.ts` |
 | 任務時間估計 | 第一顆實際回報球色起算；每品項一件，扣除 30 秒預留後平均分配未完成品項。每招估計 5.3 秒；undo、重做與同任務換品項不重設倒數。 | `apps/web/src/services/missionClock.ts`、`useActiveCraftSession.ts` |
+
+全部 A 級製作任務已收錄；首頁說明明示 A 級，保留原有篩選分類。收錄規則、來源與驗證見 [A 級 catalog 報告](../reports/a-grade-cosmic-catalog-20261121.md)。非 Expert 的確認提醒與 Excellent／Poor 支援沿用既有實作；早先 25 families 的固定球色證據見 [支援報告](../reports/nonexpert-cosmic-support-20261121.md)，不外推至本輪新增家族。
 
 ## 真正尚未完成或未驗證的部分
 

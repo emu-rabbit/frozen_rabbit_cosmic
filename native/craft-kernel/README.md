@@ -6,9 +6,11 @@ Frozen Rabbit is a Rust library that recommends one crafting action at a time. Y
 
 ### Updating to v2.4
 
-Solver v2.4 recommends shorter full-quality finishing routes and can use an optional time budget to consider durability recovery when time is tight. The policy identity is `generic-craft-external-reference-v2.4.0`; the public API is `frozen-rabbit-main-solver-api-v2`. Existing `recommend(&state)` calls remain valid. Use `recommend_with_options` when your application can provide the time available for the current craft.
+Solver v2.4 recommends shorter full-quality finishing routes and can use an optional time budget to consider durability recovery when time is tight. The policy identity is `generic-craft-external-reference-v2.4.0`; the public API is `frozen-rabbit-main-solver-api-v3`. Existing `recommend(&state)` calls remain valid. Use `recommend_with_options` when your application can provide the time available for the current craft.
 
-The WebAssembly interface is `rust-web-planner-abi-v2`, retaining the exports and seven-cell reply. The existing request body remains valid; an optional `time-budget:<remaining milliseconds>:<expected action milliseconds>` cell may precede the advance cell. Use the v2.4 policy when supplying a time budget. Missing means no deadline pressure; zero remaining time means expired and does not change mechanics completion or the action limit. Replace WASM and the caller's expected ABI/policy together, then start a new session.
+The WebAssembly interface is `rust-web-planner-abi-v3`, retaining the exports and seven-cell reply. The existing request body remains valid; an optional `time-budget:<remaining milliseconds>:<expected action milliseconds>` cell may precede the advance cell. Use the v2.4 policy when supplying a time budget. Missing means no deadline pressure; zero remaining time means expired and does not change mechanics completion or the action limit. Replace WASM and the caller's expected ABI/policy together, then start a new session.
+
+Recipes now declare `normal_condition_rules`: set it to `!Recipe.IsExpert` to apply Good→Normal on non-expert recipes. Declare available conditions separately: some non-expert recipes still have special colors. Live Web episode rows use v8 (182 cells), including this rule flag and an 11×11 condition matrix. Historical v7 Expert rows remain readable; update the WASM artifact and ABI expectation together.
 
 Solver v2.4 is a policy version, not a Cargo package version or a published Git tag. The Cargo package remains `0.1.0`; no crates.io release is implied.
 
@@ -136,9 +138,9 @@ Frozen Rabbit 是一個 Rust 函式庫，每次提供一個製作技能建議。
 
 #### 更新至 v2.4
 
-v2.4 會尋找較短的滿品質收尾，並可依選填的時間預算，在時間吃緊時比較恢復耐久的做法。策略識別為 `generic-craft-external-reference-v2.4.0`，公開 API 為 `frozen-rabbit-main-solver-api-v2`。既有 `recommend(&state)` 呼叫仍可使用；應用程式能提供當件剩餘時間時，再使用 `recommend_with_options`。
+v2.4 會尋找較短的滿品質收尾，並可依選填的時間預算，在時間吃緊時比較恢復耐久的做法。策略識別為 `generic-craft-external-reference-v2.4.0`，公開 API 為 `frozen-rabbit-main-solver-api-v3`。既有 `recommend(&state)` 呼叫仍可使用；應用程式能提供當件剩餘時間時，再使用 `recommend_with_options`。
 
-WebAssembly 介面為 `rust-web-planner-abi-v2`，匯出函式及七欄回覆保留。原有請求 body 可繼續使用；optional 的 `time-budget:<剩餘毫秒>:<每招預估毫秒>` 欄可加在 advance 欄之前，請搭配 v2.4 策略使用。省略代表無時間壓力；剩餘零代表到期，不改寫遊戲完成條件或 action limit。WASM、呼叫端預期 ABI 與策略字串一起更新，之後重新開始製作。
+WebAssembly 介面為 `rust-web-planner-abi-v3`，匯出函式及七欄回覆保留。原有請求 body 可繼續使用；optional 的 `time-budget:<剩餘毫秒>:<每招預估毫秒>` 欄可加在 advance 欄之前，請搭配 v2.4 策略使用。省略代表無時間壓力；剩餘零代表到期，不改寫遊戲完成條件或 action limit。WASM、呼叫端預期 ABI 與策略字串一起更新，之後重新開始製作。
 
 v2.4 是求解策略版本，不是 Cargo 套件版本或已發布的 Git tag。Cargo 套件仍為 `0.1.0`，不代表已發布至 crates.io。
 

@@ -1,0 +1,521 @@
+{
+  "kind": "bounded-synthetic-fixed-tape-not-natural-success-rate",
+  "wasmSha256": "aa3f51ea7228818b8b17232a05b786e6bcb39b2458b336a382de41e08b978ad8",
+  "policy": "generic-craft-external-reference-v2.4.0",
+  "equipment": {
+    "level": 100,
+    "craftsmanship": 5408,
+    "control": 5237,
+    "maxCp": 722,
+    "specialist": false,
+    "cosmicToolGoodBonus": false
+  },
+  "actionLimit": 80,
+  "successAssumption": "all-actions-succeed",
+  "worlds": [
+    "all-normal",
+    "cyclic-declared-random-colors"
+  ],
+  "results": [
+    {
+      "recipe": 36640,
+      "family": "cosmic-expert-mechanics-e541edf4801c",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 12049,
+      "qualityMax": 14900,
+      "actions": 44
+    },
+    {
+      "recipe": 36640,
+      "family": "cosmic-expert-mechanics-e541edf4801c",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 14900,
+      "qualityMax": 14900,
+      "actions": 35
+    },
+    {
+      "recipe": 36651,
+      "family": "cosmic-expert-mechanics-acadf1c31c80",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 15400,
+      "qualityMax": 15400,
+      "actions": 41
+    },
+    {
+      "recipe": 36651,
+      "family": "cosmic-expert-mechanics-acadf1c31c80",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 15400,
+      "qualityMax": 15400,
+      "actions": 32
+    },
+    {
+      "recipe": 36653,
+      "family": "cosmic-expert-mechanics-4868180118ab",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "failed",
+      "quality": 1100,
+      "qualityMax": 1100,
+      "actions": 51
+    },
+    {
+      "recipe": 36653,
+      "family": "cosmic-expert-mechanics-4868180118ab",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 1100,
+      "qualityMax": 1100,
+      "actions": 75
+    },
+    {
+      "recipe": 36681,
+      "family": "cosmic-expert-mechanics-8d431f740a2a",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 12416,
+      "qualityMax": 17400,
+      "actions": 44
+    },
+    {
+      "recipe": 36681,
+      "family": "cosmic-expert-mechanics-8d431f740a2a",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 17400,
+      "qualityMax": 17400,
+      "actions": 36
+    },
+    {
+      "recipe": 36655,
+      "family": "cosmic-expert-mechanics-b77464aae790",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 7621,
+      "qualityMax": 16300,
+      "actions": 41
+    },
+    {
+      "recipe": 36655,
+      "family": "cosmic-expert-mechanics-b77464aae790",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 16300,
+      "qualityMax": 16300,
+      "actions": 42
+    },
+    {
+      "recipe": 36656,
+      "family": "cosmic-expert-mechanics-0bf4d807cd7d",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 7924,
+      "qualityMax": 17100,
+      "actions": 43
+    },
+    {
+      "recipe": 36656,
+      "family": "cosmic-expert-mechanics-0bf4d807cd7d",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 17100,
+      "qualityMax": 17100,
+      "actions": 43
+    },
+    {
+      "recipe": 36658,
+      "family": "cosmic-expert-mechanics-a96d4860ba35",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 18040,
+      "qualityMax": 19000,
+      "actions": 38
+    },
+    {
+      "recipe": 36658,
+      "family": "cosmic-expert-mechanics-a96d4860ba35",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 19000,
+      "qualityMax": 19000,
+      "actions": 34
+    },
+    {
+      "recipe": 36659,
+      "family": "cosmic-expert-mechanics-1ee83a03b43e",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 19616,
+      "qualityMax": 23200,
+      "actions": 38
+    },
+    {
+      "recipe": 36659,
+      "family": "cosmic-expert-mechanics-1ee83a03b43e",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 23200,
+      "qualityMax": 23200,
+      "actions": 28
+    },
+    {
+      "recipe": 36683,
+      "family": "cosmic-expert-mechanics-214c7132e0a0",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 15400,
+      "qualityMax": 15400,
+      "actions": 41
+    },
+    {
+      "recipe": 36683,
+      "family": "cosmic-expert-mechanics-214c7132e0a0",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 15400,
+      "qualityMax": 15400,
+      "actions": 32
+    },
+    {
+      "recipe": 36682,
+      "family": "cosmic-expert-mechanics-b13cefc52826",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 11800,
+      "qualityMax": 11800,
+      "actions": 37
+    },
+    {
+      "recipe": 36682,
+      "family": "cosmic-expert-mechanics-b13cefc52826",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 11800,
+      "qualityMax": 11800,
+      "actions": 35
+    },
+    {
+      "recipe": 36684,
+      "family": "cosmic-expert-mechanics-ce74da24102b",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 12500,
+      "qualityMax": 12500,
+      "actions": 40
+    },
+    {
+      "recipe": 36684,
+      "family": "cosmic-expert-mechanics-ce74da24102b",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 12500,
+      "qualityMax": 12500,
+      "actions": 30
+    },
+    {
+      "recipe": 37383,
+      "family": "cosmic-expert-mechanics-157b2f8a3550",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 12200,
+      "qualityMax": 12200,
+      "actions": 44
+    },
+    {
+      "recipe": 37383,
+      "family": "cosmic-expert-mechanics-157b2f8a3550",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 12200,
+      "qualityMax": 12200,
+      "actions": 33
+    },
+    {
+      "recipe": 37387,
+      "family": "cosmic-expert-mechanics-6988c4eab820",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 12400,
+      "qualityMax": 12400,
+      "actions": 39
+    },
+    {
+      "recipe": 37387,
+      "family": "cosmic-expert-mechanics-6988c4eab820",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 12400,
+      "qualityMax": 12400,
+      "actions": 29
+    },
+    {
+      "recipe": 37388,
+      "family": "cosmic-expert-mechanics-b1359d46af27",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 15361,
+      "qualityMax": 18000,
+      "actions": 43
+    },
+    {
+      "recipe": 37388,
+      "family": "cosmic-expert-mechanics-b1359d46af27",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 18000,
+      "qualityMax": 18000,
+      "actions": 36
+    },
+    {
+      "recipe": 37390,
+      "family": "cosmic-expert-mechanics-dd2b68a163fb",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "none",
+      "quality": 4362,
+      "qualityMax": 19400,
+      "actions": 80
+    },
+    {
+      "recipe": 37390,
+      "family": "cosmic-expert-mechanics-dd2b68a163fb",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 19400,
+      "qualityMax": 19400,
+      "actions": 36
+    },
+    {
+      "recipe": 37391,
+      "family": "cosmic-expert-mechanics-883a601a6daf",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "none",
+      "quality": 5398,
+      "qualityMax": 24100,
+      "actions": 80
+    },
+    {
+      "recipe": 37391,
+      "family": "cosmic-expert-mechanics-883a601a6daf",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 24100,
+      "qualityMax": 24100,
+      "actions": 43
+    },
+    {
+      "recipe": 37394,
+      "family": "cosmic-expert-mechanics-16fddff0be86",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 13676,
+      "qualityMax": 14000,
+      "actions": 36
+    },
+    {
+      "recipe": 37394,
+      "family": "cosmic-expert-mechanics-16fddff0be86",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 14000,
+      "qualityMax": 14000,
+      "actions": 32
+    },
+    {
+      "recipe": 37395,
+      "family": "cosmic-expert-mechanics-11b885c1b064",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 13600,
+      "qualityMax": 13600,
+      "actions": 39
+    },
+    {
+      "recipe": 37395,
+      "family": "cosmic-expert-mechanics-11b885c1b064",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 13600,
+      "qualityMax": 13600,
+      "actions": 30
+    },
+    {
+      "recipe": 37399,
+      "family": "cosmic-expert-mechanics-0c877615694f",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "none",
+      "quality": 864,
+      "qualityMax": 18500,
+      "actions": 80
+    },
+    {
+      "recipe": 37399,
+      "family": "cosmic-expert-mechanics-0c877615694f",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 18500,
+      "qualityMax": 18500,
+      "actions": 52
+    },
+    {
+      "recipe": 37774,
+      "family": "cosmic-expert-mechanics-50043969f196",
+      "outcome": "hq-chance",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 14200,
+      "qualityMax": 14200,
+      "actions": 40
+    },
+    {
+      "recipe": 37774,
+      "family": "cosmic-expert-mechanics-50043969f196",
+      "outcome": "hq-chance",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 14200,
+      "qualityMax": 14200,
+      "actions": 34
+    },
+    {
+      "recipe": 37775,
+      "family": "cosmic-expert-mechanics-082ecd212cc6",
+      "outcome": "required-quality",
+      "colored": false,
+      "terminal": "none",
+      "quality": 1641,
+      "qualityMax": 21000,
+      "actions": 80
+    },
+    {
+      "recipe": 37775,
+      "family": "cosmic-expert-mechanics-082ecd212cc6",
+      "outcome": "required-quality",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 21000,
+      "qualityMax": 21000,
+      "actions": 41
+    },
+    {
+      "recipe": 37777,
+      "family": "cosmic-expert-mechanics-f9ae4c31523e",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "none",
+      "quality": 5398,
+      "qualityMax": 22600,
+      "actions": 80
+    },
+    {
+      "recipe": 37777,
+      "family": "cosmic-expert-mechanics-f9ae4c31523e",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 22600,
+      "qualityMax": 22600,
+      "actions": 41
+    },
+    {
+      "recipe": 38194,
+      "family": "cosmic-expert-mechanics-0bfce7ad5406",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 15016,
+      "qualityMax": 21100,
+      "actions": 43
+    },
+    {
+      "recipe": 38194,
+      "family": "cosmic-expert-mechanics-0bfce7ad5406",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 21100,
+      "qualityMax": 21100,
+      "actions": 45
+    },
+    {
+      "recipe": 38195,
+      "family": "cosmic-expert-mechanics-164af3f82687",
+      "outcome": "required-quality",
+      "colored": false,
+      "terminal": "failed",
+      "quality": 16046,
+      "qualityMax": 19600,
+      "actions": 39
+    },
+    {
+      "recipe": 38195,
+      "family": "cosmic-expert-mechanics-164af3f82687",
+      "outcome": "required-quality",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 19600,
+      "qualityMax": 19600,
+      "actions": 33
+    },
+    {
+      "recipe": 38197,
+      "family": "cosmic-expert-mechanics-4c05e8b9368e",
+      "outcome": "collectability",
+      "colored": false,
+      "terminal": "completed",
+      "quality": 16160,
+      "qualityMax": 24100,
+      "actions": 43
+    },
+    {
+      "recipe": 38197,
+      "family": "cosmic-expert-mechanics-4c05e8b9368e",
+      "outcome": "collectability",
+      "colored": true,
+      "terminal": "completed",
+      "quality": 24100,
+      "qualityMax": 24100,
+      "actions": 41
+    }
+  ]
+}

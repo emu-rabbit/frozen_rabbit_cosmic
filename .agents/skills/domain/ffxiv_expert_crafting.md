@@ -44,8 +44,12 @@ RecipeProfile + CrafterProfile + CraftState
 | `malleable` | 大進展 | 當步進展技能效率提高 |
 | `primed` | 長持續 | 當步建立的部分 buffs 延長 |
 | `robust` | 高耐久 | 當步耐久消耗減半，下一 advancing step 強制結實 |
+| `excellent` | 最高品質 | 品質倍率 4，允許高品質限定技能；消耗球色後強制低品質 |
+| `poor` | 低品質 | 品質倍率 0.5；消耗球色後強制通常，不作隨機球色 |
 
 每個配方實際可出現的 conditions 由 catalog binding 決定。未知 condition 或 transition 先 fail closed，不套用其他配方分布。
+
+非 Expert 配方的高品質消耗後強制通常，包含使用特殊球色的非 Expert 配方；Expert 配方保留隨機轉換。此規則依 `IsExpert`，可用球色集合則另由 RecipeLevelTable 宣告。保留球色的 no-step 技能不觸發轉換，重新觀察會消耗球色。工具額外倍率只影響高品質，不套用最高品質。來源與本次驗證界線見 [非 Expert 任務支援](../../../reports/nonexpert-cosmic-support-20261121.md)。
 
 ## Mechanics 必須逐項驗證
 

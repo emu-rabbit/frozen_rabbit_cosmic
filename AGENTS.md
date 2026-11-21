@@ -50,7 +50,7 @@
 
 - 產品依玩家回報的實際技能、成敗與下一球色，從完整可觀測狀態重新推薦；不是固定巨集。
 - 目標是手把手帶玩家完成高難配方並取得有價值品質。Artisan 強化、混合策略與自有核心都是可行手段；方向與取捨由 [project_mission.md](.agents/skills/mission/project_mission.md) 擁有。
-- 第一批產品範圍是 catalog 中全部 432 個宇宙探索高難度配方。相同求解規則的配方共用 mechanics family 與評測；發現遊戲實證反例後才建立例外。
+- 產品範圍涵蓋全部 A 級製作類宇宙探索任務的配方（含未標高難與非 Expert），B／C／D 級不收錄；收錄與提醒契約由 data／product owners 擁有。相同求解規則的配方共用 mechanics family 與評測；發現遊戲實證反例後才建立例外。
 - 最終是否發布由使用者自行驗收並決定；agent 提供成果、限制與失敗證據，不另設未經要求的首發門檻。產品不維護配方成熟度分級，開發期仍逐 family 揭露失敗。
 - 產品只支援單一預設策略（code 中仍稱 `Balanced`）；Stable／Aggressive 只保留給既有 identity、舊 evidence 與 protocol replay，不進 UI、release gate 或新 solver 迭代。弱裝備提供誠實 best-effort。
 - Mechanics 回答「技能會造成什麼結果」；solver 回答「現在建議什麼」。資料正確、機率可信度與策略效果分開表達。

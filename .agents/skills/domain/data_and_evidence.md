@@ -31,7 +31,7 @@ Exact 欄位由 owning schema 決定，不為文件方便另造第二份 identit
 
 ## Catalog identity
 
-宇宙探索 catalog membership 同時檢查 WKS mission membership、expert recipe 與等級條件；不能只用單一 `IsExpert` flag。
+宇宙探索 catalog 僅收錄實際 A 級任務所屬的 100 級製作配方，包含沒有高難標籤及 `IsExpert=false` 的配方；WKS `LevelGroup` 4／5／6 屬 A 級，1／2／3 的 D／C／B 級排除，不以任務名稱代替級別判斷。任務難度名稱和配方 `IsExpert` 分開保存；非 Expert 不代表一定使用一般四種球色，condition set 仍以 RecipeLevelTable 為準。
 
 Family identity 只包含會影響單件求解的 mechanics、condition set 與 objective semantics。不同名稱配方目前可共用 family evidence；若遊戲實證矛盾，先修正 family data，不直接加 recipe-specific policy。
 
