@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { resolveGuideScenarioPolicyBinding } from '@frozen-rabbit-expert/solver'
 import {
   CRAFT_SCENARIO_DATA,
   PLAYER_EQUIPMENT_PROFILES,
@@ -6,13 +7,13 @@ import {
 import {
   ACTION_IDS,
   CRAFT_SCENARIO_MODEL_IDENTITY_VERSION,
-  MATERIAL_CONDITIONS,
 } from '@frozen-rabbit-expert/domain'
 import {
   NATIVE_ROOT_PLAN_MATRIX_VERSION,
   executePreparedNativeRootPlanMatrix,
   nativeFixedContinuationPlanHash,
   nativeRootPlanMatrixOracleSha256,
+  nativeRootPlanMatrixOutcomeSha256,
   prepareNativeRootPlanMatrix,
   type NativeRootPlanMatrixOutcome,
   type PreparedNativeRootPlanMatrix,
@@ -116,7 +117,7 @@ describe('native root-plan matrix v2 TypeScript oracle', () => {
 
   it('encodes one compressed 137-cell request with a complete 9x9 transition model', () => {
     const transitionStart = 53
-    const transitionEnd = transitionStart + MATERIAL_CONDITIONS.length ** 2
+    const transitionEnd = transitionStart + 81
     for (const entry of prepared) {
       const cells = encodeNativeRootPlanMatrixInput(entry).split('\t')
       expect(cells).toHaveLength(137)
@@ -128,12 +129,18 @@ describe('native root-plan matrix v2 TypeScript oracle', () => {
         CRAFT_SCENARIO_MODEL_IDENTITY_VERSION,
       ])
       expect(cells.slice(transitionStart, transitionEnd)).toHaveLength(
-        MATERIAL_CONDITIONS.length * MATERIAL_CONDITIONS.length,
+        81,
       )
       expect(cells[transitionEnd + 1]!.split(',')).toHaveLength(entry.spec.samples.length)
       expect(cells[transitionEnd + 2]!.split(',')).toHaveLength(entry.spec.candidates.length)
     }
     expect(encodeNativeRootPlanMatrixBatch(prepared).trimEnd().split('\n')).toHaveLength(prepared.length)
+  })
+
+  it('rejects non-Expert recipes that the historical wire cannot represent', () => {
+    const entry = prepared[0]!
+    expect(() => encodeNativeRootPlanMatrixInput({ ...entry, recipe: { ...entry.recipe, isExpert: false } }))
+      .toThrow(/non-Expert recipes require episode v8/)
   })
 
   it('rejects aggregate operations and projected full-trace output before encoding', () => {
@@ -250,8 +257,13 @@ describe('native root-plan matrix v2 TypeScript oracle', () => {
     expect(parsed.outcomes).toEqual(oracleOutcomes)
     expect(parsed.correctnessSha256).toBe(nativeRootPlanMatrixOracleSha256(prepared))
     expect(parsed.correctnessSha256).toBe(
-      'a692c60745f220b0600bf7a46669d4685bed5c17d0138e8237df32b45258f7f4',
+      '4fa6dc26d18ca3e049220682cbd3a5a409c70424cbf9b523454269a239eb378e',
     )
+    // Mechanics identity changed; all non-identity outcomes retain the old oracle.
+    expect(nativeRootPlanMatrixOutcomeSha256(oracleOutcomes.map(outcome => ({
+      ...outcome,
+      scenarioModelContentHash: resolveGuideScenarioPolicyBinding(outcome.scenarioId).scenarioModelContentHash,
+    })))).toBe('a692c60745f220b0600bf7a46669d4685bed5c17d0138e8237df32b45258f7f4')
   })
 
   it('rejects identity drift, duplicate pairs, and missing pairs', () => {

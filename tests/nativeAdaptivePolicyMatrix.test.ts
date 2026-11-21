@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
+  COMMAND_BREW_CONSERVATIVE_ADAPTIVE_PROGRAM,
   sealCraftAdaptivePolicyProgramV1,
   type CraftAdaptivePolicyProgramV1,
 } from '@frozen-rabbit-expert/solver'
@@ -26,6 +27,14 @@ import { runNativeAdaptivePolicyMatrix } from '../tools/native-parity/adaptivePo
 describe('native adaptive-policy matrix v1 TypeScript oracle', () => {
   const prepared = prepareNativeAdaptivePolicyMatrix()
   const oracle = executePreparedNativeAdaptivePolicyMatrix(prepared)
+
+  it('rebinds metadata under a new identity while preserving every frozen policy field', () => {
+    const { contentHash: oldHash, programId: oldId, scenarioModelContentHash: _oldModel, ...historical } = COMMAND_BREW_CONSERVATIVE_ADAPTIVE_PROGRAM
+    const { contentHash: currentHash, programId: currentId, scenarioModelContentHash: _currentModel, ...current } = prepared.program
+    expect(current).toEqual(historical)
+    expect(currentId).toBe(`${oldId}-current-mechanics-parity`)
+    expect(currentHash).not.toBe(oldHash)
+  })
 
   it('covers six equipment/stat panels under three deterministic worlds', () => {
     expect(prepared.cases).toHaveLength(18)

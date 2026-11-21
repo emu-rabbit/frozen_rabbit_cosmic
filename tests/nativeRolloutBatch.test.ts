@@ -113,7 +113,7 @@ describe('native fixed-action rollout batch v2 TypeScript oracle', () => {
 
   it('encodes a versioned 129-column request with a complete 9x9 transition model', () => {
     const transitionStart = 47
-    const transitionEnd = transitionStart + MATERIAL_CONDITIONS.length ** 2
+    const transitionEnd = transitionStart + 81
     for (const entry of prepared) {
       const cells = encodeNativeRolloutInput(entry).split('\t')
       expect(cells).toHaveLength(129)
@@ -123,7 +123,7 @@ describe('native fixed-action rollout batch v2 TypeScript oracle', () => {
         'rollout',
       ])
       expect(cells.slice(transitionStart, transitionEnd)).toHaveLength(
-        MATERIAL_CONDITIONS.length * MATERIAL_CONDITIONS.length,
+        81,
       )
       expect(cells[transitionEnd]).toBe(entry.spec.actions.join(','))
     }
@@ -134,7 +134,7 @@ describe('native fixed-action rollout batch v2 TypeScript oracle', () => {
       .slice(transitionStart, transitionEnd)
     const weightAt = (previous: typeof MATERIAL_CONDITIONS[number], next: typeof MATERIAL_CONDITIONS[number]) => (
       Number(rowLockWeights[
-        MATERIAL_CONDITIONS.indexOf(previous) * MATERIAL_CONDITIONS.length
+        MATERIAL_CONDITIONS.indexOf(previous) * 9
         + MATERIAL_CONDITIONS.indexOf(next)
       ])
     )
@@ -147,6 +147,12 @@ describe('native fixed-action rollout batch v2 TypeScript oracle', () => {
     const batch = encodeNativeRolloutBatch(prepared)
     expect(batch.endsWith('\n')).toBe(true)
     expect(batch.trimEnd().split('\n')).toHaveLength(prepared.length)
+  })
+
+  it('rejects non-Expert recipes that the historical wire cannot represent', () => {
+    const entry = prepared[0]!
+    expect(() => encodeNativeRolloutInput({ ...entry, recipe: { ...entry.recipe, isExpert: false } }))
+      .toThrow(/non-Expert recipes require episode v8/)
   })
 
   it('locks the full TypeScript rollout, state, explanation, and cursor oracle payload', () => {

@@ -1,8 +1,8 @@
 import {
   ACTIONS,
-  MATERIAL_CONDITIONS,
   type CraftActionId,
   type CraftState,
+  type MaterialCondition,
 } from '@frozen-rabbit-expert/domain'
 import type { EpisodeStopReason } from '@frozen-rabbit-expert/simulator'
 import {
@@ -21,6 +21,13 @@ import {
 } from './transitionBatchProtocol'
 
 const EMPTY = '-'
+
+// These historical v2 bridges replay Expert fixtures with a 9x9 matrix.
+// New live conditions belong to episode v8 and must not mutate this ABI.
+export const EXPERT_V2_WIRE_CONDITIONS = [
+  'normal', 'good', 'goodOmen', 'centered', 'sturdy',
+  'pliant', 'malleable', 'primed', 'robust',
+] as const satisfies readonly MaterialCondition[]
 
 function booleanCell(value: boolean | undefined): string {
   return value === true ? '1' : '0'
@@ -73,11 +80,12 @@ export function encodeNativeRolloutInput(
   prepared: Readonly<PreparedNativeRolloutCase>,
 ): string {
   const { spec, recipe, crafter, state, conditionTransitionWeights } = prepared
+  if (recipe.isExpert === false) throw new Error('non-Expert recipes require episode v8, not the historical rollout bridge')
   const actionCell = spec.actions.map((action, index) => (
     safeDelimitedToken(action, `${spec.caseId}.actions[${index}]`)
   )).join(',')
-  const transitionWeightCells = MATERIAL_CONDITIONS.flatMap((previous) => (
-    MATERIAL_CONDITIONS.map((next) => String(conditionTransitionWeights[previous][next]))
+  const transitionWeightCells = EXPERT_V2_WIRE_CONDITIONS.flatMap((previous) => (
+    EXPERT_V2_WIRE_CONDITIONS.map((next) => String(conditionTransitionWeights[previous][next]))
   ))
   const cells = [
     NATIVE_ROLLOUT_BATCH_VERSION,

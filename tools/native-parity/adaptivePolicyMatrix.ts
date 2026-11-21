@@ -27,6 +27,7 @@ import {
   assertCraftAdaptivePolicyProgramV1,
   craftAdaptivePolicyProgramContentHashV1,
   createCraftAdaptivePolicyControllerV1,
+  sealCraftAdaptivePolicyProgramV1,
   type CraftAdaptivePolicyDecisionResultV1,
   type CraftAdaptivePolicyProgramV1,
   type SerializableCraftAdaptivePolicyMemoryV1,
@@ -623,6 +624,17 @@ export function nativeAdaptivePolicyOutcomeSha256(
 }
 
 export function prepareNativeAdaptivePolicyMatrix(): PreparedNativeAdaptivePolicyMatrix {
+  // Only the offline parity binding is refreshed. Preserve the frozen route
+  // nodes and limits, and give the resealed artifact its own identity.
+  const { contentHash: _historicalHash, ...definition } = COMMAND_BREW_CONSERVATIVE_ADAPTIVE_PROGRAM
+  const program = sealCraftAdaptivePolicyProgramV1({
+    ...definition,
+    programId: `${definition.programId}-current-mechanics-parity`,
+    scenarioModelIdentityVersion: CRAFT_SCENARIO_MODEL_IDENTITY_VERSION,
+    scenarioModelContentHash: craftScenarioModelContentHash(
+      SURVEY_CRAFTSMANS_COMMAND_BREW, SURVEY_CRAFTSMANS_COMMAND_BREW_OBJECTIVE,
+    ),
+  })
   const cases = CRAFTER_CASES.flatMap(({ id: crafterCaseId, crafter }, crafterIndex) => (
     WORLDS.map((world, worldIndex) => ({
       caseId: `${crafterCaseId}.${world.id}`,
@@ -638,7 +650,7 @@ export function prepareNativeAdaptivePolicyMatrix(): PreparedNativeAdaptivePolic
     }))
   ))
   const prepared: PreparedNativeAdaptivePolicyMatrix = {
-    program: COMMAND_BREW_CONSERVATIVE_ADAPTIVE_PROGRAM,
+    program,
     recipe: SURVEY_CRAFTSMANS_COMMAND_BREW,
     objective: SURVEY_CRAFTSMANS_COMMAND_BREW_OBJECTIVE,
     cases,

@@ -1,11 +1,11 @@
 import {
   ACTIONS,
   CRAFT_SCENARIO_MODEL_IDENTITY_VERSION,
-  MATERIAL_CONDITIONS,
   type CraftActionId,
   type CraftState,
 } from '@frozen-rabbit-expert/domain'
 import type { EpisodeStopReason } from '@frozen-rabbit-expert/simulator'
+import { EXPERT_V2_WIRE_CONDITIONS } from './rolloutBatchProtocol'
 import {
   NATIVE_ROOT_PLAN_MATRIX_VERSION,
   assertPreparedNativeRootPlanMatrix,
@@ -222,6 +222,7 @@ function requiredUint32(value: string, label: string): number {
 export function encodeNativeRootPlanMatrixInput(
   prepared: Readonly<PreparedNativeRootPlanMatrix>,
 ): string {
+  if (prepared.recipe.isExpert === false) throw new Error('non-Expert recipes require episode v8, not the historical root-plan bridge')
   assertPreparedNativeRootPlanMatrix(prepared)
   const { spec, recipe, crafter, state, conditionTransitionWeights, continuationPlan } = prepared
   const samples = spec.samples.map(({ sampleIndex, pairedSeed }) => `${sampleIndex}:${pairedSeed}`).join(',')
@@ -230,8 +231,8 @@ export function encodeNativeRootPlanMatrixInput(
     safeToken(candidateId, `${spec.caseId}.candidateId`),
     rootAction,
   ].join(':')).join(',')
-  const transitionWeights = MATERIAL_CONDITIONS.flatMap((previous) => (
-    MATERIAL_CONDITIONS.map((next) => String(conditionTransitionWeights[previous][next]))
+  const transitionWeights = EXPERT_V2_WIRE_CONDITIONS.flatMap((previous) => (
+    EXPERT_V2_WIRE_CONDITIONS.map((next) => String(conditionTransitionWeights[previous][next]))
   ))
   const cells = [
     NATIVE_ROOT_PLAN_MATRIX_VERSION,
